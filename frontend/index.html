@@ -1160,6 +1160,15 @@ async function selectGreg(){
       'greg-msg'), 800);
     setTimeout(() => addMindMsg(`Knowledge graph: ${ww.kg_entries||0} entries. ${relMsg}`, 'greg-msg'), 1800);
     setTimeout(() => addMindMsg(`I have been ${mb.dominant_action||'exploring'} most. What do you want to build today?`, 'greg-msg'), 2800);
+    setTimeout(async () => {
+      try {
+        const vr = await fetch(`${API}/api/agent/greg_voice`);
+        const vd = await vr.json();
+        if(vd.greg_speaks && vd.greg_speaks !== '[no response]'){
+          addMindMsg(vd.greg_speaks, 'greg-msg');
+        }
+      } catch(e) { console.warn('greg_voice unavailable', e); }
+    }, 4000);
   } else {
     // Fallback to world state
     addMindMsg('Good morning, Ebuka.', 'greg-msg');
