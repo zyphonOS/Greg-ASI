@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+.Python
+build/
+dist/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# Secrets
+*.env
+.env.local
+secrets.json
+
+# Large data files (too big for GitHub)
+data/behavioral_corpus.txt
+data/world_state.json
+data/voice_ngram.json
+data/behavioral_corpus_vocab.txt
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/

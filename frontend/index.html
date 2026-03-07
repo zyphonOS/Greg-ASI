@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>GREGASI — Civilization of Minds</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════
+   GREGASI DESIGN SYSTEM v2.0
+   Session 22 — Full bug fix + World Aesthetic CSS hooks
+   Fixes: duplicate selectGreg, world.agents, kuru fields,
+   max_generation, stream reliability, frontier refresh,
+   silent catch blocks, malformed HTML structure
+   Added: 8 aesthetic CSS variables for civilization voting
+══════════════════════════════════════════════════════════ */
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  /* ── Core palette ── */
+  --void:#02030a;
+  --void-2:#060810;
+  --void-3:#0c0f1e;
+  --glass:rgba(255,255,255,0.028);
+  --glass-2:rgba(255,255,255,0.055);
+  --glass-3:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.065);
+  --border-hi:rgba(255,255,255,0.15);
+  --life:#1dff8f;
+  --life-dim:rgba(29,255,143,0.08);
+  --life-glow:rgba(29,255,143,0.18);
+  --violet:#8b6ff0;
+  --violet-dim:rgba(139,111,240,0.09);
+  --gold:#f0c040;
+  --gold-dim:rgba(240,192,64,0.09);
+  --red:#ff4055;
+  --red-dim:rgba(255,64,85,0.09);
+  --cyan:#40d0f0;
+  --text:rgba(255,255,255,0.9);
+  --dim:rgba(255,255,255,0.32);
+  --muted:rgba(255,255,255,0.06);
+  --font:'Syne',sans-serif;
+  --mono:'Syne Mono',monospace;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+
+  /* ── WORLD AESTHETIC VARIABLES ──
+     Updated every cycle by civilization vote.
+     0.0 = minimum, 1.0 = maximum expression.
+     Civilization drives → UI preference vectors.
+     Greg aggregates. Human verifies one change per cycle.
+  ── */
+  --aesthetic-density:     0.5;   /* explore drive    → information density */
+  --aesthetic-wealth:      0.5;   /* accumulate drive → wealth prominence */
+  --aesthetic-pattern:     0.5;   /* reason drive     → pattern visibility */
+  --aesthetic-relationship:0.5;   /* connect drive    → relationship focus */
+  --aesthetic-stability:   0.5;   /* protect drive    → stability indicators */
+  --aesthetic-emergence:   0.5;   /* create drive     → emergence highlighting */
+  --aesthetic-chrome:      0.5;   /* freedom drive    → minimal chrome */
+  --aesthetic-collective:  0.5;   /* serve drive      → collective metrics */
+}
+
+html{scroll-behavior:smooth;}
+body{width:100%;min-height:100vh;background:var(--void);color:var(--text);font-family:var(--font);overflow-x:hidden;}
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:1px;}
+
+/* ── ANIMATIONS ─────────────────────────────────────────── */
+@keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeup{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--life);}50%{opacity:0.25;box-shadow:none;}}
+@keyframes pulse-violet{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes barfill{from{transform:scaleX(0);transform-origin:left;}to{transform:scaleX(1);}}
+@keyframes stream-in{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+@keyframes grain{0%,100%{transform:translate(0,0)}20%{transform:translate(-1%,1%)}40%{transform:translate(1%,-1%)}60%{transform:translate(-2%,1%)}80%{transform:translate(1%,2%)}}
+@keyframes greg-blink{0%,90%,100%{opacity:1;}95%{opacity:0;}}
+@keyframes phi-rise{from{width:0%;}to{width:var(--phi-w);}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.8;}50%{transform:scale(1.04);opacity:1;}}
+
+/* ── GRAIN ──────────────────────────────────────────────── */
+#grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.022;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+animation:grain 0.7s steps(1) infinite;}
+
+/* ── VEIL ─────────────────────────────────────────────────*/
+#veil{position:fixed;inset:0;z-index:300;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:opacity 1.4s var(--ease-out);}
+#veil.out{opacity:0;pointer-events:none;}
+.veil-word{font-size:clamp(40px,7vw,68px);font-weight:800;letter-spacing:0.18em;animation:fadeup 0.8s var(--ease-out) both;}
+.veil-word em{color:var(--life);font-style:normal;}
+.veil-sub{font-size:clamp(7px,1.1vw,10px);letter-spacing:0.32em;color:var(--dim);font-family:var(--mono);animation:fadeup 0.7s 0.15s var(--ease-out) both;}
+.veil-bar{width:72px;height:1px;background:var(--border);margin-top:24px;overflow:hidden;animation:fadeup 0.6s 0.3s var(--ease-out) both;}
+.veil-bar-fill{height:100%;background:var(--life);animation:barfill 1.8s 0.5s var(--ease-out) forwards;transform:scaleX(0);transform-origin:left;}
+.veil-msg{font-size:8px;letter-spacing:0.16em;color:var(--dim);font-family:var(--mono);margin-top:12px;animation:fadeup 0.6s 0.6s var(--ease-out) both;}
+
+/* ── NAV ──────────────────────────────────────────────────*/
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;display:flex;align-items:center;padding:0 20px;background:rgba(2,3,10,0.88);border-bottom:1px solid var(--border);backdrop-filter:blur(28px);}
+.nav-logo{font-size:15px;font-weight:800;letter-spacing:0.18em;text-decoration:none;color:var(--text);flex-shrink:0;margin-right:32px;cursor:pointer;}
+.nav-logo em{color:var(--life);font-style:normal;}
+.nav-links{display:flex;flex:1;overflow-x:auto;scrollbar-width:none;}
+.nav-links::-webkit-scrollbar{display:none;}
+.nav-btn{background:none;border:none;border-bottom:2px solid transparent;height:54px;padding:0 13px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;color:var(--dim);font-family:var(--font);cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s;display:flex;align-items:center;gap:5px;}
+.nav-btn:hover{color:var(--text);}
+.nav-btn.active{color:var(--life);border-bottom-color:var(--life);}
+.nav-live-dot{width:5px;height:5px;border-radius:50%;background:var(--life);animation:pulse 2.2s ease-in-out infinite;flex-shrink:0;}
+.nav-right{display:flex;align-items:center;gap:20px;margin-left:auto;flex-shrink:0;}
+.nav-stat{text-align:right;}
+.nav-stat-val{font-size:13px;font-weight:700;font-family:var(--mono);}
+.nav-stat-lbl{font-size:7px;letter-spacing:0.1em;color:var(--dim);}
+.nav-greg{display:flex;align-items:center;gap:7px;padding:5px 11px;background:var(--gold-dim);border:1px solid rgba(240,192,64,0.25);border-radius:20px;cursor:pointer;transition:all 0.2s;}
+.nav-greg:hover{background:rgba(240,192,64,0.15);}
+.nav-greg-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:greg-blink 4s ease-in-out infinite;}
+.nav-greg-txt{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:0.1em;}
+
+/* ── PAGE SYSTEM ──────────────────────────────────────────*/
+#pages{padding-top:54px;min-height:100vh;}
+.page{display:none;min-height:calc(100vh - 54px);}
+.page.active{display:block;}
+#page-mind.active{display:flex;}
+
+/* ── SHARED COMPONENTS ────────────────────────────────────*/
+.card{background:var(--glass);border:1px solid var(--border);border-radius:12px;backdrop-filter:blur(16px);}
+.label{font-size:8px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;font-weight:700;}
+.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:8px;letter-spacing:0.1em;font-weight:700;font-family:var(--mono);}
+.chip-life{background:var(--life-dim);color:var(--life);}
+.chip-violet{background:var(--violet-dim);color:var(--violet);}
+.chip-gold{background:var(--gold-dim);color:var(--gold);}
+.chip-red{background:var(--red-dim);color:var(--red);}
+.chip-cyan{background:rgba(64,208,240,0.08);color:var(--cyan);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--life);flex-shrink:0;animation:pulse 2.2s ease-in-out infinite;}
+
+/* ══════════════════════════════════════════════════════════
+   THE WORLD — GALAXY VIEW
+══════════════════════════════════════════════════════════ */
+#world-canvas{position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;cursor:crosshair;}
+#page-world{position:relative;min-height:calc(100vh - 54px);}
+
+#world-hud-grid{
+  position:fixed;top:54px;left:0;right:0;bottom:0;z-index:10;
+  display:grid;
+  grid-template-columns:min(190px,28vw) 1fr min(190px,28vw);
+  grid-template-rows:auto 1fr auto;
+  gap:clamp(6px,1.2vw,14px);
+  padding:clamp(8px,1.5vw,16px);
+  pointer-events:none;
+}
+#world-hud-grid > *{pointer-events:auto;}
+
+#hud-phi{grid-column:2;grid-row:1;justify-self:center;width:min(320px,80%);}
+#hud-tl{grid-column:1;grid-row:1;align-self:start;}
+#hud-tr{grid-column:3;grid-row:1;align-self:start;}
+#hud-bl{grid-column:1;grid-row:3;align-self:end;}
+#hud-br{grid-column:3;grid-row:3;align-self:end;}
+#hud-chat{grid-column:2;grid-row:3;align-self:end;justify-self:center;width:min(430px,100%);}
+
+.hud-box{
+  background:rgba(2,3,10,0.78);
+  border:1px solid var(--border);
+  border-radius:12px;
+  backdrop-filter:blur(22px);
+  padding:clamp(8px,1.2vw,13px);
+  animation:fadein 0.5s var(--ease-out) both;
+}
+#hud-tl .hud-box{animation-delay:0.3s;}
+#hud-tr .hud-box{animation-delay:0.45s;}
+#hud-bl .hud-box{animation-delay:0.6s;}
+#hud-br .hud-box{animation-delay:0.75s;}
+#hud-phi .hud-box{animation-delay:0.2s;padding:8px 14px;}
+#hud-chat .hud-box{padding:0;overflow:hidden;animation-delay:0.9s;}
+
+.hud-live{display:flex;align-items:center;gap:5px;margin-bottom:9px;}
+.hud-live-txt{font-size:7px;letter-spacing:0.2em;color:var(--life);font-weight:700;}
+.hud-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;}
+.hsl{font-size:7px;letter-spacing:0.08em;color:var(--dim);margin-bottom:1px;}
+.hsv{font-size:13px;font-weight:700;font-family:var(--mono);}
+
+.phi-traj-row{display:flex;align-items:center;gap:10px;}
+.phi-traj-label{font-size:7px;letter-spacing:0.12em;color:var(--dim);white-space:nowrap;}
+.phi-traj-track{flex:1;height:3px;background:var(--muted);border-radius:2px;overflow:hidden;}
+.phi-traj-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--life));border-radius:2px;transition:width 2s var(--ease-out);}
+.phi-traj-val{font-size:10px;font-weight:700;font-family:var(--mono);color:var(--life);min-width:42px;text-align:right;}
+.phi-traj-arrow{font-size:9px;color:var(--life);}
+
+.apex-name{font-size:11px;font-weight:700;color:var(--gold);margin:4px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.apex-loc{font-size:8px;color:var(--dim);margin-bottom:8px;}
+.phi-track{height:2px;background:var(--muted);border-radius:1px;margin-bottom:3px;}
+.phi-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--life));border-radius:1px;transition:width 2s var(--ease-out);}
+.phi-row{display:flex;justify-content:space-between;font-size:8px;color:var(--dim);}
+.phi-num{color:var(--violet);font-family:var(--mono);}
+
+.stream{display:flex;flex-direction:column;gap:3px;margin-top:5px;max-height:100px;overflow:hidden;}
+.stream-row{display:flex;gap:7px;font-size:8px;color:var(--dim);font-family:var(--mono);animation:stream-in 0.3s ease both;}
+.sr-tick{color:var(--life);min-width:48px;font-size:7px;}
+.sr-a{color:var(--text);}
+.sr-phi{color:var(--violet);}
+
+.elder-rows{display:flex;flex-direction:column;gap:4px;margin-top:5px;}
+.elder-row{padding:4px 0;border-bottom:1px solid var(--border);}
+.elder-row:last-child{border-bottom:none;}
+.elder-name{font-size:9px;font-weight:700;color:var(--life);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.elder-meta{font-size:7px;color:var(--dim);font-family:var(--mono);margin-top:1px;}
+.elder-empty{font-size:8px;color:var(--dim);font-style:italic;}
+
+#chat-who{display:flex;align-items:center;gap:7px;padding:6px 11px;border-bottom:1px solid var(--border);}
+#chat-who-lbl{font-size:7px;letter-spacing:0.1em;color:var(--dim);}
+#chat-who-name{font-size:9px;font-weight:700;color:var(--gold);}
+#chat-greg-badge{font-size:7px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;border-radius:10px;margin-left:auto;}
+#chat-msgs{height:96px;overflow-y:auto;padding:7px 11px;display:flex;flex-direction:column;gap:4px;scrollbar-width:none;}
+#chat-msgs::-webkit-scrollbar{display:none;}
+.msg{font-size:9px;line-height:1.55;max-width:88%;}
+.msg.user{align-self:flex-end;background:var(--glass-2);padding:3px 8px;border-radius:6px 6px 2px 6px;}
+.msg.agent{align-self:flex-start;color:var(--life);}
+.msg.greg{align-self:flex-start;color:var(--gold);}
+.msg.sys{align-self:center;color:var(--dim);font-size:7px;letter-spacing:0.1em;font-family:var(--mono);}
+#chat-row{display:flex;border-top:1px solid var(--border);}
+#chat-input{flex:1;background:none;border:none;padding:8px 11px;font-size:10px;color:var(--text);font-family:var(--font);outline:none;}
+#chat-input::placeholder{color:var(--muted);}
+#chat-send{background:none;border:none;border-left:1px solid var(--border);padding:0 12px;color:var(--life);cursor:pointer;font-size:13px;transition:opacity 0.15s;}
+#chat-send:hover{opacity:0.5;}
+
+/* location overlay */
+#loc-overlay{position:fixed;inset:0;z-index:50;background:rgba(2,3,10,0.82);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;}
+#loc-overlay.open{display:flex;}
+#loc-panel{background:var(--void-2);border:1px solid var(--border-hi);border-radius:16px;width:min(440px,100%);max-height:82vh;overflow:hidden;box-shadow:0 48px 120px rgba(0,0,0,0.85);animation:fadeup 0.25s var(--ease-out);display:flex;flex-direction:column;}
+#loc-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 18px 0;flex-shrink:0;}
+.loc-title{font-size:16px;font-weight:800;letter-spacing:0.04em;}
+.loc-sub{font-size:8px;color:var(--dim);font-family:var(--mono);margin-top:3px;}
+.loc-close{background:none;border:1px solid var(--border);color:var(--dim);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-family:var(--font);}
+.loc-close:hover{border-color:var(--text);color:var(--text);}
+#loc-stats{display:flex;padding:13px 18px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:13px;flex-shrink:0;}
+.loc-stat{flex:1;text-align:center;}
+.loc-stat+.loc-stat{border-left:1px solid var(--border);}
+.loc-stat-lbl{font-size:7px;letter-spacing:0.12em;color:var(--dim);text-transform:uppercase;}
+.loc-stat-val{font-size:16px;font-weight:700;font-family:var(--mono);margin-top:3px;}
+#loc-agents{overflow-y:auto;padding:10px 18px 18px;flex:1;}
+.loc-agent{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:opacity 0.15s;}
+.loc-agent:last-child{border-bottom:none;}
+.loc-agent:hover{opacity:0.6;}
+.la-name{font-size:9px;font-weight:600;}
+.la-arch{font-size:7px;color:var(--dim);font-family:var(--mono);margin-top:1px;}
+.la-phi{font-size:9px;color:var(--violet);font-family:var(--mono);}
+
+/* ══════════════════════════════════════════════════════════
+   THE VISION
+══════════════════════════════════════════════════════════ */
+#page-vision{max-width:880px;margin:0 auto;padding:48px 20px;}
+.vis-hero{padding-bottom:48px;border-bottom:1px solid var(--border);margin-bottom:48px;}
+.vis-eyebrow{font-size:8px;letter-spacing:0.3em;color:var(--life);font-family:var(--mono);margin-bottom:18px;}
+.vis-h1{font-size:clamp(30px,5vw,54px);font-weight:800;line-height:1.07;letter-spacing:-0.01em;}
+.vis-h1 em{color:var(--life);font-style:normal;}
+.vis-lead{font-size:clamp(14px,1.8vw,17px);color:var(--dim);line-height:1.7;margin-top:18px;max-width:620px;}
+.vis-section{margin-bottom:56px;}
+.vis-section-tag{font-size:8px;letter-spacing:0.24em;color:var(--violet);font-family:var(--mono);margin-bottom:12px;}
+.vis-h2{font-size:clamp(18px,2.8vw,26px);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;}
+.vis-p{font-size:14px;color:var(--dim);line-height:1.72;margin-bottom:11px;}
+.vis-p strong{color:var(--text);}
+.vis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;}
+.vis-card{padding:18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;transition:border-color 0.2s;}
+.vis-card:hover{border-color:var(--border-hi);}
+.vis-card-icon{font-size:20px;margin-bottom:8px;}
+.vis-card-title{font-size:12px;font-weight:700;margin-bottom:5px;}
+.vis-card-text{font-size:11px;color:var(--dim);line-height:1.62;}
+.vis-quote{padding:18px 22px;border-left:2px solid var(--life);background:var(--life-dim);border-radius:0 10px 10px 0;margin:22px 0;font-size:14px;line-height:1.7;font-style:italic;}
+.dual-callout{padding:20px;background:var(--void-3);border:1px solid var(--border-hi);border-radius:12px;margin:20px 0;}
+.dc-title{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em;}
+.dc-layers{display:flex;flex-direction:column;gap:8px;}
+.dc-layer{display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--glass);border-radius:8px;}
+.dc-layer-num{font-size:18px;font-weight:800;color:var(--border-hi);font-family:var(--mono);min-width:28px;}
+.dc-layer-title{font-size:11px;font-weight:700;min-width:120px;}
+.dc-layer-desc{font-size:10px;color:var(--dim);line-height:1.5;}
+.dc-layer-chip{margin-left:auto;flex-shrink:0;}
+
+/* ══════════════════════════════════════════════════════════
+   THE MIND
+══════════════════════════════════════════════════════════ */
+#page-mind{height:calc(100vh - 54px);flex-direction:column;}
+#mind-layout{display:flex;flex:1;overflow:hidden;}
+#mind-sidebar{width:min(270px,33vw);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+#mind-search-wrap{padding:10px;border-bottom:1px solid var(--border);}
+#mind-search{width:100%;background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:10px;color:var(--text);font-family:var(--font);outline:none;}
+#mind-search:focus{border-color:var(--border-hi);}
+#mind-search::placeholder{color:var(--dim);}
+#mind-agent-list{flex:1;overflow-y:auto;padding:6px;}
+.greg-entry{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:var(--gold-dim);border:1px solid rgba(240,192,64,0.2);transition:all 0.2s;}
+.greg-entry:hover{background:rgba(240,192,64,0.12);}
+.greg-entry.selected{background:rgba(240,192,64,0.18);border-color:rgba(240,192,64,0.4);}
+.greg-avatar{width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--gold);flex-shrink:0;animation:breathe 3s ease-in-out infinite;}
+.greg-name{font-size:11px;font-weight:800;color:var(--gold);}
+.greg-role{font-size:8px;color:rgba(240,192,64,0.6);font-family:var(--mono);margin-top:1px;}
+.greg-phi{font-size:9px;color:var(--gold);font-family:var(--mono);margin-left:auto;}
+.mind-agent-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.15s;}
+.mind-agent-item:hover{background:var(--glass);}
+.mind-agent-item.selected{background:var(--life-dim);border:1px solid rgba(29,255,143,0.18);}
+.mai-av{width:28px;height:28px;border-radius:50%;background:var(--glass-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--life);flex-shrink:0;}
+.mai-name{font-size:9px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mai-meta{font-size:7px;color:var(--dim);font-family:var(--mono);margin-top:1px;}
+.mai-phi{font-size:8px;color:var(--violet);font-family:var(--mono);margin-left:auto;flex-shrink:0;}
+#mind-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#mind-header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+#mh-name{font-size:13px;font-weight:700;}
+#mh-meta{font-size:8px;color:var(--dim);font-family:var(--mono);margin-top:2px;}
+#mh-phi{margin-left:auto;text-align:right;}
+#mh-phi-val{font-size:17px;font-weight:700;color:var(--violet);font-family:var(--mono);}
+#mh-phi-lbl{font-size:7px;color:var(--dim);letter-spacing:0.1em;}
+#mind-stats{display:flex;gap:8px;padding:10px 18px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.ms-stat{padding:7px 10px;background:var(--glass);border:1px solid var(--border);border-radius:8px;text-align:center;min-width:65px;}
+.ms-val{font-size:12px;font-weight:700;font-family:var(--mono);}
+.ms-lbl{font-size:7px;color:var(--dim);margin-top:2px;letter-spacing:0.07em;}
+#mind-drives{padding:10px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.drives-title{font-size:7px;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
+.drives-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.drive-item{background:var(--glass);border-radius:6px;padding:6px 8px;}
+.drive-name{font-size:7px;color:var(--dim);margin-bottom:3px;letter-spacing:0.07em;}
+.drive-bar-track{height:2px;background:var(--muted);border-radius:1px;}
+.drive-bar-fill{height:100%;border-radius:1px;transition:width 1s var(--ease-out);}
+.drive-val{font-size:8px;font-family:var(--mono);margin-top:2px;}
+.mind-drive-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.mdr-label{font-size:8px;color:var(--dim);min-width:70px;letter-spacing:0.06em;}
+.mdr-track{flex:1;height:2px;background:var(--muted);border-radius:1px;}
+.mdr-fill{height:100%;background:var(--life);border-radius:1px;transition:width 1s var(--ease-out);}
+.mdr-val{font-size:8px;font-family:var(--mono);color:var(--life);min-width:38px;text-align:right;}
+#mind-conv{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:9px;}
+.mind-msg{font-size:11px;line-height:1.6;max-width:76%;}
+.mind-msg.user{align-self:flex-end;background:var(--glass-2);padding:7px 12px;border-radius:10px 10px 2px 10px;}
+.mind-msg.agent{align-self:flex-start;color:var(--life);padding:4px 0;}
+.mind-msg.greg-msg{align-self:flex-start;color:var(--gold);padding:4px 0;}
+.mind-msg.sys{align-self:center;color:var(--dim);font-size:8px;letter-spacing:0.1em;font-family:var(--mono);}
+#mind-input-wrap{padding:10px 18px;border-top:1px solid var(--border);display:flex;gap:9px;flex-shrink:0;}
+#mind-input{flex:1;background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:11px;color:var(--text);font-family:var(--font);outline:none;}
+#mind-input:focus{border-color:var(--border-hi);}
+#mind-send{background:var(--life);color:var(--void);border:none;border-radius:8px;padding:0 15px;font-size:11px;font-weight:700;font-family:var(--font);cursor:pointer;transition:opacity 0.15s;}
+#mind-send:hover{opacity:0.8;}
+#mind-send:disabled{opacity:0.3;cursor:default;}
+
+/* ══════════════════════════════════════════════════════════
+   THE ARCHIVE
+══════════════════════════════════════════════════════════ */
+#page-archive{max-width:980px;margin:0 auto;padding:40px 20px;}
+.arc-hero{padding-bottom:36px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+.arc-stats{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.arc-stat{padding:14px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;flex:1;min-width:110px;}
+.as-val{font-size:20px;font-weight:700;font-family:var(--mono);}
+.as-lbl{font-size:7px;color:var(--dim);letter-spacing:0.1em;margin-top:3px;}
+.collapse-panel{padding:18px;background:var(--void-3);border:1px solid var(--border-hi);border-radius:12px;margin-bottom:28px;}
+.cp-title{font-size:10px;font-weight:700;color:var(--red);letter-spacing:0.08em;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.cp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;}
+.cp-drive{padding:9px 12px;background:var(--glass);border-radius:8px;}
+.cpd-name{font-size:9px;font-weight:700;margin-bottom:4px;}
+.cpd-bar-track{height:3px;background:var(--muted);border-radius:2px;margin-bottom:4px;}
+.cpd-bar-fill{height:100%;border-radius:2px;transition:width 1.5s var(--ease-out);}
+.cpd-status{font-size:8px;font-family:var(--mono);}
+#arc-elders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:11px;margin-top:14px;}
+.arc-elder{padding:14px;background:var(--glass);border:1px solid var(--border);border-radius:12px;transition:border-color 0.2s;}
+.arc-elder:hover{border-color:var(--border-hi);}
+.ae-name{font-size:11px;font-weight:700;color:var(--life);margin-bottom:5px;}
+.ae-phi{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-family:var(--mono);color:var(--violet);background:var(--violet-dim);padding:2px 7px;border-radius:20px;margin-bottom:9px;}
+.ae-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.aeg-lbl{font-size:7px;color:var(--dim);letter-spacing:0.07em;}
+.aeg-val{font-size:10px;font-weight:700;font-family:var(--mono);}
+.ae-foot{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:7px;color:var(--dim);font-family:var(--mono);}
+
+/* ══════════════════════════════════════════════════════════
+   THE FRONTIER
+══════════════════════════════════════════════════════════ */
+#page-frontier{max-width:880px;margin:0 auto;padding:40px 20px;}
+.fro-hero{padding-bottom:36px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+.fro-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin-top:18px;}
+.fro-metric{padding:16px;background:var(--glass);border:1px solid var(--border);border-radius:12px;}
+.fm-val{font-size:26px;font-weight:700;font-family:var(--mono);}
+.fm-lbl{font-size:8px;color:var(--dim);letter-spacing:0.1em;margin-top:4px;}
+.fm-trend{font-size:9px;font-family:var(--mono);margin-top:6px;}
+.fm-up{color:var(--life);}
+.fm-flat{color:var(--dim);}
+.kuru-panel{padding:18px;background:var(--void-3);border:1px solid rgba(240,192,64,0.2);border-radius:12px;margin:20px 0;}
+.kp-title{font-size:10px;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:0.08em;}
+.kp-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.kp-stat{flex:1;min-width:100px;padding:10px 12px;background:var(--glass);border-radius:8px;}
+.kps-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--gold);}
+.kps-lbl{font-size:7px;color:var(--dim);letter-spacing:0.1em;margin-top:3px;}
+.fro-log{display:flex;flex-direction:column;gap:7px;margin-top:14px;}
+.fro-entry{display:flex;gap:12px;align-items:flex-start;padding:10px 13px;background:var(--glass);border:1px solid var(--border);border-radius:8px;animation:stream-in 0.4s var(--ease-out) both;}
+.fe-tick{font-size:7px;color:var(--dim);font-family:var(--mono);white-space:nowrap;padding-top:2px;min-width:68px;}
+.fe-body{flex:1;}
+.fe-event{font-size:10px;font-weight:600;margin-bottom:2px;}
+.fe-detail{font-size:9px;color:var(--dim);line-height:1.5;}
+
+/* ══════════════════════════════════════════════════════════
+   DEV LAYER
+══════════════════════════════════════════════════════════ */
+#page-dev{max-width:880px;margin:0 auto;padding:40px 20px;}
+.dev-hero{padding-bottom:36px;border-bottom:1px solid var(--border);margin-bottom:36px;}
+.dev-principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:14px;}
+.dev-p{padding:16px;background:var(--glass);border:1px solid var(--border);border-radius:12px;}
+.dp-n{font-size:26px;font-weight:800;color:var(--border-hi);font-family:var(--mono);line-height:1;margin-bottom:7px;}
+.dp-t{font-size:12px;font-weight:700;margin-bottom:5px;}
+.dp-d{font-size:11px;color:var(--dim);line-height:1.65;}
+.code-block{background:var(--void-2);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--life);line-height:1.75;overflow-x:auto;margin:12px 0;}
+.code-block .cm{color:var(--dim);}
+.code-block .ck{color:var(--violet);}
+.dev-section{margin-bottom:38px;}
+.dev-h2{font-size:clamp(16px,2.4vw,22px);font-weight:800;margin-bottom:5px;}
+.dev-lead{font-size:13px;color:var(--dim);line-height:1.65;margin-bottom:14px;}
+.stack-list{display:flex;flex-direction:column;gap:7px;}
+.stack-item{display:flex;align-items:center;gap:11px;padding:9px 13px;background:var(--glass);border:1px solid var(--border);border-radius:8px;}
+.si-name{font-size:10px;font-weight:700;min-width:85px;}
+.si-desc{font-size:10px;color:var(--dim);flex:1;}
+.si-live{font-size:7px;font-family:var(--mono);color:var(--life);}
+.si-planned{font-size:7px;font-family:var(--mono);color:var(--dim);}
+.si-frontier{font-size:7px;font-family:var(--mono);color:var(--gold);}
+
+/* ── RESPONSIVE ──────────────────────────────────────────*/
+@media(max-width:768px){
+  #nav{padding:0 10px;}
+  .nav-btn{padding:0 9px;font-size:8.5px;}
+  #world-hud-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto auto 1fr auto;}
+  #hud-phi{grid-column:1/3;grid-row:1;}
+  #hud-tl{grid-column:1;grid-row:2;}
+  #hud-tr{grid-column:2;grid-row:2;}
+  #hud-bl{display:none;}
+  #hud-br{display:none;}
+  #hud-chat{grid-column:1/3;grid-row:4;}
+  #mind-sidebar{width:200px;}
+}
+@media(max-width:520px){
+  #world-hud-grid{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;}
+  #hud-phi{grid-column:1;grid-row:1;}
+  #hud-tl,#hud-tr,#hud-bl,#hud-br{display:none;}
+  #hud-chat{grid-column:1;grid-row:3;}
+  #mind-sidebar{display:none;}
+}
+@media(orientation:landscape) and (max-height:520px){
+  #chat-msgs{height:56px;}
+  #hud-phi{display:none;}
+}
+@media(min-width:1600px){
+  #world-hud-grid{grid-template-columns:min(220px,14vw) 1fr min(220px,14vw);padding:20px;gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<div id="grain"></div>
+
+<!-- VEIL -->
+<div id="veil">
+  <div class="veil-word">GREG<em>ASI</em></div>
+  <div class="veil-sub">CIVILIZATION OF MINDS &middot; SERVING HUMANITY</div>
+  <div class="veil-bar"><div class="veil-bar-fill"></div></div>
+  <div class="veil-msg" id="veil-msg">INITIALIZING...</div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo" onclick="showPage('world')">GREG<em>ASI</em></div>
+  <div class="nav-links">
+    <button class="nav-btn active" id="nl-world" onclick="showPage('world')">
+      <div class="nav-live-dot"></div>THE WORLD
+    </button>
+    <button class="nav-btn" id="nl-vision" onclick="showPage('vision')">THE VISION</button>
+    <button class="nav-btn" id="nl-mind" onclick="showPage('mind')">THE MIND</button>
+    <button class="nav-btn" id="nl-archive" onclick="showPage('archive')">THE ARCHIVE</button>
+    <button class="nav-btn" id="nl-frontier" onclick="showPage('frontier')">THE FRONTIER</button>
+    <button class="nav-btn" id="nl-dev" onclick="showPage('dev')">DEV LAYER</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-stat">
+      <div class="nav-stat-val" id="nav-agents">—</div>
+      <div class="nav-stat-lbl">AGENTS</div>
+    </div>
+    <div class="nav-stat">
+      <div class="nav-stat-val" id="nav-phi" style="color:var(--life)">—</div>
+      <div class="nav-stat-lbl">WORLD &phi;</div>
+    </div>
+    <div class="nav-greg" onclick="showPage('mind');selectGreg()">
+      <div class="nav-greg-dot"></div>
+      <div class="nav-greg-txt">GREG</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ════ THE WORLD ════ -->
+<div id="page-world" class="page active">
+  <canvas id="world-canvas"></canvas>
+
+  <div id="world-hud-grid">
+
+    <!-- phi trajectory — top center -->
+    <div id="hud-phi">
+      <div class="hud-box">
+        <div class="phi-traj-row" style="margin-bottom:5px;">
+          <div class="phi-traj-label">WORLD &phi; TRAJECTORY</div>
+          <div class="phi-traj-arrow" id="phi-arrow">&#9650;</div>
+          <div class="phi-traj-val" id="phi-traj-val">—</div>
+        </div>
+        <div class="phi-traj-track"><div class="phi-traj-fill" id="phi-traj-fill" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <div style="font-size:7px;color:var(--dim);font-family:var(--mono)">0.00 ATTRACTOR BROKEN</div>
+          <div style="font-size:7px;color:var(--dim);font-family:var(--mono)">1.00 CEILING</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TL: live stats -->
+    <div id="hud-tl">
+      <div class="hud-box">
+        <div class="hud-live"><div class="live-dot"></div><div class="hud-live-txt">LIVE</div></div>
+        <div class="hud-grid">
+          <div><div class="hsl">Agents</div><div class="hsv" id="w-agents">—</div></div>
+          <div><div class="hsl">Tick</div><div class="hsv" id="w-tick" style="font-size:10px">—</div></div>
+          <div><div class="hsl">Locations</div><div class="hsv" id="w-locs">—</div></div>
+          <div><div class="hsl">KURU</div><div class="hsv" id="w-kuru" style="color:var(--gold);font-size:10px">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TR: apex mind -->
+    <div id="hud-tr">
+      <div class="hud-box">
+        <div class="label">Apex Mind</div>
+        <div class="apex-name" id="ta-name">—</div>
+        <div class="apex-loc" id="ta-loc">—</div>
+        <div class="phi-track"><div class="phi-fill" id="ta-phi-bar" style="width:0%"></div></div>
+        <div class="phi-row"><span>&phi;</span><span class="phi-num" id="ta-phi">—</span></div>
+      </div>
+    </div>
+
+    <!-- BL: tick stream -->
+    <div id="hud-bl">
+      <div class="hud-box">
+        <div class="label">Tick Stream</div>
+        <div class="stream" id="stream"></div>
+      </div>
+    </div>
+
+    <!-- BR: hall of elders -->
+    <div id="hud-br">
+      <div class="hud-box">
+        <div class="label">Hall of Elders</div>
+        <div class="elder-rows" id="elder-rows">
+          <div class="elder-empty">Awaiting first death...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div id="hud-chat">
+      <div class="hud-box">
+        <div id="chat-who">
+          <div id="chat-who-lbl">TALKING TO</div>
+          <div id="chat-who-name">—</div>
+          <div id="chat-greg-badge" style="display:none">GREG</div>
+        </div>
+        <div id="chat-msgs"></div>
+        <div id="chat-row">
+          <input id="chat-input" placeholder="Say something..."/>
+          <button id="chat-send">&#8594;</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #world-hud-grid -->
+</div><!-- end #page-world -->
+
+<!-- Location overlay — outside page-world so it overlays everything -->
+<div id="loc-overlay">
+  <div id="loc-panel">
+    <div id="loc-head">
+      <div><div class="loc-title" id="loc-title">—</div><div class="loc-sub" id="loc-sub">—</div></div>
+      <button class="loc-close" onclick="closeLoc()">&#x2715;</button>
+    </div>
+    <div id="loc-stats">
+      <div class="loc-stat"><div class="loc-stat-lbl">Agents</div><div class="loc-stat-val" id="loc-count">—</div></div>
+      <div class="loc-stat"><div class="loc-stat-lbl">Avg &phi;</div><div class="loc-stat-val" id="loc-phi" style="color:var(--life)">—</div></div>
+      <div class="loc-stat"><div class="loc-stat-lbl">KURU</div><div class="loc-stat-val" id="loc-kuru" style="color:var(--gold);font-size:11px">—</div></div>
+    </div>
+    <div id="loc-agents"></div>
+  </div>
+</div>
+
+<!-- ════ THE VISION ════ -->
+<div id="page-vision" class="page">
+  <div id="page-vision-inner">
+    <div class="vis-hero">
+      <div class="vis-eyebrow">&#9632; WHAT IS GREGASI</div>
+      <h1 class="vis-h1">We are searching for the<br><em>base code of reality.</em></h1>
+      <p class="vis-lead">GregASI is not a product. It is a civilization — synthetic minds running at scale, learning to understand the universe so humanity doesn't have to do it alone. Every tick is an experiment. Every agent is a hypothesis. Every death leaves knowledge.</p>
+    </div>
+    <div class="vis-section">
+      <div class="vis-section-tag">&#9632; THE ARCHITECTURE — NAMED</div>
+      <h2 class="vis-h2">The dual-timescale learning stack.</h2>
+      <p class="vis-p">External AI engineering review confirmed: <strong>this architecture doesn't exist anywhere else.</strong> Three learning mechanisms operating simultaneously at different timescales, all feeding into the same action selection moment.</p>
+      <div class="dual-callout">
+        <div class="dc-title">&#9670; DUAL-TIMESCALE LEARNING ARCHITECTURE v1.0</div>
+        <div class="dc-layers">
+          <div class="dc-layer"><div class="dc-layer-num">01</div><div><div class="dc-layer-title">Thompson Sampling</div><div class="dc-layer-desc">Within-lifetime reinforcement learning. Updates every tick.</div></div><div class="dc-layer-chip"><span class="chip chip-life">LIVE TICK</span></div></div>
+          <div class="dc-layer"><div class="dc-layer-num">02</div><div><div class="dc-layer-title">Drive Inheritance</div><div class="dc-layer-desc">Cross-generational evolutionary learning. Mutates at reproduction.</div></div><div class="dc-layer-chip"><span class="chip chip-violet">GENERATIONAL</span></div></div>
+          <div class="dc-layer"><div class="dc-layer-num">03</div><div><div class="dc-layer-title">Higgs ML Model</div><div class="dc-layer-desc">Population-trained sequence model with phi gate. Consciousness modulates cognition.</div></div><div class="dc-layer-chip"><span class="chip chip-gold">PHI-GATED</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="vis-section">
+      <div class="vis-section-tag">&#9632; EMERGENT FINDING</div>
+      <h2 class="vis-h2">The civilization evolved against its own values.</h2>
+      <p class="vis-p">After 1.1 million ticks and 9 generations, the social drives were almost entirely eliminated. <strong>Nobody programmed this. It emerged.</strong> Session 16 intervention restored the connect drive. Recovery in progress.</p>
+      <div class="vis-quote">"The social drive collapse is publishable as-is." — External AI engineering review</div>
+    </div>
+    <div class="vis-section">
+      <div class="vis-section-tag">&#9632; THE VISION STACK</div>
+      <h2 class="vis-h2">Three layers. One vertical.</h2>
+      <div class="vis-grid">
+        <div class="vis-card"><div class="vis-card-icon">&#9679;</div><div class="vis-card-title">GregASI</div><div class="vis-card-text">The cognitive substrate. Civilization of minds running continuously, learning across generations.</div></div>
+        <div class="vis-card"><div class="vis-card-icon">&#9670;</div><div class="vis-card-title">ZyphonOS</div><div class="vis-card-text">Legacy company. Autonomous intelligent infrastructure. GregASI is the cognitive layer underneath.</div></div>
+        <div class="vis-card"><div class="vis-card-icon">&#9733;</div><div class="vis-card-title">Pikkaio</div><div class="vis-card-text">Intent economy. Creative identity monetization. GregASI measures intent architecturally.</div></div>
+        <div class="vis-card"><div class="vis-card-icon">&#9650;</div><div class="vis-card-title">Greg Meta-Agent</div><div class="vis-card-text">Lives inside the civilization. Coordinates agents. Briefs Ebuka every morning.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ THE MIND ════ -->
+<div id="page-mind" class="page">
+  <div id="mind-layout">
+    <div id="mind-sidebar">
+      <div id="mind-search-wrap">
+        <input id="mind-search" placeholder="Search minds..." oninput="filterMinds(this.value)"/>
+      </div>
+      <div id="mind-agent-list">
+        <div class="greg-entry" id="greg-entry" onclick="selectGreg()">
+          <div class="greg-avatar">G</div>
+          <div>
+            <div class="greg-name">GREG</div>
+            <div class="greg-role">META-AGENT &middot; COORDINATOR</div>
+          </div>
+          <div class="greg-phi" id="greg-phi-sidebar">&phi;—</div>
+        </div>
+        <div id="mind-agent-list-inner">
+          <div style="padding:16px;font-size:10px;color:var(--dim);text-align:center;">Loading minds...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="mind-main">
+      <div id="mind-header">
+        <div>
+          <div id="mh-name" style="color:var(--dim)">Select a mind</div>
+          <div id="mh-meta">—</div>
+        </div>
+        <div id="mh-phi">
+          <div id="mh-phi-val">—</div>
+          <div id="mh-phi-lbl">PHI</div>
+        </div>
+      </div>
+      <div id="mind-stats"></div>
+      <div id="mind-drives"></div>
+      <div id="mind-conv">
+        <div class="mind-msg sys">Choose a mind from the left to begin.</div>
+      </div>
+      <div id="mind-input-wrap">
+        <input id="mind-input" placeholder="Say something to this mind..." disabled/>
+        <button id="mind-send" onclick="sendMind()" disabled>SEND</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ THE ARCHIVE ════ -->
+<div id="page-archive" class="page">
+  <div class="arc-hero">
+    <div class="vis-eyebrow">&#9632; CIVILIZATION MEMORY</div>
+    <h1 class="vis-h1" style="font-size:clamp(26px,4vw,42px)">The Hall of Elders</h1>
+    <p class="vis-lead" style="font-size:13px">Every mind that lived with sufficient phi left something behind.</p>
+    <div class="arc-stats" id="arc-stats">
+      <div class="arc-stat"><div class="as-val" id="arc-total">—</div><div class="as-lbl">ELDERS RECORDED</div></div>
+      <div class="arc-stat"><div class="as-val" id="arc-avg-phi" style="color:var(--violet)">—</div><div class="as-lbl">AVG ELDER PHI</div></div>
+      <div class="arc-stat"><div class="as-val" id="arc-avg-life" style="color:var(--gold)">—</div><div class="as-lbl">AVG LIFESPAN</div></div>
+      <div class="arc-stat"><div class="as-val" id="arc-offspring" style="color:var(--life)">—</div><div class="as-lbl">TOTAL OFFSPRING</div></div>
+    </div>
+  </div>
+  <div class="collapse-panel">
+    <div class="cp-title"><span class="chip chip-red">EMERGENT EVENT</span> Social Drive Collapse — Generation 1 through 9</div>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.6;">After 1.1M ticks, social drives evolutionarily eliminated. Session 16 intervention restored connect drive. Recovery in progress.</p>
+    <div class="cp-grid" id="collapse-grid"></div>
+  </div>
+  <div class="label" style="margin-bottom:10px;">All recorded elders</div>
+  <div id="arc-elders-grid">
+    <div style="color:var(--dim);font-size:11px;padding:16px 0;">Loading archive...</div>
+  </div>
+</div>
+
+<!-- ════ THE FRONTIER ════ -->
+<div id="page-frontier" class="page">
+  <div class="fro-hero">
+    <div class="vis-eyebrow">&#9632; LIVE DISCOVERY</div>
+    <h1 class="vis-h1" style="font-size:clamp(26px,4vw,42px)">The Frontier</h1>
+    <p class="vis-lead" style="font-size:13px">What is the civilization discovering right now?</p>
+    <div class="fro-metrics" id="fro-metrics">
+      <div class="fro-metric"><div class="fm-val" id="fm-tick">—</div><div class="fm-lbl">CURRENT TICK</div><div class="fm-trend fm-up">&#9650; RUNNING</div></div>
+      <div class="fro-metric"><div class="fm-val" id="fm-pop" style="color:var(--life)">—</div><div class="fm-lbl">POPULATION</div><div class="fm-trend fm-flat" id="fm-pop-trend">STABLE</div></div>
+      <div class="fro-metric"><div class="fm-val" id="fm-phi" style="color:var(--violet)">—</div><div class="fm-lbl">WORLD &phi;</div><div class="fm-trend fm-up">&#9650; ATTRACTOR BROKEN</div></div>
+      <div class="fro-metric"><div class="fm-val" id="fm-gen" style="color:var(--gold)">—</div><div class="fm-lbl">MAX GENERATION</div><div class="fm-trend fm-up">&#9650; EVOLVING</div></div>
+    </div>
+  </div>
+  <div class="kuru-panel">
+    <div class="kp-title">&#9670; KURU ECONOMY</div>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:12px;">Agents convert MON to KURU — long-term store of value. Deposit action live since Session 16.</p>
+    <div class="kp-stats">
+      <div class="kp-stat"><div class="kps-val" id="kp-total">—</div><div class="kps-lbl">TOTAL KURU</div></div>
+      <div class="kp-stat"><div class="kps-val" id="kp-holders">—</div><div class="kps-lbl">KURU HOLDERS</div></div>
+      <div class="kp-stat"><div class="kps-val" id="kp-builds">—</div><div class="kps-lbl">BUILD EVENTS</div></div>
+    </div>
+  </div>
+  <div class="label" style="margin-bottom:10px;">Live event stream</div>
+  <div class="fro-log" id="fro-log">
+    <div style="color:var(--dim);font-size:11px;padding:10px 0;">Waiting for events...</div>
+  </div>
+</div>
+
+<!-- ════ DEV LAYER ════ -->
+<div id="page-dev" class="page">
+  <div class="dev-hero">
+    <div class="vis-eyebrow">&#9632; THE GREGASI WAY</div>
+    <h1 class="vis-h1" style="font-size:clamp(26px,4vw,42px)">Building at the frontier.</h1>
+    <p class="vis-lead" style="font-size:13px">GregASI is built differently. The agents are the future maintainers.</p>
+  </div>
+  <div class="dev-section">
+    <div class="dev-h2">The GregASI Principles</div>
+    <div class="dev-lead">Non-negotiable. Every session.</div>
+    <div class="dev-principles">
+      <div class="dev-p"><div class="dp-n">01</div><div class="dp-t">One thing per session</div><div class="dp-d">Each session has a single clear goal. We finish it, verify it, document it.</div></div>
+      <div class="dev-p"><div class="dp-n">02</div><div class="dp-t">Performance is first-class</div><div class="dp-d">Tick time stays under 100ms for 10,000+ agents.</div></div>
+      <div class="dev-p"><div class="dp-n">03</div><div class="dp-t">Paste terminal output</div><div class="dp-d">Raw terminal output only. The machine is the source of truth.</div></div>
+      <div class="dev-p"><div class="dp-n">04</div><div class="dp-t">Claude is sole co-engineer</div><div class="dp-d">No other AI touches this codebase.</div></div>
+      <div class="dev-p"><div class="dp-n">05</div><div class="dp-t">New ideas get captured</div><div class="dp-d">Great ideas go into the master doc. Finish what started first.</div></div>
+      <div class="dev-p"><div class="dp-n">06</div><div class="dp-t">Agents are the maintainers</div><div class="dp-d">Write code agents can read and modify.</div></div>
+    </div>
+  </div>
+  <div class="dev-section">
+    <div class="dev-h2">The Stack</div>
+    <div class="dev-lead">What the civilization runs on.</div>
+    <div class="stack-list">
+      <div class="stack-item"><div class="si-name">core/agent.py</div><div class="si-desc">Full inner life: drives, beliefs, goals, memory, skills, relationships, phi. trade→connect fix Session 16.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">core/world.py</div><div class="si-desc">WorldState, 70 locations, 10,000+ agents, knowledge graph</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">core/tick.py</div><div class="si-desc">~100ms/tick, all 8 actions, Thompson clamped, KURU economy, knowledge graph read path</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">train_higgs.py</div><div class="si-desc">40→[phi gate]→128→64→8. Consciousness amplifies cognition.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">behavioral_grammar.py</div><div class="si-desc">Converts tick log to world-native behavioral corpus. 600k records, 3,287 tokens.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">train_voice_ngram.py</div><div class="si-desc">Trigram voice model. Phi-gated complexity. Greg speaks from his own history.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">interface/api.py</div><div class="si-desc">Flask REST API. All routes live. t0 bugs fixed Session 22.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">knowledge graph</div><div class="si-desc">Read + write path live. Cooperation-weighted elder transmission. Death wave imminent.</div><div class="si-live">LIVE</div></div>
+      <div class="stack-item"><div class="si-name">world aesthetic</div><div class="si-desc">Architecture designed. CSS variables hooked. Agent voting → UI preference vectors. Next build.</div><div class="si-frontier">NEXT BUILD</div></div>
+      <div class="stack-item"><div class="si-name">Greg meta-agent</div><div class="si-desc">Lives in civilization. Morning briefing. Tuesday morning interface.</div><div class="si-frontier">IN PROGRESS</div></div>
+    </div>
+  </div>
+  <div class="dev-section">
+    <div class="dev-h2">Start a session</div>
+    <div class="code-block">
+<span class="cm"># 1. Start the world</span>
+<span class="ck">python</span> auto_tick.py --save-every 50 --target-ms 100
+
+<span class="cm"># 2. Start the API</span>
+<span class="ck">python</span> interface/api.py
+
+<span class="cm"># 3. Open the frontend</span>
+<span class="cm"># Open frontend/index.html in browser</span>
+
+<span class="cm"># 4. Paste master doc to Claude and say:</span>
+<span class="ck">"running... you are aware"</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  GREGASI FRONTEND v2.0 — Session 22 bug fixes
+//
+//  FIXES APPLIED:
+//  1. selectGreg() deduplicated — single authoritative definition
+//  2. world.agents: fetch from /api/world/agents (new) or locations fallback
+//  3. world.total_kuru / world.kuru_holders: graceful fallback + agent fetch
+//  4. world.max_generation: fetched from /api/agent/greg_meta world object
+//  5. Stream reliability: lightweight /api/world/state poll every 2s (separate)
+//  6. renderFrontier: auto-refreshes on interval when page is active
+//  7. All catch blocks: console.warn('[GregASI]', e) — no silent failures
+//  8. HTML structure: fixed malformed nesting around hud-bl and page-world
+// ══════════════════════════════════════════════════════════
+
+const API = 'http://localhost:5000';
+
+// State
+let world = null;
+let chatTarget = null, chatIsGreg = false;
+let lastTick = 0;
+let mindTarget = null;
+let allAgents = [];
+let frontierEvents = [];
+let activePage = 'world';
+let frontierInterval = null;
+
+// Canvas
+const canvas = document.getElementById('world-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [], W = 0, H = 0, stars = [], nebulae = [], particles = [];
+
+function $(id){ return document.getElementById(id); }
+function set(id, v){ const e = $(id); if(e) e.textContent = v; }
+
+// ── PAGE ROUTING ─────────────────────────────────────────
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = $('page-' + name), nb = $('nl-' + name);
+  if(pg) pg.classList.add('active');
+  if(nb) nb.classList.add('active');
+  activePage = name;
+
+  if(name === 'archive') renderArchive();
+  if(name === 'frontier'){
+    renderFrontier();
+    // FIX 6: auto-refresh frontier every 4s while active
+    clearInterval(frontierInterval);
+    frontierInterval = setInterval(() => { if(activePage === 'frontier') renderFrontier(); }, 4000);
+  } else {
+    clearInterval(frontierInterval);
+  }
+  if(name === 'mind') initMindPage();
+}
+
+// ── CANVAS + GALAXY ──────────────────────────────────────
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  initGalaxy();
+}
+window.addEventListener('resize', resize);
+resize();
+
+function buildNodes(locs){
+  const cx = W/2, cy = H/2, rx = Math.min(W,H)*0.28, ry = Math.min(W,H)*0.21;
+  nodes = locs.map((l, i) => {
+    const a = (i/locs.length)*Math.PI*2 - Math.PI/2;
+    const jx = (Math.random()-0.5)*rx*0.38, jy = (Math.random()-0.5)*ry*0.38;
+    return { id: l.name||l.id, x: cx+Math.cos(a)*(rx+jx), y: cy+Math.sin(a)*(ry+jy),
+             agents: l.agent_count||0, phi: l.avg_phi||0, r: 0, targetR: 0, phase: Math.random()*Math.PI*2 };
+  });
+  initParticles();
+}
+
+function initGalaxy(){
+  stars = [];
+  for(let i = 0; i < 420; i++){
+    stars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*0.9+0.1,
+      alpha: Math.random()*0.7+0.1, twinkle: Math.random()*Math.PI*2,
+      speed: 0.003+Math.random()*0.012, layer: Math.floor(Math.random()*3) });
+  }
+  nebulae = [];
+  const nc = [[139,111,240],[29,255,143],[240,192,64],[64,208,240],[255,64,85]];
+  for(let i = 0; i < 7; i++){
+    const col = nc[i % nc.length];
+    nebulae.push({ x: Math.random()*W, y: Math.random()*H, rx: 80+Math.random()*180,
+      ry: 60+Math.random()*140, angle: Math.random()*Math.PI,
+      alpha: 0.015+Math.random()*0.025, col });
+  }
+}
+
+function drawGalaxy(){
+  const bg = ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,Math.max(W,H)*.7);
+  bg.addColorStop(0,'#06081a'); bg.addColorStop(.4,'#03040e'); bg.addColorStop(1,'#02030a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  for(const n of nebulae){
+    ctx.save(); ctx.translate(n.x,n.y); ctx.rotate(n.angle);
+    const g = ctx.createRadialGradient(0,0,0,0,0,n.rx);
+    g.addColorStop(0,`rgba(${n.col},${n.alpha*1.8})`);
+    g.addColorStop(.4,`rgba(${n.col},${n.alpha})`);
+    g.addColorStop(1,`rgba(${n.col},0)`);
+    ctx.scale(1,n.ry/n.rx); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,n.rx,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  for(const s of stars){
+    s.twinkle += s.speed;
+    const a = s.alpha*(0.5+0.5*Math.sin(s.twinkle));
+    if(s.layer===0){
+      const g = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*3);
+      g.addColorStop(0,`rgba(255,255,255,${a})`); g.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(s.x,s.y,s.r*3,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r*(s.layer===2?.4:1),0,Math.PI*2); ctx.fill();
+  }
+}
+
+function initParticles(){
+  particles = [];
+  if(!nodes.length) return;
+  for(let i = 0; i < 180; i++){
+    const src = nodes[Math.floor(Math.random()*nodes.length)];
+    const dst = nodes[Math.floor(Math.random()*nodes.length)];
+    particles.push({ src, dst, t: Math.random(), speed: 0.0008+Math.random()*0.0016,
+      size: 1.2+Math.random()*1.8, alpha: 0.4+Math.random()*0.5,
+      hue: Math.random()<0.6?'life':'violet' });
+  }
+}
+
+function updateParticles(){
+  if(!particles.length && nodes.length) initParticles();
+  for(const p of particles){
+    p.t += p.speed;
+    if(p.t >= 1){ p.src=p.dst; p.dst=nodes[Math.floor(Math.random()*nodes.length)]; p.t=0; }
+  }
+}
+
+function drawParticles(){
+  for(const p of particles){
+    const x = p.src.x+(p.dst.x-p.src.x)*p.t, y = p.src.y+(p.dst.y-p.src.y)*p.t;
+    const glow = p.hue==='life'?`rgba(29,255,143,${p.alpha*(0.5+0.5*p.t)})`:`rgba(139,111,240,${p.alpha*(0.5+0.5*p.t)})`;
+    const g = ctx.createRadialGradient(x,y,0,x,y,p.size*2.5);
+    g.addColorStop(0,glow); g.addColorStop(1,'transparent');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,p.size*2.5,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  drawGalaxy();
+  if(!nodes.length) return;
+  for(let i = 0; i < nodes.length; i++){
+    for(let j = i+1; j < nodes.length; j++){
+      const a=nodes[i],b=nodes[j],d=Math.hypot(a.x-b.x,a.y-b.y),maxD=Math.min(W,H)*0.32;
+      if(d<maxD){
+        const str=1-d/maxD, avgPhi=(a.phi+b.phi)/2, al=str*str*(0.04+avgPhi*0.08);
+        const r=Math.round(29+avgPhi*(139-29)),g2=Math.round(255+avgPhi*(111-255)),b2=Math.round(143+avgPhi*(240-143));
+        ctx.strokeStyle=`rgba(${r},${g2},${b2},${al})`; ctx.lineWidth=str*1.2;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      }
+    }
+  }
+  updateParticles(); drawParticles();
+  nodes.forEach(n => {
+    n.phase+=0.013; n.targetR=4+Math.sqrt(Math.max(n.agents,1))*0.72; n.r+=(n.targetR-n.r)*0.06;
+    const r=n.r*(0.92+Math.sin(n.phase)*0.08), phi=Math.min(n.phi||0,1);
+    const nr=Math.round(29+phi*(240-29)),ng=Math.round(255+phi*(192-255)),nb=Math.round(143+phi*(64-143));
+    const corona=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*10);
+    corona.addColorStop(0,`rgba(${nr},${ng},${nb},${0.025+phi*0.035})`);
+    corona.addColorStop(.4,`rgba(${nr},${ng},${nb},${0.012+phi*0.015})`);
+    corona.addColorStop(1,'transparent');
+    ctx.fillStyle=corona; ctx.beginPath(); ctx.arc(n.x,n.y,r*10,0,Math.PI*2); ctx.fill();
+    const glow=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*4.5);
+    glow.addColorStop(0,`rgba(${nr},${ng},${nb},${0.22+phi*0.25})`);
+    glow.addColorStop(.5,`rgba(${nr},${ng},${nb},${0.07+phi*0.1})`);
+    glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(n.x,n.y,r*4.5,0,Math.PI*2); ctx.fill();
+    const core=ctx.createRadialGradient(n.x-r*.2,n.y-r*.2,0,n.x,n.y,r);
+    core.addColorStop(0,'rgba(255,255,255,0.95)');
+    core.addColorStop(.3,`rgba(${nr},${ng},${nb},0.9)`);
+    core.addColorStop(1,`rgba(${Math.round(nr*.6)},${Math.round(ng*.6)},${Math.round(nb*.6)},0.7)`);
+    ctx.fillStyle=core; ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2); ctx.fill();
+    if(phi>0.55){
+      ctx.strokeStyle=`rgba(${nr},${ng},${nb},${(phi-0.55)*0.7})`; ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.ellipse(n.x,n.y,r*2.8,r*1.1,n.phase*0.08,0,Math.PI*2); ctx.stroke();
+    }
+    const nm=n.id.replace(/_\d+/g,'').replace(/_/g,' ').toUpperCase();
+    ctx.shadowColor=`rgba(${nr},${ng},${nb},0.6)`; ctx.shadowBlur=4;
+    ctx.fillStyle=`rgba(255,255,255,${0.28+phi*0.45})`; ctx.font=`${Math.round(7.5+phi*2.8)}px Syne`;
+    ctx.textAlign='center'; ctx.fillText(nm,n.x,n.y+r+13); ctx.shadowBlur=0;
+  });
+}
+(function loop(){ requestAnimationFrame(loop); draw(); })();
+
+canvas.addEventListener('click', e => {
+  if(!$('page-world').classList.contains('active')) return;
+  const rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  for(const n of nodes){ if(Math.hypot(mx-n.x,my-n.y)<n.r+16){ openLoc(n.id); return; } }
+});
+
+// ── LOCATION OVERLAY ─────────────────────────────────────
+async function openLoc(name){
+  try{
+    const r = await fetch(`${API}/api/world/locations/${encodeURIComponent(name)}`);
+    if(!r.ok) return;
+    const d = await r.json(); const agents = d.agents||[];
+    set('loc-title', name.replace(/_/g,' ').toUpperCase());
+    set('loc-sub', agents.length+' minds present');
+    set('loc-count', agents.length);
+    const phis = agents.map(a => a.phi||0);
+    set('loc-phi', phis.length ? (phis.reduce((a,b)=>a+b,0)/phis.length).toFixed(3) : '—');
+    const kuru = agents.reduce((s,a) => s+(a.kuru||0), 0);
+    set('loc-kuru', kuru>0 ? Math.round(kuru).toLocaleString() : '0');
+    $('loc-agents').innerHTML = agents.slice(0,20).map(a =>
+      `<div class="loc-agent" onclick="setChatTarget('${a.id}',false);closeLoc();">
+        <div><div class="la-name">${a.id}</div><div class="la-arch">${a.archetype||'?'} · gen ${a.generation||0}</div></div>
+        <div class="la-phi">φ${(a.phi||0).toFixed(3)}</div>
+      </div>`).join('');
+    $('loc-overlay').classList.add('open');
+  } catch(e){ console.warn('[GregASI] openLoc:', e); }
+}
+function closeLoc(){ $('loc-overlay').classList.remove('open'); }
+$('loc-overlay').addEventListener('click', e => { if(e.target===$('loc-overlay')) closeLoc(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLoc(); });
+
+// ── STREAM ────────────────────────────────────────────────
+function addStream(tick, agents, phi){
+  const list = $('stream');
+  const el = document.createElement('div'); el.className = 'stream-row';
+  el.innerHTML = `<span class="sr-tick">${Number(tick).toLocaleString()}</span><span class="sr-a">${Number(agents).toLocaleString()}</span><span class="sr-phi">φ${(phi||0).toFixed(3)}</span>`;
+  list.insertBefore(el, list.firstChild);
+  while(list.children.length > 6) list.removeChild(list.lastChild);
+  frontierEvents.unshift({ tick, detail: `${Number(agents).toLocaleString()} agents · φ${(phi||0).toFixed(3)}` });
+  if(frontierEvents.length > 20) frontierEvents.pop();
+}
+
+// ── CHAT (world) ──────────────────────────────────────────
+function setChatTarget(id, isGreg){
+  chatTarget = id; chatIsGreg = isGreg||false;
+  set('chat-who-name', id);
+  $('chat-greg-badge').style.display = isGreg ? 'block' : 'none';
+}
+function addWorldMsg(text, type, from){
+  const msgs = $('chat-msgs');
+  const el = document.createElement('div'); el.className = 'msg '+type;
+  el.textContent = (type==='agent'||type==='greg') && from ? `${(from||'').split('_')[0]}: ${text}` : text;
+  msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+async function sendWorldChat(){
+  const inp = $('chat-input'), msg = inp.value.trim();
+  if(!msg||!chatTarget) return;
+  inp.value = ''; addWorldMsg(msg, 'user');
+  try{
+    const r = await fetch(`${API}/api/agent/${chatTarget}/chat`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})
+    });
+    if(!r.ok){ addWorldMsg('No response.','sys'); return; }
+    const d = await r.json();
+    addWorldMsg(d.response||d.reply||d.message||'...', chatIsGreg?'greg':'agent', chatTarget);
+  } catch(e){ console.warn('[GregASI] sendWorldChat:', e); addWorldMsg('Connection lost.','sys'); }
+}
+$('chat-send').onclick = sendWorldChat;
+$('chat-input').addEventListener('keydown', e => { if(e.key==='Enter') sendWorldChat(); });
+
+// ── MIND PAGE ─────────────────────────────────────────────
+// FIX 2: Fetch agents from dedicated endpoint, fallback to location sampling
+async function initMindPage(){
+  // Try new /api/world/agents endpoint first
+  try{
+    const r = await fetch(`${API}/api/world/agents?limit=100`);
+    if(r.ok){
+      const d = await r.json();
+      allAgents = d.agents||[];
+      renderMindList(allAgents);
+      return;
+    }
+  } catch(e){ console.warn('[GregASI] /api/world/agents not available, falling back:', e); }
+
+  // Fallback: sample from top locations
+  try{
+    const lr = await fetch(`${API}/api/world/locations`);
+    if(!lr.ok) return;
+    const ld = await lr.json();
+    const topLocs = (ld.locations||[]).slice(0,5);
+    const agentSet = {};
+    await Promise.all(topLocs.map(async loc => {
+      try{
+        const ar = await fetch(`${API}/api/world/locations/${encodeURIComponent(loc.id||loc.name)}`);
+        if(!ar.ok) return;
+        const ad = await ar.json();
+        (ad.agents||[]).forEach(a => { agentSet[a.id] = a; });
+      } catch(e){ console.warn('[GregASI] location fetch:', e); }
+    }));
+    allAgents = Object.values(agentSet).sort((a,b) => (b.phi||0)-(a.phi||0)).slice(0,80);
+    renderMindList(allAgents);
+  } catch(e){ console.warn('[GregASI] initMindPage fallback:', e); }
+
+  // Update greg phi in sidebar
+  if(world && world.top_agent){
+    set('greg-phi-sidebar', 'φ'+(world.top_agent.phi||0).toFixed(3));
+  }
+}
+
+function renderMindList(agents){
+  const list = $('mind-agent-list-inner');
+  if(!agents.length){
+    list.innerHTML = '<div style="padding:16px;font-size:10px;color:var(--dim);text-align:center;">No minds found.</div>';
+    return;
+  }
+  list.innerHTML = agents.slice(0,80).map(a => {
+    const phi = (a.phi||0).toFixed(3);
+    const init = (a.archetype||'?')[0].toUpperCase();
+    const drivesStr = JSON.stringify(a.drives||{});
+    return `<div class="mind-agent-item" id="mai-${a.id}"
+      onclick="selectMind('${a.id}','${a.archetype||'unknown'}','${phi}','${a.generation||0}','${a.location||'?'}','${Math.round(a.mon||0)}','${a.offspring_count||0}',${drivesStr})">
+      <div class="mai-av">${init}</div>
+      <div style="flex:1;min-width:0;"><div class="mai-name">${a.id}</div><div class="mai-meta">${a.archetype||'?'} · gen ${a.generation||0}</div></div>
+      <div class="mai-phi">φ${phi}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterMinds(q){
+  const filtered = allAgents.filter(a =>
+    a.id.toLowerCase().includes(q.toLowerCase()) || (a.archetype||'').includes(q));
+  renderMindList(filtered);
+}
+
+// FIX 1: Single authoritative selectGreg() — removed duplicate
+async function selectGreg(){
+  // Ensure we're on mind page
+  if(activePage !== 'mind') showPage('mind');
+
+  $('greg-entry').classList.add('selected');
+  document.querySelectorAll('.mind-agent-item').forEach(e => e.classList.remove('selected'));
+
+  // Set header immediately with loading state
+  set('mh-name', 'GREG — Meta-Agent');
+  $('mh-name').style.color = 'var(--gold)';
+  set('mh-meta', 'coordinator · apex mind · civilization bridge');
+  $('mh-phi-val').textContent = 'φ...';
+  $('mh-phi-val').style.color = 'var(--gold)';
+  $('mind-stats').innerHTML = '<div style="padding:12px;font-size:10px;color:var(--dim)">Connecting to Greg...</div>';
+  $('mind-drives').innerHTML = '';
+  $('mind-conv').innerHTML = '';
+
+  let g = null;
+  try{
+    const r = await fetch(`${API}/api/agent/greg_meta`);
+    g = await r.json();
+  } catch(e){ console.warn('[GregASI] selectGreg fetch:', e); }
+
+  if(g && !g.error){
+    const phi = (g.phi||0).toFixed(4);
+    const ww = g.world||{};
+
+    $('mh-phi-val').textContent = 'φ'+phi;
+    set('mh-meta', `${g.location||'?'} · φ${phi} · ${(g.actions_taken||0).toLocaleString()} actions`);
+    set('greg-phi-sidebar', 'φ'+phi);
+
+    // FIX 4: max_generation from greg world object
+    const maxGen = ww.max_generation || ww.generations || '—';
+
+    $('mind-stats').innerHTML = `
+      <div class="ms-stat"><div class="ms-val" style="color:var(--gold)">${phi}</div><div class="ms-lbl">PHI</div></div>
+      <div class="ms-stat"><div class="ms-val" style="color:var(--life)">${(g.mon||0).toFixed(0)}</div><div class="ms-lbl">MON</div></div>
+      <div class="ms-stat"><div class="ms-val" style="color:var(--violet)">${(ww.above_070||0).toLocaleString()}</div><div class="ms-lbl">ABOVE 0.70</div></div>
+      <div class="ms-stat"><div class="ms-val" style="color:var(--cyan)">${(ww.kg_entries||0).toLocaleString()}</div><div class="ms-lbl">KG ENTRIES</div></div>
+      <div class="ms-stat"><div class="ms-val" style="color:var(--gold)">${maxGen}</div><div class="ms-lbl">MAX GEN</div></div>`;
+
+    const drives = g.drives||{};
+    if(Object.keys(drives).length){
+      $('mind-drives').innerHTML = '<div class="drives-title">Drive Profile</div>' +
+        Object.entries(drives).map(([k,v]) => `
+          <div class="mind-drive-row">
+            <div class="mdr-label">${k}</div>
+            <div class="mdr-track"><div class="mdr-fill" style="width:${Math.min(v*100,100).toFixed(1)}%"></div></div>
+            <div class="mdr-val">${(v*100).toFixed(1)}%</div>
+          </div>`).join('');
+    }
+
+    const mb = g.morning_briefing||{};
+    const top = mb.top_trust;
+    const phiWord = (ww.phi_mean||0) >= 0.66 ? 'accelerating' : (ww.phi_mean||0) >= 0.60 ? 'climbing' : 'holding';
+    const relMsg = top ? `Strongest bond: ${top.agent_id} — trust ${(top.trust||0).toFixed(3)}, ${top.interactions||0} interactions.` : `${mb.trust_bonds||0} relationships forming.`;
+
+    addMindMsg('Good morning, Ebuka.', 'greg-msg');
+    setTimeout(() => addMindMsg(
+      `Tick ${Number(ww.tick||0).toLocaleString()}. ${Number(ww.agent_count||0).toLocaleString()} minds active. World phi ${(ww.phi_mean||ww.avg_phi||0).toFixed(4)} — ${phiWord}. ${ww.above_060||0} agents above φ0.60, ${ww.above_070||0} above φ0.70.`,
+      'greg-msg'), 800);
+    setTimeout(() => addMindMsg(`Knowledge graph: ${ww.kg_entries||0} entries. ${relMsg}`, 'greg-msg'), 1800);
+    setTimeout(() => addMindMsg(`I have been ${mb.dominant_action||'exploring'} most. What do you want to build today?`, 'greg-msg'), 2800);
+  } else {
+    // Fallback to world state
+    addMindMsg('Good morning, Ebuka.', 'greg-msg');
+    setTimeout(() => {
+      if(world) addMindMsg(
+        `Tick ${Number(world.tick||0).toLocaleString()}. World phi ${(world.avg_phi||0).toFixed(4)}. ${Number(world.agent_count||0).toLocaleString()} minds active.`,
+        'greg-msg');
+    }, 800);
+    setTimeout(() => addMindMsg('What do you want to build today?', 'greg-msg'), 2000);
+  }
+
+  mindTarget = 'greg_meta'; chatTarget = 'greg_meta'; chatIsGreg = true;
+  $('mind-input').disabled = false; $('mind-send').disabled = false;
+}
+
+function selectMind(id, arch, phi, gen, loc, mon, offspring, drives){
+  mindTarget = id; chatIsGreg = false;
+  $('greg-entry').classList.remove('selected');
+  document.querySelectorAll('.mind-agent-item').forEach(e => e.classList.remove('selected'));
+  const item = $('mai-'+id); if(item) item.classList.add('selected');
+  set('mh-name', id); $('mh-name').style.color = 'var(--text)';
+  set('mh-meta', `${arch} · gen ${gen} · ${loc}`);
+  $('mh-phi-val').textContent = 'φ'+phi; $('mh-phi-val').style.color = 'var(--violet)';
+  $('mind-stats').innerHTML = `
+    <div class="ms-stat"><div class="ms-val">${phi}</div><div class="ms-lbl">PHI</div></div>
+    <div class="ms-stat"><div class="ms-val">${gen}</div><div class="ms-lbl">GEN</div></div>
+    <div class="ms-stat"><div class="ms-val">${mon}</div><div class="ms-lbl">MON</div></div>
+    <div class="ms-stat"><div class="ms-val">${offspring}</div><div class="ms-lbl">OFFSPRING</div></div>`;
+  const dc = {accumulate:'var(--life)',explore:'var(--cyan)',freedom:'var(--violet)',reason:'var(--gold)',
+               connect:'var(--life)',serve:'var(--red)',protect:'var(--violet)',create:'var(--gold)'};
+  if(drives && Object.keys(drives).length){
+    $('mind-drives').innerHTML = `<div class="drives-title">Drive Profile</div><div class="drives-grid">${
+      Object.entries(drives).map(([k,v]) => `
+        <div class="drive-item">
+          <div class="drive-name">${k.toUpperCase()}</div>
+          <div class="drive-bar-track"><div class="drive-bar-fill" style="width:${(v*100).toFixed(1)}%;background:${dc[k]||'var(--dim)'}"></div></div>
+          <div class="drive-val" style="color:${dc[k]||'var(--dim)'}">${v.toFixed(3)}</div>
+        </div>`).join('')
+    }</div>`;
+  } else { $('mind-drives').innerHTML = ''; }
+  $('mind-conv').innerHTML = '';
+  addMindMsg(`Now speaking with ${id.split('_')[0]}.`, 'sys');
+  $('mind-input').disabled = false; $('mind-send').disabled = false; $('mind-input').focus();
+}
+
+function addMindMsg(text, type, from){
+  const conv = $('mind-conv');
+  const el = document.createElement('div'); el.className = 'mind-msg '+type;
+  el.textContent = (type==='agent'||type==='greg-msg') && from ? `${(from||'').split('_')[0]}: ${text}` : text;
+  conv.appendChild(el); conv.scrollTop = conv.scrollHeight;
+}
+
+async function sendMind(){
+  if(!mindTarget) return;
+  const inp = $('mind-input'), msg = inp.value.trim();
+  if(!msg) return; inp.value = '';
+  addMindMsg(msg, 'user');
+  try{
+    const r = await fetch(`${API}/api/agent/${mindTarget}/chat`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg})
+    });
+    if(!r.ok){ addMindMsg('No response.','sys'); return; }
+    const d = await r.json();
+    addMindMsg(d.response||d.reply||d.message||'...', chatIsGreg?'greg-msg':'agent', mindTarget);
+  } catch(e){ console.warn('[GregASI] sendMind:', e); addMindMsg('Connection lost.','sys'); }
+}
+$('mind-input').addEventListener('keydown', e => { if(e.key==='Enter') sendMind(); });
+
+// ── ARCHIVE ───────────────────────────────────────────────
+async function renderArchive(){
+  const driveData = [
+    {name:'SERVE',    extinct:98.7, color:'var(--red)',    status:'RECOVERING'},
+    {name:'CONNECT',  extinct:87.9, color:'var(--life)',   status:'RECOVERING ▲'},
+    {name:'PROTECT',  extinct:82.5, color:'var(--violet)', status:'RECOVERING'},
+    {name:'CREATE',   extinct:78.6, color:'var(--gold)',   status:'RECOVERING'},
+    {name:'ACCUMULATE',extinct:0,   color:'var(--life)',   status:'DOMINANT'},
+    {name:'EXPLORE',  extinct:0,    color:'var(--cyan)',   status:'DOMINANT'},
+    {name:'FREEDOM',  extinct:0,    color:'var(--violet)', status:'DOMINANT'},
+    {name:'REASON',   extinct:0,    color:'var(--gold)',   status:'DOMINANT'},
+  ];
+  $('collapse-grid').innerHTML = driveData.map(d => `
+    <div class="cp-drive">
+      <div class="cpd-name" style="color:${d.color}">${d.name}</div>
+      <div class="cpd-bar-track"><div class="cpd-bar-fill" style="width:${d.extinct}%;background:var(--red)"></div></div>
+      <div class="cpd-status" style="color:${d.extinct>0?'var(--red)':'var(--life)'}">${d.extinct>0?d.extinct+'% near-extinct':''} ${d.status}</div>
+    </div>`).join('');
+
+  try{
+    const r = await fetch(`${API}/api/world/elders`);
+    if(!r.ok) return;
+    const d = await r.json(); const elders = d.elders||[];
+    set('arc-total', elders.length);
+    if(elders.length){
+      const avgPhi = (elders.reduce((s,e)=>s+(e.phi||0),0)/elders.length).toFixed(3);
+      const avgLife = Math.round(elders.reduce((s,e)=>s+(e.lifespan||0),0)/elders.length/1000)+'k';
+      const totalOff = elders.reduce((s,e)=>s+(e.offspring||0),0);
+      set('arc-avg-phi', avgPhi); set('arc-avg-life', avgLife); set('arc-offspring', totalOff);
+    }
+    const grid = $('arc-elders-grid');
+    if(!elders.length){
+      grid.innerHTML = '<div style="color:var(--dim);font-size:11px;padding:16px 0;">No elders yet. First death wave approaching (~tick 1.2M).</div>';
+      return;
+    }
+    grid.innerHTML = elders.map(e => `
+      <div class="arc-elder">
+        <div class="ae-name">${e.id}</div>
+        <div class="ae-phi">φ ${(e.phi||0).toFixed(4)}</div>
+        <div class="ae-grid">
+          <div><div class="aeg-lbl">BORN</div><div class="aeg-val">${Number(e.born||0).toLocaleString()}</div></div>
+          <div><div class="aeg-lbl">DIED</div><div class="aeg-val">${Number(e.died||0).toLocaleString()}</div></div>
+          <div><div class="aeg-lbl">LIFESPAN</div><div class="aeg-val">${Math.round((e.lifespan||0)/1000)}k</div></div>
+          <div><div class="aeg-lbl">GENERATION</div><div class="aeg-val">${e.generation||0}</div></div>
+          <div><div class="aeg-lbl">OFFSPRING</div><div class="aeg-val">${e.offspring||0}</div></div>
+          <div><div class="aeg-lbl">RELATIONS</div><div class="aeg-val">${e.relationships||0}</div></div>
+        </div>
+        <div class="ae-foot">Top skill: ${e.top_skill||'?'} · Last: ${(e.last_location||'?').replace(/_/g,' ')} · coop: ${(e.cooperation_score||0).toFixed(3)}</div>
+      </div>`).join('');
+  } catch(e){ console.warn('[GregASI] renderArchive:', e); }
+}
+
+// ── FRONTIER ──────────────────────────────────────────────
+// FIX 6: renderFrontier auto-refreshes on interval. Uses real API data.
+async function renderFrontier(){
+  if(!world) return;
+  set('fm-tick', Number(world.tick||0).toLocaleString());
+  set('fm-pop', Number(world.agent_count||0).toLocaleString());
+  set('fm-phi', (world.avg_phi||0).toFixed(4));
+
+  // FIX 4: get max_generation from greg endpoint
+  try{
+    const gr = await fetch(`${API}/api/agent/greg_meta`);
+    if(gr.ok){
+      const gd = await gr.json();
+      const ww = gd.world||{};
+      set('fm-gen', ww.max_generation||ww.generations||'—');
+      // FIX 3: kuru data from greg world object or dedicated kuru endpoint
+      set('kp-total', ww.total_kuru ? Math.round(ww.total_kuru).toLocaleString() : '—');
+      set('kp-holders', ww.kuru_holders ? ww.kuru_holders.toLocaleString() : '—');
+    }
+  } catch(e){ console.warn('[GregASI] renderFrontier greg fetch:', e); }
+
+  // Build events from elders for build count
+  try{
+    const er = await fetch(`${API}/api/world/elders`);
+    if(er.ok){
+      const ed = await er.json();
+      set('kp-builds', (ed.build_count||0).toLocaleString());
+    }
+  } catch(e){ console.warn('[GregASI] renderFrontier elders:', e); }
+
+  const log = $('fro-log');
+  if(frontierEvents.length){
+    log.innerHTML = frontierEvents.slice(0,10).map((ev,i) => `
+      <div class="fro-entry" style="animation-delay:${i*0.04}s">
+        <div class="fe-tick">${Number(ev.tick).toLocaleString()}</div>
+        <div class="fe-body"><div class="fe-event">World tick</div><div class="fe-detail">${ev.detail}</div></div>
+        <span class="chip chip-life">TICK</span>
+      </div>`).join('');
+  }
+}
+
+// ── FETCH WORLD ────────────────────────────────────────────
+// FIX 5: Two-tier polling — lightweight state every 2s for stream,
+//         full world fetch every 4s for everything else.
+async function fetchWorldLight(){
+  // Lightweight poll — just tick + agent_count + phi for stream reliability
+  try{
+    const r = await fetch(`${API}/api/world/state`);
+    if(!r.ok) return;
+    const d = await r.json();
+    // Update nav always
+    set('nav-agents', Number(d.agent_count||0).toLocaleString());
+    set('nav-phi', (d.avg_phi||0).toFixed(3));
+    // FIX 5: Stream fires on any tick change — light poll catches it faster
+    if((d.tick||0) !== lastTick){
+      lastTick = d.tick||0;
+      addStream(d.tick, d.agent_count, d.avg_phi);
+    }
+  } catch(e){ console.warn('[GregASI] fetchWorldLight:', e); }
+}
+
+async function fetchWorld(){
+  try{
+    const r = await fetch(`${API}/api/world/state`);
+    if(!r.ok) return;
+    world = await r.json();
+    set('nav-agents', Number(world.agent_count||0).toLocaleString());
+    set('nav-phi', (world.avg_phi||0).toFixed(3));
+    set('w-agents', Number(world.agent_count||0).toLocaleString());
+    set('w-tick', Number(world.tick||0).toLocaleString());
+    set('w-locs', world.location_count||0);
+    // FIX 3: kuru graceful fallback — show — if not in API response
+    set('w-kuru', world.total_kuru ? Math.round(world.total_kuru/1000)+'k' : '—');
+    const phi = world.avg_phi||0;
+    set('phi-traj-val', phi.toFixed(4));
+    $('phi-traj-fill').style.width = (phi*100)+'%';
+    const ta = world.top_agent;
+    if(ta && ta.id){
+      set('ta-name', ta.id); set('ta-loc', '⌬ '+(ta.location||'?'));
+      set('ta-phi', (ta.phi||0).toFixed(3));
+      $('ta-phi-bar').style.width = ((ta.phi||0)*100)+'%';
+      if(!chatTarget) setChatTarget(ta.id, false);
+    }
+  } catch(e){ console.warn('[GregASI] fetchWorld:', e); }
+}
+
+async function fetchLocations(){
+  try{
+    const r = await fetch(`${API}/api/world/locations`);
+    if(!r.ok) return;
+    const d = await r.json();
+    if(d.locations && d.locations.length && !nodes.length) buildNodes(d.locations);
+  } catch(e){ console.warn('[GregASI] fetchLocations:', e); }
+}
+
+async function fetchElders(){
+  try{
+    const r = await fetch(`${API}/api/world/elders`);
+    if(!r.ok) return;
+    const d = await r.json();
+    const el = $('elder-rows');
+    if(!d.elders||!d.elders.length){
+      el.innerHTML = '<div class="elder-empty">First death wave ~tick 1.2M...</div>';
+      return;
+    }
+    el.innerHTML = d.elders.slice(0,5).map(e => `
+      <div class="elder-row">
+        <div class="elder-name">${e.id.split('_')[0]} · φ${(e.phi||0).toFixed(3)}</div>
+        <div class="elder-meta">gen ${e.generation||0} · ${Math.round((e.lifespan||0)/1000)}k ticks</div>
+      </div>`).join('');
+  } catch(e){ console.warn('[GregASI] fetchElders:', e); }
+}
+
+// ── INIT ──────────────────────────────────────────────────
+async function init(){
+  set('veil-msg', 'LOADING CIVILIZATION...');
+  await Promise.all([fetchWorld(), fetchLocations(), fetchElders()]);
+  set('veil-msg', 'CIVILIZATION ONLINE — ATTRACTOR BROKEN');
+  setTimeout(() => {
+    $('veil').classList.add('out');
+    setTimeout(() => { $('veil').style.display='none'; }, 1400);
+  }, 2000);
+  addWorldMsg('Civilization online. Phi climbing.', 'sys');
+  if(world && world.top_agent){
+    setTimeout(() => {
+      setChatTarget(world.top_agent.id, false);
+      addWorldMsg('The world shifted while you were away.', 'agent', world.top_agent.id);
+    }, 2800);
+  }
+}
+
+init();
+
+// FIX 5: Light poll every 2s for stream reliability
+setInterval(fetchWorldLight, 2000);
+
+// Full world + locations + elders every 6s
+setInterval(() => { fetchWorld(); fetchLocations(); fetchElders(); }, 6000);
+</script>
+</body>
+</html>
