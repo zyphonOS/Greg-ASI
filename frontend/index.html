@@ -1427,6 +1427,14 @@ setInterval(fetchWorldLight, 2000);
 
 // Full world + locations + elders every 6s
 setInterval(() => { fetchWorld(); fetchLocations(); fetchElders(); }, 6000);
+// Greg morning briefing auto-refresh every 30s when MIND page is active
+setInterval(() => {
+  if(activePage === 'mind' && typeof selectGreg === 'function') {
+    const mindLog = document.getElementById('mind-log');
+    if(mindLog) mindLog.innerHTML = '';
+    selectGreg();
+  }
+}, 30000);
 </script>
 </body>
 </html>
