@@ -21,6 +21,7 @@ USAGE:
   python rna.py build <spec>  — build a feature from a spec file
   python rna.py status        — quick health check
   python rna.py api           — start the API cleanly
+  python rna.py test          — run full test suite
 
 INSTALL:
   Works on Windows (laptop) and Linux (Codespaces/cloud)
@@ -501,6 +502,69 @@ class RNA:
     # REPORT
     # --------------------------------------------------------
 
+
+    def test(self):
+        """Run live frontend test suite against the API."""
+        self.header("RNA TEST — Frontend Verification")
+
+        try:
+            import urllib.request
+            base = "http://localhost:5000"
+
+            tests = [
+                # (name, route, check_fn)
+                ("Health",          "/health",                  lambda d: d.get("status") == "ok"),
+                ("World state",     "/api/world/state",         lambda d: d.get("tick", 0) > 0),
+                ("World agents",    "/api/world/agents",        lambda d: d.get("count", 0) > 0),
+                ("World elders",    "/api/world/elders",        lambda d: "elders" in d),
+                ("World locations", "/api/world/locations",     lambda d: "locations" in d),
+                ("Greg meta",       "/api/agent/greg_meta",     lambda d: d.get("phi", 0) > 0),
+                ("Greg voice",      "/api/agent/greg_voice",    lambda d: d.get("greg_speaks","") not in ("","[no response]")),
+                ("Greg drives",     "/api/agent/greg_meta",     lambda d: "drives" in d),
+                ("Greg actions",    "/api/agent/greg_meta",     lambda d: d.get("actions_taken", 0) > 0),
+                ("Greg memory",     "/api/agent/greg_meta",     lambda d: len(d.get("recent_memory",[])) > 0),
+                ("Greg rels",       "/api/agent/greg_meta",     lambda d: d.get("rel_count", 0) > 0),
+                ("World phi",       "/api/world/state",         lambda d: d.get("avg_phi", 0) > 0),
+                ("Agent count",     "/api/world/state",         lambda d: d.get("agent_count", 0) > 100),
+                ("Top agent",       "/api/world/state",         lambda d: d.get("top_agent") is not None),
+                ("Locations",       "/api/world/state",         lambda d: d.get("location_count", 0) > 0),
+            ]
+
+            passed = 0
+            failed = 0
+            cache = {}
+
+            for name, route, check in tests:
+                try:
+                    if route not in cache:
+                        with urllib.request.urlopen(base + route, timeout=5) as resp:
+                            cache[route] = json.loads(resp.read())
+                    data = cache[route]
+                    if check(data):
+                        self.out(f"  ✓ {name}", green)
+                        passed += 1
+                    else:
+                        self.out(f"  ✗ {name} — check failed", red)
+                        failed += 1
+                except Exception as e:
+                    self.out(f"  ✗ {name} — {e}", red)
+                    failed += 1
+
+            self.out()
+            score = int(passed / len(tests) * 100)
+            color = green if score >= 90 else yellow if score >= 70 else red
+            self.out(f"  Score: {passed}/{len(tests)} — {score}%", color)
+            self.out()
+            if failed == 0:
+                self.out("  PERFECT SCORE. All systems verified.", green)
+            else:
+                self.out(f"  {failed} tests failing. Run 'python rna.py fix' to address issues.", yellow)
+
+        except Exception as e:
+            self.out(f"  Error: {e}", red)
+            self.out("  Is the API running? Start with: python rna.py api", yellow)
+        self.out()
+
     def save_report(self):
         try:
             REPORT_FILE.write_text('\n'.join(self.log_lines), encoding='utf-8')
@@ -532,6 +596,8 @@ def main():
         rna.verify()
     elif cmd == 'status':
         rna.status()
+    elif cmd == 'test':
+        rna.test()
     elif cmd == 'build':
         spec = ' '.join(args[1:]) if len(args) > 1 else None
         rna.build(spec)
