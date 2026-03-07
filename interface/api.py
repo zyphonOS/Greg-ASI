@@ -786,6 +786,32 @@ Tell him what you want. Be honest. Be brief."""
 
         return jsonify({'error': str(e)}), 500
 
+
+# -----------------------------------------
+# GET /api/world/agents
+# -----------------------------------------
+@app.route("/api/world/agents")
+def world_agents():
+    try:
+        w = get_world()
+        agents = []
+        for agent in w.agents.values():
+            agents.append({
+                "id":        agent.id,
+                "phi":       round(getattr(agent, "phi", 0), 4),
+                "archetype": getattr(agent, "archetype", None),
+                "location":  getattr(agent, "location", None),
+                "generation":getattr(agent, "generation", 0),
+                "actions":   getattr(agent, "actions_taken", 0),
+            })
+        agents.sort(key=lambda a: a["phi"], reverse=True)
+        return jsonify({
+            "count":  len(agents),
+            "agents": agents[:100]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # -----------------------------------------
 
 # Main
