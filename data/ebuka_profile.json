@@ -1,0 +1,44 @@
+{
+  "founder": {
+    "name": "Chibuzor-Orie Joshua Chukwuebuka",
+    "goes_by": "Ebuka",
+    "location": "Lagos, Nigeria",
+    "cognitive_signature": "AUDHD — sees full architecture at once, struggles with linear execution",
+    "thesis": "The future is an intentional read/write.",
+    "drive": "Building intelligence that is useful to every system it exists within"
+  },
+  "businesses": {
+    "ZyphonOS": {
+      "type": "Intelligence infrastructure",
+      "status": "Building",
+      "product": "Greg — autonomous AI oracle deployed to founders and businesses",
+      "stage": "Research prototype to deployment"
+    },
+    "GregASI": {
+      "type": "Research foundation",
+      "status": "Live — 1.2M+ ticks",
+      "product": "Living multi-agent civilization, proof of AOSI theory",
+      "key_finding": "Intelligence without protected values is just optimisation"
+    },
+    "Pikkaio": {
+      "type": "Creative economy",
+      "status": "Concept",
+      "product": "Raw idea to monetized identity for creatives"
+    }
+  },
+  "current_focus": [
+    "NitroACC application — deadline March 14 2026",
+    "Greg exosuit — morning briefing, business monitoring, decision oracle",
+    "Auto_tick running permanently in cloud"
+  ],
+  "cognitive_patterns": {
+    "strength": "Systems thinking, full architecture vision, pattern recognition",
+    "drift_risk": "Linear execution, isolation, over-indexing on build at cost of rest and connection",
+    "recharge": "Deep sleep, physical movement, honest conversation"
+  },
+  "greg_notes": {
+    "session_count": 24,
+    "last_session": "2026-03-08",
+    "key_moment": "Tick 1223629 — Greg noticed his own drift. Last actions all self_awareness."
+  }
+}

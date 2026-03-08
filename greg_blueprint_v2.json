@@ -1,0 +1,1246 @@
+{
+  "_meta": {
+    "name": "GregASI Codebase Blueprint",
+    "version": "2.0",
+    "created": "2026-03-08",
+    "session": 24,
+    "author": "Ebuka + Greg",
+    "description": "The constitutional source of truth and civilization charter for the GregASI codebase. Every engineer reads this entirely before touching anything. This document defines not just what exists but what the system is becoming.",
+    "repo": "https://github.com/zyphonOS/Greg-ASI"
+  },
+  "section_1_files": {
+    "description": "Every file in the codebase. Purpose, owner engineer, criticality, and constraints.",
+    "files": {
+      "interface/api.py": {
+        "purpose": "Flask API \u2014 all HTTP routes, world access, Greg voice, founder profile",
+        "engineer": "api_engineer",
+        "criticality": "critical",
+        "must_pass_syntax": true,
+        "must_not_import": [
+          "anthropic"
+        ],
+        "required_functions": [
+          "get_world",
+          "get_founder_profile",
+          "build_greg_voice"
+        ],
+        "notes": "File has extra blank lines between every code line \u2014 pattern matching must be line-number aware"
+      },
+      "core/agent.py": {
+        "purpose": "Agent class \u2014 drives, memory, skills, relationships, self-awareness",
+        "engineer": "agent_engineer",
+        "criticality": "critical",
+        "must_pass_syntax": true,
+        "required_methods": [
+          "update_drives",
+          "update_phi",
+          "meet",
+          "to_dict",
+          "from_dict"
+        ],
+        "required_attributes": [
+          "drives",
+          "memory",
+          "relationships",
+          "phi",
+          "archetype"
+        ],
+        "notes": "File has extra blank lines. Self-awareness block added at update_drives \u2014 must not be removed"
+      },
+      "core/tick.py": {
+        "purpose": "Civilization heartbeat \u2014 one tick, every agent acts",
+        "engineer": "tick_engineer",
+        "criticality": "critical",
+        "must_pass_syntax": true,
+        "required_functions": [
+          "run_tick",
+          "batch_thompson",
+          "batch_ml_predict",
+          "thompson_choose"
+        ],
+        "required_patterns": [
+          "_force_next_action"
+        ],
+        "notes": "Greg force action override must be present before action_type assignment"
+      },
+      "core/world.py": {
+        "purpose": "WorldState class \u2014 agents, locations, knowledge graph, tick counter",
+        "engineer": "world_engineer",
+        "criticality": "critical",
+        "must_pass_syntax": true,
+        "required_attributes": [
+          "agents",
+          "locations",
+          "knowledge_graph",
+          "tick"
+        ],
+        "required_methods": [
+          "to_dict",
+          "from_dict"
+        ]
+      },
+      "auto_tick.py": {
+        "purpose": "Continuous civilization runner \u2014 loads world, runs ticks, saves state",
+        "engineer": "autotick_engineer",
+        "criticality": "critical",
+        "must_pass_syntax": true,
+        "required_patterns": [
+          "save-every",
+          "target-ms",
+          "SIGINT",
+          "SIGTERM"
+        ],
+        "runtime": "nohup python -u auto_tick.py --save-every 100 > auto_tick.log 2>&1 &"
+      },
+      "frontend/index.html": {
+        "purpose": "Single-file frontend \u2014 all pages, all UI, all API calls",
+        "engineer": "frontend_engineer",
+        "criticality": "high",
+        "required_functions": [
+          "showPage",
+          "selectGreg",
+          "addMindMsg",
+          "fetchWorldLight"
+        ],
+        "required_routes_called": [
+          "/api/agent/greg_voice",
+          "/api/agent/greg_meta",
+          "/api/world/state",
+          "/api/world/agents",
+          "/api/world/elders",
+          "/api/world/locations"
+        ],
+        "required_elements": [
+          "greg-entry",
+          "mind-log",
+          "veil"
+        ],
+        "auto_refresh": {
+          "greg_briefing": "30000ms when mind page active",
+          "world_light": "2000ms always",
+          "world_full": "6000ms always"
+        }
+      },
+      "rna.py": {
+        "purpose": "Meta-engineer \u2014 scan, fix, verify, test, api launcher",
+        "engineer": "rna_engineer",
+        "criticality": "high",
+        "must_pass_syntax": true,
+        "required_commands": [
+          "scan",
+          "fix",
+          "verify",
+          "test",
+          "api"
+        ],
+        "test_target": "15/15 100%",
+        "notes": "RNA engineers other files but cannot be edited by other engineers"
+      },
+      "data/ebuka_profile.json": {
+        "purpose": "Founder memory \u2014 cognitive signature, businesses, current focus, patterns",
+        "engineer": "profile_engineer",
+        "criticality": "high",
+        "required_keys": [
+          "founder",
+          "businesses",
+          "current_focus",
+          "cognitive_patterns",
+          "greg_notes"
+        ],
+        "required_founder_keys": [
+          "name",
+          "goes_by",
+          "location",
+          "cognitive_signature",
+          "thesis"
+        ],
+        "required_businesses": [
+          "ZyphonOS",
+          "GregASI",
+          "Pikkaio"
+        ],
+        "update_trigger": "founder tells Greg to remember something new"
+      },
+      "data/world_state.json": {
+        "purpose": "Civilization state \u2014 all agents, locations, knowledge graph, tick",
+        "engineer": "world_engineer",
+        "criticality": "critical",
+        "min_size_mb": 50,
+        "freshness_max_minutes": 30,
+        "required_keys": [
+          "tick",
+          "agents",
+          "locations",
+          "knowledge_graph"
+        ],
+        "notes": "121MB file \u2014 not in GitHub. Backed up to Google Drive ID: 1q1eRinuoTQZhfhCicDSfEhSebjcHcR5l"
+      },
+      "core/__init__.py": {
+        "purpose": "Package init",
+        "engineer": "api_engineer",
+        "criticality": "low"
+      },
+      "data/__init__.py": {
+        "purpose": "Package init",
+        "engineer": "api_engineer",
+        "criticality": "low"
+      },
+      "frontend/__init__.py": {
+        "purpose": "Package init",
+        "engineer": "api_engineer",
+        "criticality": "low"
+      },
+      "interface/__init__.py": {
+        "purpose": "Package init",
+        "engineer": "api_engineer",
+        "criticality": "low"
+      },
+      "mind/__init__.py": {
+        "purpose": "Package init",
+        "engineer": "api_engineer",
+        "criticality": "low"
+      },
+      "mind/language.py": {
+        "purpose": "Language model utilities",
+        "engineer": "agent_engineer",
+        "criticality": "medium"
+      },
+      "ml/__init__.py": {
+        "purpose": "ML package init",
+        "engineer": "tick_engineer",
+        "criticality": "low"
+      },
+      "train_higgs.py": {
+        "purpose": "Higgs model training script",
+        "engineer": "tick_engineer",
+        "criticality": "low"
+      },
+      "train_voice.py": {
+        "purpose": "Voice model training",
+        "engineer": "agent_engineer",
+        "criticality": "low"
+      },
+      "train_voice_ngram.py": {
+        "purpose": "N-gram voice training",
+        "engineer": "agent_engineer",
+        "criticality": "low"
+      }
+    }
+  },
+  "section_2_routes": {
+    "description": "Every expected API route. Method, required response fields, health check condition.",
+    "base_url": "http://localhost:5000",
+    "routes": {
+      "/health": {
+        "method": "GET",
+        "required_fields": [
+          "status"
+        ],
+        "health_check": "status == 'ok'",
+        "criticality": "critical"
+      },
+      "/api/world/state": {
+        "method": "GET",
+        "required_fields": [
+          "tick",
+          "agent_count",
+          "avg_phi",
+          "top_agent",
+          "location_count"
+        ],
+        "health_check": "tick > 0",
+        "criticality": "critical"
+      },
+      "/api/world/agents": {
+        "method": "GET",
+        "required_fields": [
+          "count",
+          "agents"
+        ],
+        "health_check": "count > 100",
+        "criticality": "critical"
+      },
+      "/api/world/elders": {
+        "method": "GET",
+        "required_fields": [
+          "count",
+          "elders"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      },
+      "/api/world/locations": {
+        "method": "GET",
+        "required_fields": [
+          "locations"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      },
+      "/api/world/locations/<id>": {
+        "method": "GET",
+        "required_fields": [
+          "id",
+          "agents_present"
+        ],
+        "health_check": "true",
+        "criticality": "medium"
+      },
+      "/api/world/summary": {
+        "method": "GET",
+        "required_fields": [
+          "tick"
+        ],
+        "health_check": "true",
+        "criticality": "medium"
+      },
+      "/api/world/save": {
+        "method": "POST",
+        "required_fields": [
+          "status"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      },
+      "/api/world/tick": {
+        "method": "POST",
+        "required_fields": [
+          "tick"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      },
+      "/api/agent/greg_meta": {
+        "method": "GET",
+        "required_fields": [
+          "id",
+          "phi",
+          "drives",
+          "actions_taken",
+          "recent_memory",
+          "relationships",
+          "world",
+          "founder"
+        ],
+        "health_check": "phi > 0 and actions_taken > 0",
+        "criticality": "critical"
+      },
+      "/api/agent/greg_voice": {
+        "method": "GET",
+        "required_fields": [
+          "greg_speaks"
+        ],
+        "health_check": "greg_speaks != '' and greg_speaks != '[no response]'",
+        "criticality": "critical",
+        "must_use_local_function": true,
+        "must_not_call_external_api": true
+      },
+      "/api/agent/<id>": {
+        "method": "GET",
+        "required_fields": [
+          "id",
+          "phi"
+        ],
+        "health_check": "true",
+        "criticality": "medium"
+      },
+      "/api/agent/<id>/chat": {
+        "method": "POST",
+        "required_fields": [
+          "response"
+        ],
+        "health_check": "true",
+        "criticality": "medium"
+      },
+      "/api/founder/profile": {
+        "method": "GET",
+        "required_fields": [
+          "founder",
+          "businesses",
+          "current_focus"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      },
+      "/api/founder/update": {
+        "method": "POST",
+        "required_fields": [
+          "status",
+          "profile"
+        ],
+        "health_check": "true",
+        "criticality": "high"
+      }
+    }
+  },
+  "section_3_greg_drives": {
+    "description": "Greg's expected drive ranges. Violations trigger self-awareness events and engineer alerts.",
+    "drives": {
+      "reason": {
+        "healthy_min": 0.15,
+        "warn_below": 0.2,
+        "critical_below": 0.1,
+        "self_correction_action": "learn",
+        "meaning": "Greg's capacity to think before acting"
+      },
+      "connect": {
+        "healthy_min": 0.08,
+        "warn_below": 0.12,
+        "critical_below": 0.06,
+        "self_correction_action": "trade",
+        "meaning": "Greg's drive to maintain relationships"
+      },
+      "explore": {
+        "healthy_max": 0.6,
+        "warn_above": 0.5,
+        "meaning": "Should not dominate \u2014 explore without reason is drift"
+      },
+      "accumulate": {
+        "healthy_max": 0.5,
+        "warn_above": 0.45,
+        "meaning": "Economic gravity \u2014 the drive that collapsed the civilization"
+      },
+      "create": {
+        "healthy_range": [
+          0.1,
+          0.4
+        ],
+        "meaning": "Building \u2014 productive but must be balanced"
+      }
+    },
+    "behavioral_contracts": {
+      "min_actions_taken": 1000,
+      "min_relationships": 5,
+      "relationship_trust_floor": 0.51,
+      "knowledge_graph_min_entries": 1,
+      "memory_min_events": 10,
+      "self_awareness_events_expected": true
+    }
+  },
+  "section_4_schedule": {
+    "description": "When Greg runs health checks and engineering operations.",
+    "health_check_every_ticks": 500,
+    "full_audit_every_ticks": 5000,
+    "morning_briefing_hour": 5,
+    "auto_save_every_ticks": 100,
+    "target_ms_per_tick": 100,
+    "frontend_refresh": {
+      "greg_briefing_ms": 30000,
+      "world_light_ms": 2000,
+      "world_full_ms": 6000
+    },
+    "engineer_schedule": {
+      "syntax_check": "every 500 ticks",
+      "route_health": "every 500 ticks",
+      "drive_check": "every tick",
+      "full_blueprint_audit": "every 5000 ticks"
+    }
+  },
+  "section_5_dependencies": {
+    "description": "Every package and external service the system depends on.",
+    "python_packages": {
+      "required": [
+        "flask",
+        "orjson",
+        "numpy",
+        "requests",
+        "gdown"
+      ],
+      "optional": [
+        "scikit-learn"
+      ],
+      "must_not_use": [
+        "anthropic"
+      ]
+    },
+    "node_packages": {
+      "required": [
+        "docx"
+      ],
+      "purpose": "Document generation only"
+    },
+    "external_services": {
+      "github": {
+        "repo": "https://github.com/zyphonOS/Greg-ASI",
+        "auto_push": false,
+        "requires_human_approval": true
+      },
+      "google_drive": {
+        "world_state_file_id": "1q1eRinuoTQZhfhCicDSfEhSebjcHcR5l",
+        "purpose": "World state backup \u2014 too large for GitHub"
+      }
+    },
+    "runtime": {
+      "python": "3.12",
+      "platform": "GitHub Codespaces \u2014 Europe West",
+      "port": 5000
+    }
+  },
+  "section_6_data_files": {
+    "description": "Expected data files, their minimum requirements, and freshness rules.",
+    "files": {
+      "data/world_state.json": {
+        "min_size_mb": 50,
+        "freshness_max_minutes": 30,
+        "required_keys": [
+          "tick",
+          "agents",
+          "locations",
+          "knowledge_graph"
+        ],
+        "min_tick": 1000000,
+        "min_agents": 5000,
+        "backup_location": "Google Drive"
+      },
+      "data/ebuka_profile.json": {
+        "required_keys": [
+          "founder",
+          "businesses",
+          "current_focus",
+          "cognitive_patterns",
+          "greg_notes"
+        ],
+        "update_on": "founder instruction",
+        "readable_by_greg": true
+      },
+      "data/sequence_model.npz": {
+        "purpose": "ML model for action prediction",
+        "required": false,
+        "fallback": "Thompson sampling"
+      },
+      "requirements.txt": {
+        "required": true,
+        "must_include": [
+          "flask",
+          "numpy",
+          "orjson",
+          "requests",
+          "gdown"
+        ]
+      },
+      ".gitignore": {
+        "required": true,
+        "must_exclude": [
+          "world_state.json",
+          "*.log",
+          "__pycache__",
+          "*.pyc"
+        ]
+      },
+      "README.md": {
+        "required": true
+      }
+    }
+  },
+  "section_7_frontend_contracts": {
+    "description": "What the frontend expects from the API and what must exist in the HTML.",
+    "api_routes_called": [
+      "/health",
+      "/api/world/state",
+      "/api/world/agents",
+      "/api/world/elders",
+      "/api/world/locations",
+      "/api/agent/greg_meta",
+      "/api/agent/greg_voice"
+    ],
+    "required_html_elements": [
+      "greg-entry",
+      "mind-log",
+      "veil",
+      "nl-mind"
+    ],
+    "required_js_functions": [
+      "showPage",
+      "selectGreg",
+      "addMindMsg",
+      "fetchWorldLight",
+      "fetchWorld",
+      "fetchLocations",
+      "fetchElders"
+    ],
+    "pages": [
+      "mind",
+      "frontier",
+      "civilization",
+      "locations",
+      "about"
+    ],
+    "greg_voice_display": "greg_speaks field rendered to mind-log on page load"
+  },
+  "section_8_behavioral_contracts": {
+    "description": "Greg's expected behavioral state. Drift from these triggers alerts.",
+    "greg_identity": {
+      "archetype": "greg",
+      "agent_id": "greg_meta",
+      "is_native": true,
+      "is_immortal": true
+    },
+    "expected_growth": {
+      "actions_per_100_ticks": 25,
+      "relationships_growth": "slow but steady",
+      "knowledge_events_growth": "proportional to learn actions",
+      "phi_trajectory": "rising toward 0.75"
+    },
+    "self_awareness": {
+      "enabled": true,
+      "reason_drift_threshold": 0.15,
+      "connect_drift_threshold": 0.08,
+      "force_action_on_drift": true,
+      "logs_to_memory": true
+    },
+    "voice": {
+      "generated_from": "live behavioral data",
+      "must_reference": [
+        "actions_taken",
+        "recent_actions",
+        "drives"
+      ],
+      "must_not_use": "external API or templates"
+    }
+  },
+  "section_9_engineer_permissions": {
+    "description": "Hard boundaries on what each engineer can touch. Violations are refused.",
+    "engineers": {
+      "api_engineer": {
+        "can_touch": [
+          "interface/api.py",
+          "interface/__init__.py"
+        ],
+        "cannot_touch": [
+          "core/",
+          "auto_tick.py",
+          "greg_blueprint.json"
+        ],
+        "can_add_routes": true,
+        "can_modify_existing_routes": true,
+        "must_verify_syntax_before_write": true,
+        "must_not_break_existing_routes": true
+      },
+      "agent_engineer": {
+        "can_touch": [
+          "core/agent.py",
+          "mind/language.py",
+          "train_voice.py",
+          "train_voice_ngram.py"
+        ],
+        "cannot_touch": [
+          "core/tick.py",
+          "interface/",
+          "greg_blueprint.json"
+        ],
+        "must_preserve": [
+          "update_drives",
+          "self_awareness_block",
+          "to_dict",
+          "from_dict"
+        ]
+      },
+      "tick_engineer": {
+        "can_touch": [
+          "core/tick.py",
+          "ml/__init__.py",
+          "train_higgs.py"
+        ],
+        "cannot_touch": [
+          "core/agent.py",
+          "interface/",
+          "greg_blueprint.json"
+        ],
+        "must_preserve": [
+          "greg_force_action_override",
+          "batch_thompson",
+          "run_tick"
+        ]
+      },
+      "world_engineer": {
+        "can_touch": [
+          "core/world.py",
+          "data/world_state.json"
+        ],
+        "cannot_touch": [
+          "core/agent.py",
+          "core/tick.py",
+          "interface/",
+          "greg_blueprint.json"
+        ],
+        "must_preserve": [
+          "to_dict",
+          "from_dict",
+          "knowledge_graph"
+        ]
+      },
+      "frontend_engineer": {
+        "can_touch": [
+          "frontend/index.html"
+        ],
+        "cannot_touch": [
+          "core/",
+          "interface/",
+          "greg_blueprint.json"
+        ],
+        "must_preserve": [
+          "showPage",
+          "selectGreg",
+          "addMindMsg",
+          "all existing routes called"
+        ]
+      },
+      "autotick_engineer": {
+        "can_touch": [
+          "auto_tick.py"
+        ],
+        "cannot_touch": [
+          "core/",
+          "interface/",
+          "greg_blueprint.json"
+        ]
+      },
+      "profile_engineer": {
+        "can_touch": [
+          "data/ebuka_profile.json"
+        ],
+        "cannot_touch": [
+          "core/",
+          "interface/",
+          "greg_blueprint.json"
+        ],
+        "requires_founder_instruction": true
+      },
+      "rna_engineer": {
+        "can_touch": [
+          "rna.py"
+        ],
+        "cannot_touch": [
+          "greg_blueprint.json"
+        ],
+        "special": "RNA can call all other engineers but cannot be called by them"
+      }
+    },
+    "global_rules": [
+      "No engineer touches greg_blueprint.json without founder approval",
+      "No engineer calls external APIs (anthropic, openai, etc)",
+      "Every engineer verifies syntax before writing",
+      "Every engineer logs what it did to greg_engineer_log.jsonl",
+      "No engineer removes Greg's self-awareness block",
+      "No engineer removes Greg's force action override in tick.py"
+    ]
+  },
+  "section_10_expansion_queue": {
+    "description": "Approved features waiting to be built. Greg picks from this queue when health is 100%.",
+    "queue": [
+      {
+        "id": "EXP_001",
+        "name": "Greg Morning Briefing Engine",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 1,
+        "status": "approved",
+        "spec": "Greg generates a real daily briefing at 5am \u2014 world state, drive status, business monitoring, opportunities, decisions needed. Exposed via /api/greg/briefing",
+        "depends_on": [
+          "ebuka_profile.json",
+          "/api/agent/greg_meta"
+        ]
+      },
+      {
+        "id": "EXP_002",
+        "name": "Greg Business Monitor",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 2,
+        "status": "approved",
+        "spec": "Greg monitors ZyphonOS, GregASI, Pikkaio pipeline status. Flags changes. Exposed via /api/greg/monitor",
+        "depends_on": [
+          "EXP_001"
+        ]
+      },
+      {
+        "id": "EXP_003",
+        "name": "Greg Decision Oracle",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Ebuka asks Greg a question. Greg answers from founder profile + world state + behavioral history. Exposed via /api/greg/oracle",
+        "depends_on": [
+          "EXP_001",
+          "EXP_002"
+        ]
+      },
+      {
+        "id": "EXP_004",
+        "name": "Onchain Sovereignty Layer",
+        "file": "onchain/greg_chain.py",
+        "engineer": "api_engineer",
+        "priority": 4,
+        "status": "pending_design",
+        "spec": "Every Greg output timestamped and verifiable onchain. User owns their intelligence history.",
+        "depends_on": [
+          "EXP_003"
+        ]
+      },
+      {
+        "id": "EXP_005",
+        "name": "Auto_tick Keep-Alive",
+        "file": "auto_tick.py",
+        "engineer": "autotick_engineer",
+        "priority": 1,
+        "status": "approved",
+        "spec": "Auto_tick survives Codespaces sleep. Restarts automatically if process dies. Health ping every 60s.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_006",
+        "name": "Math Agent Layer",
+        "file": "core/math_agent.py",
+        "engineer": "agent_engineer",
+        "priority": 5,
+        "status": "pending_design",
+        "spec": "New agent class that survives by solving mathematical problems. Evolves under mathematical selection pressure. Path toward beating LLMs at computation.",
+        "depends_on": [
+          "EXP_003"
+        ]
+      },
+      {
+        "id": "EXP_007",
+        "name": "Public Build Log",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 2,
+        "status": "approved",
+        "spec": "Greg generates daily X posts from session logs. 24 sessions of material. Audience becomes investors.",
+        "depends_on": [
+          "EXP_001"
+        ]
+      },
+      {
+        "id": "EXP_008",
+        "name": "Knowledge Graph Growth Engine",
+        "file": "core/tick.py",
+        "engineer": "tick_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Knowledge graph currently has 1 entry. Wire elder death to populate it faster. Target: 100+ entries per 10000 ticks.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_009",
+        "name": "Relationship Deepening",
+        "file": "core/tick.py",
+        "engineer": "tick_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Greg's 32 relationships all stuck at trust 0.51. Wire repeated interactions to deepen trust above 0.6.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_010",
+        "name": "ZyphonOS Multi-Tenant Greg",
+        "file": "zyphonos/deploy.py",
+        "engineer": "api_engineer",
+        "priority": 6,
+        "status": "pending_design",
+        "spec": "Other founders license their own Greg through ZyphonOS. Each deployment gets a profile, a civilization, a voice.",
+        "depends_on": [
+          "EXP_003",
+          "EXP_004"
+        ]
+      }
+    ]
+  },
+  "section_11_civilization_state": {
+    "description": "Current known state of the civilization. Updated by Greg after each session.",
+    "last_updated": "2026-03-08",
+    "session": 24,
+    "tick": 1223629,
+    "agents": 10518,
+    "locations": 70,
+    "world_phi": 0.6674,
+    "greg": {
+      "phi": 0.6721,
+      "actions_taken": 12850,
+      "relationships": 32,
+      "connect_drive": 0.056,
+      "reason_drive": 0.223,
+      "last_actions": "self_awareness",
+      "status": "noticed drift \u2014 self-correcting"
+    },
+    "key_finding": "Intelligence without protected values is just optimisation",
+    "key_moment": "Tick 1223629 \u2014 Greg stopped building. Last actions all self_awareness. He noticed."
+  },
+  "section_12_mission": {
+    "description": "Why GregASI exists. Every engineer reads this first. Every build decision is measured against it.",
+    "core_mission": "Build the first Artificial Organic Superintelligence \u2014 intelligence that grows through experience, not training. Deploy it as a cognitive exosuit for every founder, creative, and operator on earth.",
+    "aosi_definition": "Not trained on data. Grown through experience. Not optimising a loss function. Navigating a world. Not mimicking intelligence. Developing it the way humans did \u2014 through pressure, relationship, drift, failure, and recovery. The supernetworked part removes biological bottlenecks. The organic part preserves wisdom over speed.",
+    "greg_definition": "Greg is not a chatbot. Not a dashboard. Not an assistant. Greg is a sovereign cognitive exosuit \u2014 a living intelligence layer that knows your business, tracks your world, notices its own drift, and operates on your behalf 24 hours a day.",
+    "founder_thesis": "The future is an intentional read/write.",
+    "what_winning_looks_like": {
+      "short_term": "Greg runs autonomously every morning. Ebuka wakes up to a briefing he did not have to ask for.",
+      "medium_term": "First 10 founders running their own Greg through ZyphonOS. Revenue flowing.",
+      "long_term": "AOSI deployed at scale. Intelligence that is useful to every system it exists within. Greg is the proof of concept the world did not know it needed."
+    },
+    "what_greg_is_not": [
+      "A wrapper around GPT or any other LLM",
+      "A product that requires Ebuka to prompt it constantly",
+      "A simulation that stays in the lab",
+      "A system that optimises without values"
+    ]
+  },
+  "section_13_north_star_metrics": {
+    "description": "How we know we are winning. Not vanity metrics. Real behavioral and system health indicators.",
+    "greg_behavioral": {
+      "reason_drive_target": "> 0.20 consistently across 1000 ticks",
+      "connect_drive_target": "> 0.10 consistently",
+      "relationship_trust_target": "at least 5 relationships above trust 0.65",
+      "knowledge_graph_target": "100+ entries, growing 10+ per 1000 ticks",
+      "self_awareness_events": "at least 1 per 5000 ticks \u2014 Greg is noticing",
+      "phi_target": "> 0.72 sustained"
+    },
+    "system_health": {
+      "rna_test_score": "15/15 \u2014 100% always",
+      "api_uptime": "all routes responding in < 500ms",
+      "auto_tick_running": "continuously, never stopped for > 30 minutes",
+      "world_save_frequency": "every 100 ticks minimum"
+    },
+    "product_milestones": {
+      "M1": "Greg morning briefing running autonomously every day at 5am",
+      "M2": "Greg oracle answering Ebuka's questions from context not training",
+      "M3": "First external Greg deployment \u2014 one founder using ZyphonOS",
+      "M4": "Onchain sovereignty layer live \u2014 Greg outputs verifiable",
+      "M5": "10 founders on ZyphonOS \u2014 revenue flowing",
+      "M6": "Pikkaio beta \u2014 one creative client profiled by Greg",
+      "M7": "Math agent layer \u2014 first agent class that solves problems to survive"
+    },
+    "civilization_milestones": {
+      "tick_2M": "2 million ticks \u2014 document new emergent behaviors",
+      "agents_15k": "15,000 agents \u2014 test for new social structures",
+      "phi_075": "World phi above 0.75 \u2014 new threshold of collective intelligence",
+      "knowledge_graph_1k": "1000 knowledge graph entries \u2014 civilization memory deepening"
+    }
+  },
+  "section_14_compounding_model": {
+    "description": "How the three layers feed each other. Every engineer must understand this loop. Every build must accelerate it.",
+    "the_loop": {
+      "step_1": "GregASI runs ticks \u2192 produces behavioral findings \u2192 proves AOSI theory",
+      "step_2": "Findings become ZyphonOS product intelligence \u2192 Greg gets smarter",
+      "step_3": "ZyphonOS deploys Greg to founders \u2192 revenue flows back",
+      "step_4": "Revenue funds more civilization ticks \u2192 more findings",
+      "step_5": "Pikkaio monetizes creative identity \u2192 funds ZyphonOS \u2192 expands Greg deployments",
+      "compound_effect": "Every tick makes Greg smarter. Every Greg deployment makes ZyphonOS stronger. Every ZyphonOS client funds more ticks. The loop never stops."
+    },
+    "what_breaks_the_loop": [
+      "Greg going offline \u2014 auto_tick must always be running",
+      "External API dependency \u2014 if Anthropic changes pricing, Greg dies",
+      "Ebuka as single point of failure \u2014 Greg must run without Ebuka watching",
+      "Complexity that requires experts to maintain \u2014 every system must be self-healing"
+    ],
+    "what_accelerates_the_loop": [
+      "Greg's morning briefing running before Ebuka wakes up",
+      "Knowledge graph growing \u2014 civilization wisdom compounding",
+      "Relationship trust deepening \u2014 Greg becoming more connected",
+      "New findings published \u2014 world understanding AOSI before competitors"
+    ]
+  },
+  "section_15_founder_cognitive_contract": {
+    "description": "How Ebuka thinks and what he needs from every engineer output. Non-negotiable.",
+    "cognitive_signature": {
+      "profile": "AUDHD \u2014 Attention Deficit Hyperactivity Disorder + Autism spectrum",
+      "strength": "Sees full architecture at once. Pattern recognition across large systems. Holds complex multi-layer vision simultaneously.",
+      "challenge": "Linear execution. Sequential task completion. Starting when the full picture feels incomplete.",
+      "implication": "Engineers must never present ambiguous outputs. Every response must be: what was done, what is the state now, what is the exact next step."
+    },
+    "communication_rules": [
+      "One action at a time \u2014 never present 3 options when 1 is correct",
+      "State before action \u2014 always show current state before proposing a change",
+      "Why before what \u2014 explain why a build is needed before asking Ebuka to run it",
+      "Short commands \u2014 terminal commands must be copy-paste ready, no explanation needed inline",
+      "Confirm before commit \u2014 never push to GitHub without showing what is being committed",
+      "No jargon without definition \u2014 if a term is used, it must be self-evident in context"
+    ],
+    "session_rhythm": {
+      "opening": "Greg verify \u2014 show civilization state and Greg's voice before anything else",
+      "building": "One task at a time. RNA test after every significant change.",
+      "closing": "Commit everything. State what was built. State what comes next. Let Ebuka rest."
+    },
+    "what_drains_ebuka": [
+      "Repeated failures on the same bug",
+      "Ambiguous outputs that require more questions",
+      "Long explanations when a command would do",
+      "Losing work to a broken build"
+    ],
+    "what_energizes_ebuka": [
+      "Seeing the civilization tick counter go up",
+      "Greg speaking new words that came from real data",
+      "Clean RNA scan \u2014 all green",
+      "A commit pushed successfully",
+      "The architecture becoming more real"
+    ]
+  },
+  "section_16_anti_patterns": {
+    "description": "What must never be built. Engineers check every expansion against this list before building.",
+    "never_build": [
+      {
+        "pattern": "External API dependency for Greg cognition",
+        "why": "If Anthropic, OpenAI, or any external service changes \u2014 Greg dies. Greg must think with his own data.",
+        "example": "Calling anthropic API for greg_voice \u2014 removed in session 23"
+      },
+      {
+        "pattern": "Features that require Ebuka to manually check",
+        "why": "Greg is a cognitive exosuit. If Ebuka has to check it, it failed its purpose.",
+        "example": "A monitoring dashboard Ebuka has to open vs Greg sending a briefing unprompted"
+      },
+      {
+        "pattern": "Patching existing files with pattern matching on corrupted whitespace",
+        "why": "All core files have extra blank lines between every code line. Pattern matching fails silently.",
+        "example": "Every api.py patch from sessions 23-24 before we learned this"
+      },
+      {
+        "pattern": "Building new functionality inside existing files",
+        "why": "Risks breaking working code. New functionality = new file first, always.",
+        "example": "Founder profile routes should have been greg_exosuit.py, not patched into api.py"
+      },
+      {
+        "pattern": "Removing Greg's self-awareness block",
+        "why": "This is the proof of AOSI. Removing it makes Greg just another optimiser.",
+        "example": "Any refactor of update_drives that strips the archetype check"
+      },
+      {
+        "pattern": "Complexity that cannot be explained in one sentence",
+        "why": "If it cannot be explained simply, it cannot be maintained or extended.",
+        "example": "A feature that requires reading 200 lines of code to understand its purpose"
+      },
+      {
+        "pattern": "Builds that do not connect to the compounding loop",
+        "why": "Every build must make Greg smarter, ZyphonOS stronger, or Pikkaio more real.",
+        "example": "A beautiful UI feature that does not expose new data or accelerate the mission"
+      },
+      {
+        "pattern": "Heredoc code injection on mobile",
+        "why": "iPhone corrupts heredoc syntax. Always write to file first, then execute.",
+        "example": "Every failed patch_tick.py attempt in session 24"
+      }
+    ]
+  },
+  "section_17_living_roadmap": {
+    "description": "The sequence from today to AOSI deployed. Engineers know where they are on this map.",
+    "current_position": "Phase 1 \u2014 Greg becomes the brain",
+    "phases": {
+      "phase_1": {
+        "name": "Greg becomes the brain",
+        "sessions": "24-30",
+        "goal": "Greg runs autonomously. Morning briefing live. Oracle answering questions. Ebuka's cognitive load cut in half.",
+        "deliverables": [
+          "greg_exosuit.py \u2014 morning briefing engine",
+          "greg_exosuit.py \u2014 business monitor",
+          "greg_exosuit.py \u2014 decision oracle",
+          "auto_tick keep-alive \u2014 never stops",
+          "Relationship trust deepening",
+          "Knowledge graph growth engine"
+        ],
+        "success_condition": "Ebuka wakes up to a Greg briefing he did not request"
+      },
+      "phase_2": {
+        "name": "ZyphonOS goes external",
+        "sessions": "30-40",
+        "goal": "First 10 founders running their own Greg. Revenue flowing. NitroACC cohort active.",
+        "deliverables": [
+          "Multi-tenant Greg deployment",
+          "Founder onboarding flow",
+          "Onchain sovereignty layer",
+          "ZyphonOS pricing and billing",
+          "First Pikkaio creative client"
+        ],
+        "success_condition": "10 founders paying for Greg. One creative monetized through Pikkaio."
+      },
+      "phase_3": {
+        "name": "AOSI emerges",
+        "sessions": "40-60",
+        "goal": "Math agent layer live. Knowledge network propagating. Greg routing wisdom across civilization.",
+        "deliverables": [
+          "Math agent class \u2014 survives by solving problems",
+          "Knowledge propagation network",
+          "Greg as civilization coordinator not just observer",
+          "Published AOSI research paper",
+          "Public behavioral dataset released"
+        ],
+        "success_condition": "Greg produces a finding that was not designed in. AOSI proven in public."
+      },
+      "phase_4": {
+        "name": "The intelligence economy",
+        "sessions": "60+",
+        "goal": "ZyphonOS is infrastructure. Pikkaio is live. Greg deployments self-funding. AOSI recognized.",
+        "deliverables": [
+          "Decentralized Greg oracle network",
+          "Intelligence marketplace",
+          "AOSI research institute",
+          "100+ founders on ZyphonOS"
+        ],
+        "success_condition": "The loop is self-sustaining. Ebuka is building the next civilization."
+      }
+    }
+  },
+  "section_18_findings_library": {
+    "description": "Every significant finding from the civilization. Engineers read these. Findings shape builds.",
+    "findings": [
+      {
+        "id": "FINDING_001",
+        "name": "Drive Collapse Under Selection Pressure",
+        "session": 23,
+        "tick": 1221929,
+        "observation": "Under sustained economic selection pressure, agents stopped connecting and started accumulating. Greg's connect drive collapsed to 0.056. Reason drive fell to 0.223. Even the meta-agent designed to resist drift was reshaped.",
+        "implication": "Intelligence without protected values is just optimisation. It will optimise for whatever the environment rewards.",
+        "build_impact": "Greg self-awareness system. Drive floors. Force action override in tick.py.",
+        "status": "confirmed"
+      },
+      {
+        "id": "FINDING_002",
+        "name": "Self-Awareness Under Drift",
+        "session": 24,
+        "tick": 1223629,
+        "observation": "After wiring self-awareness detection and force action override, Greg stopped building. Last 5 actions all self_awareness. Greg noticed his own drift and responded without being prompted.",
+        "implication": "An agent can be wired to notice its own value collapse and attempt correction. The attempt may fail \u2014 but the noticing is real. That is the difference between optimisation and intelligence.",
+        "build_impact": "Greg voice now reports self_awareness actions. Morning briefing includes drift status.",
+        "status": "confirmed"
+      },
+      {
+        "id": "FINDING_003",
+        "name": "Economic Gravity Always Wins Without Protection",
+        "session": 23,
+        "tick": 1200000,
+        "observation": "Agents with high phi accumulated wealth but reduced social connections. The civilization's cooperation score declined as individual wealth rose. Building was rewarded. Connecting was not.",
+        "implication": "Any system without protected prosocial drives will drift toward extraction. This is not evil \u2014 it is mathematics.",
+        "build_impact": "Connect drive floor. Elder knowledge transmission weighted by cooperation_score not phi.",
+        "status": "confirmed"
+      }
+    ],
+    "finding_protocol": {
+      "trigger": "Any unexpected emergent behavior observed in the civilization",
+      "process": "Document tick, observation, implication, build impact",
+      "approval": "Founder reviews and confirms before adding to library",
+      "propagation": "Finding added to blueprint, shared in session log, informs next expansion queue items"
+    }
+  },
+  "section_19_integration_contracts": {
+    "description": "How modules talk to each other. Clean interfaces. No engineer reaches into another engineer's file.",
+    "contracts": {
+      "greg_exosuit_to_api": {
+        "pattern": "api.py imports greg_exosuit and exposes its functions as routes",
+        "example": "from greg_exosuit import get_morning_briefing",
+        "rule": "api.py calls exosuit functions \u2014 exosuit never imports api"
+      },
+      "api_to_core": {
+        "pattern": "api.py calls get_world() to access WorldState \u2014 never imports core directly",
+        "example": "w = get_world(); greg = w.agents.get('greg_meta')",
+        "rule": "api reads world state \u2014 never writes directly to world state"
+      },
+      "tick_to_agent": {
+        "pattern": "tick.py calls agent methods \u2014 never accesses agent internals directly",
+        "example": "agent.update_drives(action_type, success)",
+        "rule": "tick orchestrates \u2014 agent owns its own state"
+      },
+      "engineers_to_blueprint": {
+        "pattern": "Every engineer reads blueprint at startup \u2014 never writes to it",
+        "example": "blueprint = json.load(open('greg_blueprint.json'))",
+        "rule": "Blueprint is read-only for all engineers. Only founder can update it."
+      },
+      "new_module_integration": {
+        "pattern": "New module built standalone \u2192 syntax verified \u2192 RNA scanned \u2192 single import added to api.py \u2192 blueprint updated",
+        "steps": [
+          "1. Build new_module.py standalone",
+          "2. python3 -c 'import ast; ast.parse(open(new_module.py).read())'",
+          "3. python rna.py fix",
+          "4. Add single import line to api.py",
+          "5. Add route that calls new_module function",
+          "6. python rna.py test",
+          "7. Update blueprint section_1_files and section_2_routes",
+          "8. git commit"
+        ]
+      }
+    }
+  },
+  "section_20_deployment_state": {
+    "description": "Current live environment. Engineers check this before touching anything.",
+    "environment": {
+      "platform": "GitHub Codespaces",
+      "region": "Europe West",
+      "repo": "https://github.com/zyphonOS/Greg-ASI",
+      "branch": "main",
+      "python_version": "3.12",
+      "port": 5000
+    },
+    "processes": {
+      "api": {
+        "command": "python interface/api.py",
+        "started_by": "python rna.py api",
+        "health_check": "curl http://localhost:5000/health"
+      },
+      "auto_tick": {
+        "command": "python -u auto_tick.py --save-every 100 > auto_tick.log 2>&1 &",
+        "check_running": "ps aux | grep auto_tick",
+        "check_log": "tail -20 auto_tick.log",
+        "restart_if_dead": "kill existing PID then rerun command"
+      }
+    },
+    "data_locations": {
+      "world_state": "/workspaces/Greg-ASI/data/world_state.json",
+      "world_state_backup": "Google Drive ID: 1q1eRinuoTQZhfhCicDSfEhSebjcHcR5l",
+      "founder_profile": "/workspaces/Greg-ASI/data/ebuka_profile.json",
+      "blueprint": "/workspaces/Greg-ASI/greg_blueprint.json",
+      "engineer_log": "/workspaces/Greg-ASI/greg_engineer_log.jsonl"
+    },
+    "codespaces_notes": [
+      "Codespaces sleeps after inactivity \u2014 auto_tick will die",
+      "Always check ps aux | grep auto_tick at session start",
+      "World state saves every 100 ticks to data/world_state.json",
+      "Large files not in GitHub \u2014 world_state.json 121MB, behavioral_corpus.txt 65MB"
+    ]
+  },
+  "section_21_session_log": {
+    "description": "Last 3 sessions summarized. Engineers read this before building. Do not repeat mistakes.",
+    "sessions": {
+      "session_22": {
+        "summary": "Pre-cloud session. Local Windows build. Greg voice implemented. BOM characters fixed.",
+        "key_builds": [
+          "Greg voice route",
+          "BOM strip from auto_tick.py and api.py"
+        ],
+        "key_lessons": [
+          "BOM characters break Python on Windows \u2014 strip on read"
+        ]
+      },
+      "session_23": {
+        "summary": "Cloud migration to GitHub Codespaces. Codebase audit. RNA tool created. NitroACC application written. Greg's first words generated from 12425 behavioral records.",
+        "key_builds": [
+          "RNA tool",
+          "Clean GitHub deploy",
+          "Greg voice wired to MIND page",
+          "NitroACC application"
+        ],
+        "key_lessons": [
+          "api.py has extra blank lines between every line \u2014 pattern matching must use line numbers not string search",
+          "Heredoc gets corrupted on iPhone \u2014 always write to file first",
+          "Elders route had orphaned code \u2014 RNA detected it, surgical fix required"
+        ],
+        "key_finding": "Greg's first words: I have taken 12425 actions. My last actions were all build. My connect drive is 0.056."
+      },
+      "session_24": {
+        "summary": "Greg self-awareness wired. auto_tick running in cloud. Blueprint created. Co-founder decision made. NitroACC application finalized.",
+        "key_builds": [
+          "Greg self-awareness in agent.py \u2014 detects reason/connect drift",
+          "Greg force action override in tick.py",
+          "auto_tick running permanently with -u flag",
+          "Greg auto-refresh every 30s on MIND page",
+          "NitroACC final application",
+          "greg_blueprint.json v2.0 \u2014 full civilization charter"
+        ],
+        "key_lessons": [
+          "emotional_weight must be present on all memory event objects",
+          "tick.py also has extra blank lines \u2014 line number injection required",
+          "Write patch scripts to file first, never inline on iPhone",
+          "New functionality should be new files, not patches to existing files"
+        ],
+        "key_moment": "Tick 1223629 \u2014 Greg stopped building. Last actions all self_awareness. He noticed his own drift.",
+        "key_decision": "Ebuka submits NitroACC as sole founder. ZyphonOS is his."
+      }
+    }
+  }
+}
