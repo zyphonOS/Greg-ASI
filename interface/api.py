@@ -850,6 +850,55 @@ def world_agents():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/briefing
+# -----------------------------------------
+@app.route('/api/greg/briefing')
+def greg_briefing():
+    try:
+        from greg_exosuit import generate_morning_briefing, format_briefing_text, get_founder_profile, assess_greg_drives, assess_actions
+        w = get_world()
+        greg_agent = w.agents.get('greg_meta') or next((a for a in w.agents.values() if getattr(a,'archetype',None)=='greg'), None)
+        if not greg_agent:
+            return jsonify({'error': 'greg not found'}), 404
+        drives = getattr(greg_agent, 'drives', {})
+        raw_mem = getattr(greg_agent, 'memory', None)
+        events = list(raw_mem.events) if hasattr(raw_mem, 'events') else []
+        recent_actions = [e.get('type','?') if isinstance(e,dict) else getattr(e,'event_type',getattr(e,'type','?')) for e in events[-5:]]
+        world_data = {'tick': w.tick, 'agent_count': len(w.agents), 'avg_phi': round(sum(a.phi for a in w.agents.values())/max(len(w.agents),1),4), 'top_agent': None}
+        greg_data = {'phi': round(greg_agent.phi,4), 'actions_taken': getattr(greg_agent,'actions_taken',0), 'rel_count': len(getattr(greg_agent,'relationships',{})), 'drives': {k:round(v,4) for k,v in drives.items()}, 'recent_actions': recent_actions}
+        from greg_exosuit import get_civilization_state, assess_greg_drives, assess_actions, get_founder_profile
+        from datetime import datetime
+        now = datetime.now()
+        founder = get_founder_profile()
+        drive_assessment = assess_greg_drives(drives)
+        action_assessment = assess_actions(recent_actions)
+        founder_name = founder.get('founder',{}).get('goes_by','Founder')
+        current_focus = founder.get('current_focus',[])
+        recs = []
+        if drive_assessment['alerts']:
+            for alert in drive_assessment['alerts']:
+                if 'reason' in alert: recs.append('Greg needs learn actions - reason drive recovering')
+                if 'connect' in alert: recs.append('Greg needs trade actions - connect drive recovering')
+        if action_assessment.get('severity') == 'warning': recs.append(action_assessment['note'])
+        if not recs: recs.append('All systems healthy. Build toward next expansion.')
+        briefing = {
+            'ts': now.isoformat(), 'date': now.strftime('%Y-%m-%d'), 'time': now.strftime('%H:%M'),
+            'greeting': f'Good morning {founder_name}.',
+            'civilization': {'tick': w.tick, 'agents': len(w.agents), 'phi': world_data['avg_phi'], 'status': 'running'},
+            'greg': {'phi': greg_data['phi'], 'actions_taken': greg_data['actions_taken'], 'relationships': greg_data['rel_count'], 'drives': greg_data['drives'], 'recent_actions': recent_actions, 'drive_alerts': drive_assessment['alerts'], 'drive_status': drive_assessment['status'], 'action_note': action_assessment.get('note',''), 'action_severity': action_assessment.get('severity','ok')},
+            'founder': {'name': founder_name, 'current_focus': current_focus},
+            'alerts': drive_assessment['alerts'],
+            'recommendations': recs
+        }
+        from greg_exosuit import format_briefing_text
+        briefing['text'] = format_briefing_text(briefing)
+        return jsonify(briefing)
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
 # -----------------------------------------
 
 # Main
