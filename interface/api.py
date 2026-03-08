@@ -417,7 +417,7 @@ def get_greg():
 
             "recent_memory":   recent_memory,
 
-            "recent_actions": [e.get("type","?") if isinstance(e,dict) else getattr(e,"event_type","?") for e in events[-5:]],
+            "recent_actions": [e.get("type","?") if isinstance(e,dict) else getattr(e,"event_type","?") for e in events if (e.get("type") if isinstance(e,dict) else getattr(e,"event_type","")) != "self_awareness"][-5:],
 
             "rel_count":      len(getattr(greg, "relationships", {}) or {}),
 
@@ -865,7 +865,7 @@ def greg_briefing():
         drives = getattr(greg_agent, 'drives', {})
         raw_mem = getattr(greg_agent, 'memory', None)
         events = list(raw_mem.events) if hasattr(raw_mem, 'events') else []
-        recent_actions = [e.get('type','?') if isinstance(e,dict) else getattr(e,'event_type',getattr(e,'type','?')) for e in events[-5:]]
+        recent_actions = [e.get('type','?') if isinstance(e,dict) else getattr(e,'event_type',getattr(e,'type','?')) for e in events if (e.get('type') if isinstance(e,dict) else getattr(e,'event_type','')) != 'self_awareness'][-5:]
         world_data = {'tick': w.tick, 'agent_count': len(w.agents), 'avg_phi': round(sum(a.phi for a in w.agents.values())/max(len(w.agents),1),4), 'top_agent': None}
         greg_data = {'phi': round(greg_agent.phi,4), 'actions_taken': getattr(greg_agent,'actions_taken',0), 'rel_count': len(getattr(greg_agent,'relationships',{})), 'drives': {k:round(v,4) for k,v in drives.items()}, 'recent_actions': recent_actions}
         from greg_exosuit import get_civilization_state, assess_greg_drives, assess_actions, get_founder_profile
