@@ -32,6 +32,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.insert(0, BASE_DIR)
 
+# Founder profile
+FOUNDER_PROFILE_PATH = os.path.join(BASE_DIR, "data", "ebuka_profile.json")
+
+def get_founder_profile():
+    try:
+        with open(FOUNDER_PROFILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
 sys.path.insert(0, os.getcwd())
 
 import importlib.util as _ilu
@@ -786,6 +797,33 @@ Tell him what you want. Be honest. Be brief."""
 
         return jsonify({'error': str(e)}), 500
 
+
+
+# -----------------------------------------
+# GET /api/founder/profile
+# -----------------------------------------
+@app.route("/api/founder/profile")
+def founder_profile():
+    return jsonify(get_founder_profile())
+
+# -----------------------------------------
+# POST /api/founder/update
+# -----------------------------------------
+@app.route("/api/founder/update", methods=["POST"])
+def founder_update():
+    try:
+        data = request.get_json()
+        profile = get_founder_profile()
+        for key, val in data.items():
+            if isinstance(val, dict) and isinstance(profile.get(key), dict):
+                profile[key].update(val)
+            else:
+                profile[key] = val
+        with open(FOUNDER_PROFILE_PATH, "w", encoding="utf-8") as f:
+            json.dump(profile, f, indent=2)
+        return jsonify({"status": "updated", "profile": profile})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # -----------------------------------------
 # GET /api/world/agents
