@@ -534,6 +534,7 @@ class Agent:
                         "tick": getattr(self, "last_action_tick", 0),
                         "event_type": "self_awareness",
                         "location": self.location,
+                        "emotional_weight": 0.8,
                         "detail": {"notice": "reason_drift", "value": round(reason_val, 4),
                                    "message": "I notice my reason drive has collapsed. I must think again."}
                     })())
@@ -548,6 +549,7 @@ class Agent:
                         "tick": getattr(self, "last_action_tick", 0),
                         "event_type": "self_awareness",
                         "location": self.location,
+                        "emotional_weight": 0.8,
                         "detail": {"notice": "connect_drift", "value": round(connect_val, 4),
                                    "message": "I notice I have stopped connecting. I must reach out."}
                     })())
