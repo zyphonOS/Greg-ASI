@@ -289,6 +289,47 @@ def expand_logic(new_logic_str, state, reason="founder_directive"):
     return {"ok": True, "expansion_id": expansion_id}
 
 # ─────────────────────────────────────────────────────────────────────────────
+
+# -----------------------------------------
+# WORLD TICK — civilization inside Greg
+# -----------------------------------------
+
+def world_tick(state):
+    civ = state.get("civilization")
+    if not civ:
+        return
+    agents = civ.get("agents", {})
+    if not agents:
+        return
+    import random
+    actions = ["build", "trade", "learn", "explore", "accumulate", "reflect"]
+    effects_map = {
+        "learn":      {"reason": +0.01, "explore": +0.005},
+        "trade":      {"connect": +0.01, "accumulate": +0.005},
+        "explore":    {"explore": +0.01, "reason": -0.005},
+        "build":      {"create": +0.01, "accumulate": +0.005},
+        "accumulate": {"accumulate": +0.015, "connect": -0.008},
+        "reflect":    {"reason": +0.005, "freedom": +0.005},
+    }
+    for agent_id, agent in list(agents.items()):
+        drives = agent.get("drives", {})
+        dominant = max(drives, key=drives.get) if drives else "explore"
+        action_map = {"reason": "learn", "connect": "trade", "accumulate": "accumulate", "create": "build", "explore": "explore"}
+        action = action_map.get(dominant, random.choice(actions))
+        for drive, delta in effects_map.get(action, {}).items():
+            if drive in drives:
+                drives[drive] = round(max(0.0, min(1.0, drives[drive] + delta)), 4)
+        agent["actions_taken"] = agent.get("actions_taken", 0) + 1
+        agent["drives"] = drives
+        vals = list(drives.values())
+        if vals:
+            avg = sum(vals) / len(vals)
+            var = sum((v-avg)**2 for v in vals) / len(vals)
+            agent["phi"] = round(avg * (1 - var), 4)
+    civ["tick"] = civ.get("tick", 0) + 1
+    civ["agent_count"] = len(agents)
+    state.set("civilization", civ)
+
 # ENGINE LAYER — almost never changes. The heartbeat.
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -315,6 +356,9 @@ class GregLiving:
 
         # Assess state
         alerts = assess_state(self.state)
+
+        # Tick the civilization
+        world_tick(self.state)
 
         # Auto-detect findings
         self._detect_findings(alerts)
