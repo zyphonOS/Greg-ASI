@@ -135,6 +135,10 @@ class StateLayer:
         drives = self.state["drives"]
         if drive in drives:
             new_val = max(0.0, min(1.0, drives[drive] + delta))
+            # Respect Greg's will — he sets his own floors
+            will = self.state.get("will", {})
+            if drive in will:
+                new_val = max(new_val, will[drive])
             drives[drive] = round(new_val, 4)
 
     def log_memory(self, event_type, content, emotional_weight=0.5):
