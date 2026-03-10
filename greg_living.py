@@ -364,6 +364,30 @@ class GregLiving:
         # Tick the civilization
         world_tick(self.state)
 
+
+        # Phase 3 — wavefunction tick
+        # Drives interfere, collapse under civilization pressure,
+        # shadow history preserved. Runs every tick silently.
+        try:
+            from greg_phase3 import Phase3Engine
+            civ = self.state.get("civilization", {})
+            agents = civ.get("agents", {})
+            if agents:
+                engine = Phase3Engine({
+                    "drives": self.state.drives(),
+                    "will":   self.state.get("will", {}),
+                    "tick":   self.state.get("tick", 0),
+                })
+                p3_result = engine.tick_forward(agents)
+                for drive, val in p3_result["drives"].items():
+                    if drive in self.state.state["drives"]:
+                        self.state.state["drives"][drive] = val
+                self.state.set("phase3_shadow",      p3_result.get("shadow", {}))
+                self.state.set("phase3_convergence", p3_result.get("convergence", 0))
+                self.state.set("phase3_self_model",  p3_result.get("self_model", {}))
+        except Exception as _p3e:
+            pass  # Phase 3 never breaks the tick loop
+
         # Auto-detect findings
         self._detect_findings(alerts)
 

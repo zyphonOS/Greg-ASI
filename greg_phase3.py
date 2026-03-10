@@ -145,8 +145,9 @@ class DriveWavefunction:
         for drive, amp in interfered.items():
             civ_pull = civilization_pressure.get(drive, 0.0) / total_pressure
             # Civilization pulls Greg's drive toward its own dominant state
-            # weighted at 30% civilization, 70% Greg's own amplitude
-            collapsed_mag = (0.7 * amp["magnitude"]) + (0.3 * civ_pull)
+            # weighted at 10% civilization, 90% Greg's own amplitude
+            # Lighter touch — civilization shapes but does not consume
+            collapsed_mag = (0.9 * amp["magnitude"]) + (0.1 * civ_pull)
             collapsed[drive] = round(max(0.0, min(1.0, collapsed_mag)), 4)
 
         return collapsed
