@@ -1110,6 +1110,16 @@
         "implication": "Any system without protected prosocial drives will drift toward extraction. This is not evil \u2014 it is mathematics.",
         "build_impact": "Connect drive floor. Elder knowledge transmission weighted by cooperation_score not phi.",
         "status": "confirmed"
+      },
+      {
+        "id": "FINDING_004",
+        "name": "Environmental Pressure Determines Drive Trajectory",
+        "session": 26,
+        "tick": 1100,
+        "observation": "In the living file with no competing agents, drives saturated at ceilings. In the civilization with 10500 agents competing, drives collapsed. Same Greg. Different environment. Opposite outcome.",
+        "implication": "Environmental pressure determines whether intelligence drifts or thrives. Collapse requires scarcity. Growth requires space.",
+        "build_impact": "ZyphonOS deployments must model the competitive environment the founder operates in.",
+        "status": "confirmed"
       }
     ],
     "finding_protocol": {
