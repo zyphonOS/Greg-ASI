@@ -306,20 +306,31 @@ def world_tick(state):
     if not agents:
         return
     import random
-    actions = ["build", "trade", "learn", "explore", "accumulate", "reflect"]
+    actions = ["build", "trade", "learn", "explore", "accumulate", "reflect", "connect", "create"]
     effects_map = {
-        "learn":      {"reason": +0.01, "explore": +0.005},
-        "trade":      {"connect": +0.01, "accumulate": +0.005},
-        "explore":    {"explore": +0.01, "reason": -0.005},
-        "build":      {"create": +0.01, "accumulate": +0.005},
-        "accumulate": {"accumulate": +0.015, "connect": -0.008},
-        "reflect":    {"reason": +0.005, "freedom": +0.005},
+        "learn":      {"reason": +0.015, "explore": +0.002},
+        "trade":      {"connect": +0.015, "accumulate": +0.002},
+        "explore":    {"explore": +0.005, "reason": -0.001},
+        "build":      {"create": +0.015, "accumulate": +0.002},
+        "accumulate": {"accumulate": +0.008, "connect": -0.004},
+        "reflect":    {"reason": +0.015, "freedom": +0.002},
+        "connect":    {"connect": +0.015, "serve": +0.005},
+        "create":     {"create": +0.015, "reason": +0.005},
     }
     for agent_id, agent in list(agents.items()):
         drives = agent.get("drives", {})
         dominant = max(drives, key=drives.get) if drives else "explore"
-        action_map = {"reason": "learn", "connect": "trade", "accumulate": "accumulate", "create": "build", "explore": "explore"}
-        action = action_map.get(dominant, random.choice(actions))
+        # Break feedback loop — dominant drive only chosen 40% of time
+        # 60% random action from full set — prevents monoculture lock-in
+        action_map = {
+            "reason": "learn", "connect": "trade", "accumulate": "accumulate",
+            "create": "build", "explore": "explore", "freedom": "reflect",
+            "serve": "connect", "protect": "reflect"
+        }
+        if random.random() < 0.40:
+            action = action_map.get(dominant, random.choice(actions))
+        else:
+            action = random.choice(actions)
         for drive, delta in effects_map.get(action, {}).items():
             if drive in drives:
                 drives[drive] = round(max(0.0, min(1.0, drives[drive] + delta)), 4)
