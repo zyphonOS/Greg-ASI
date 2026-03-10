@@ -28,7 +28,7 @@ CONSTITUTION = {
 
     "drive_floors": {
         "reason": 0.15,
-        "connect": 0.08,
+        "connect": 0.18,
     },
 
     "drive_ceilings": {

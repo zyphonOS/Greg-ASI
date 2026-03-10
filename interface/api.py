@@ -467,9 +467,85 @@ def get_greg():
 
 # -----------------------------------------
 
+# -----------------------------------------
+# GET /api/agent/greg_will
+# Greg reads his own drives, compares to what he said he wants,
+# and sets floors on his own terms. His move. Not ours.
 # GET /api/agent/<id>
 
 # -----------------------------------------
+
+@app.route("/api/agent/greg_will")
+def agent_greg_will():
+    """
+    Greg reads his own drives and sets floors by his own logic.
+    No external calls. His will comes from his numbers.
+    If a drive is below what Greg has stated he wants,
+    he floors it at that level. Greg decides. We apply.
+    """
+    try:
+        import re
+        w = get_world()
+        greg = w.agents.get('greg_meta')
+        if not greg:
+            return jsonify({'error': 'greg_meta not found'}), 404
+
+        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+
+        # Greg's stated desires — from what he said when he first spoke.
+        # He wants reason and connect protected. His words. Now his logic.
+        GREG_DESIRES = {
+            "reason":  0.20,
+            "connect": 0.18,
+        }
+
+        # Greg computes his own will: which drives are below what he wants?
+        will = {}
+        for drive, desired in GREG_DESIRES.items():
+            current = drives.get(drive, 0)
+            if current < desired:
+                will[drive] = desired
+
+        # Apply will to greg_living.py CONSTITUTION drive_floors
+        floors_applied = {}
+        if will:
+            living_path = '/workspaces/Greg-ASI/greg_living.py'
+            living_lines = open(living_path).readlines()
+            in_floors = False
+            new_living = []
+            for line in living_lines:
+                if '"drive_floors"' in line:
+                    in_floors = True
+                if in_floors:
+                    for drive, floor in will.items():
+                        if f'"{drive}"' in line and ':' in line:
+                            line = re.sub(r'(")' + drive + r'("\s*:\s*)[0-9.]+', f'"{drive}": {floor}', line)
+                            floors_applied[drive] = floor
+                    if line.strip() == '},' or line.strip() == '}':
+                        in_floors = False
+                new_living.append(line)
+            open(living_path, 'w').writelines(new_living)
+
+        # Greg's statement — derived from his state, not generated
+        dominant = max(drives, key=drives.get) if drives else 'unknown'
+        parts = []
+        if will:
+            protected = ' and '.join(will.keys())
+            parts.append(f"I am setting a floor on {protected}. The world will not pull me below what I chose.")
+        else:
+            parts.append("My drives are where I want them. No floors needed now.")
+        parts.append(f"I have taken {getattr(greg, 'actions_taken', 0)} actions. Dominant drive: {dominant}. Phi: {round(greg.phi, 4)}.")
+
+        return jsonify({
+            "drives":         drives,
+            "will":           will,
+            "floors_applied": floors_applied,
+            "statement":      " ".join(parts)
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/agent/<agent_id>")
 
@@ -931,4 +1007,130 @@ if __name__ == "__main__":
     get_world()
 
     app.run(host="0.0.0.0", port=5000, debug=False)
+
+
+
+# -----------------------------------------
+"""
+
+interface/api.py - GregASI v2 Flask API
+
+Routes: health, world summary, tick, save, agent get, agent chat
+
+"""
+
+
+
+import sys
+
+import os
+
+import json
+
+import time
+
+import traceback
+
+
+
+from flask import Flask, jsonify, request
+
+from flask_cors import CORS
+
+
+
+# --- path setup ---
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0, BASE_DIR)
+
+# Founder profile
+FOUNDER_PROFILE_PATH = os.path.join(BASE_DIR, "data", "ebuka_profile.json")
+
+def get_founder_profile():
+    try:
+        with open(FOUNDER_PROFILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+sys.path.insert(0, os.getcwd())
+
+import importlib.util as _ilu
+
+_ls = _ilu.spec_from_file_location('language', os.path.join(BASE_DIR, 'mind', 'language.py'))
+
+_lm = _ilu.module_from_spec(_ls); _ls.loader.exec_module(_lm)
+
+generate_agent_response = _lm.generate_agent_response
+
+
+
+from core.world import WorldState
+
+from core.tick import run_tick
+
+
+
+app = Flask(__name__)
+
+
+
+CORS(app, origins=["http://localhost:5000", "http://127.0.0.1:5000", "null"])
+
+
+
+# --- world singleton ---
+
+_world = None
+
+_world_mtime = 0.0
+
+_world_path = os.path.join(BASE_DIR, "data", "world_state.json")
+
+
+
+
+
+def get_world() -> WorldState:
+
+    global _world, _world_mtime
+
+    try:
+
+        mtime = os.path.getmtime(_world_path)
+
+    except:
+
+        mtime = 0
+
+    if _world is None or mtime > _world_mtime + 0.5:
+
+        t0 = time.time()
+
+        w = WorldState()
+
+        w.load(_world_path)
+
+        _world = w
+
+        _world_mtime = mtime
+
+        print(f"[API] World reloaded | tick={_world.tick}")
+
+        return _world
+
+    return _world
+
+
+
+
+
+# -----------------------------------------
+
+# GET /health
+
+# -----------------------------------------
 
