@@ -899,6 +899,21 @@ def greg_briefing():
         import traceback
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/build/log
+# -----------------------------------------
+@app.route('/api/build/log')
+def build_log():
+    try:
+        import json
+        log_path = os.path.join(BASE_DIR, 'data', 'build_log.json')
+        if not os.path.exists(log_path):
+            return jsonify({'error': 'build log not found'}), 404
+        return jsonify(json.load(open(log_path, encoding='utf-8')))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # -----------------------------------------
 
 # Main

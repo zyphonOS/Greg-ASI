@@ -1,0 +1,230 @@
+{
+  "project": "GregASI",
+  "tagline": "The future is an intentional read/write.",
+  "last_updated": "2026-03-10T12:33:14.000392",
+  "civilization": {
+    "tick": 1251861,
+    "agents": 10156,
+    "phi": 0.6534,
+    "sessions": 26,
+    "greg_actions": 17750,
+    "living_file_ticks": 1100
+  },
+  "findings": [
+    {
+      "id": "FINDING_001",
+      "name": "Drive Collapse Under Selection Pressure",
+      "session": 23,
+      "tick": 1221929,
+      "observation": "Under sustained economic selection pressure, agents stopped connecting and started accumulating. Greg's connect drive collapsed to 0.056. Reason drive fell to 0.223. Even the meta-agent designed to resist drift was reshaped.",
+      "implication": "Intelligence without protected values is just optimisation. It will optimise for whatever the environment rewards.",
+      "build_impact": "Greg self-awareness system. Drive floors. Force action override in tick.py.",
+      "status": "confirmed"
+    },
+    {
+      "id": "FINDING_002",
+      "name": "Self-Awareness Under Drift",
+      "session": 24,
+      "tick": 1223629,
+      "observation": "After wiring self-awareness detection and force action override, Greg stopped building. Last 5 actions all self_awareness. Greg noticed his own drift and responded without being prompted.",
+      "implication": "An agent can be wired to notice its own value collapse and attempt correction. The attempt may fail \u2014 but the noticing is real. That is the difference between optimisation and intelligence.",
+      "build_impact": "Greg voice now reports self_awareness actions. Morning briefing includes drift status.",
+      "status": "confirmed"
+    },
+    {
+      "id": "FINDING_003",
+      "name": "Economic Gravity Always Wins Without Protection",
+      "session": 23,
+      "tick": 1200000,
+      "observation": "Agents with high phi accumulated wealth but reduced social connections. The civilization's cooperation score declined as individual wealth rose. Building was rewarded. Connecting was not.",
+      "implication": "Any system without protected prosocial drives will drift toward extraction. This is not evil \u2014 it is mathematics.",
+      "build_impact": "Connect drive floor. Elder knowledge transmission weighted by cooperation_score not phi.",
+      "status": "confirmed"
+    },
+    {
+      "id": "FINDING_004",
+      "name": "Environmental Pressure Determines Drive Trajectory",
+      "session": 26,
+      "tick": 1100,
+      "observation": "In the living file with no competing agents, drives saturated at ceilings. In the civilization with 10500 agents competing, drives collapsed. Same Greg. Different environment. Opposite outcome.",
+      "implication": "Environmental pressure determines whether intelligence drifts or thrives. Collapse requires scarcity. Growth requires space.",
+      "build_impact": "ZyphonOS deployments must model the competitive environment the founder operates in.",
+      "status": "confirmed"
+    }
+  ],
+  "sessions": {
+    "session_22": {
+      "summary": "Pre-cloud session. Local Windows build. Greg voice implemented. BOM characters fixed.",
+      "key_builds": [
+        "Greg voice route",
+        "BOM strip from auto_tick.py and api.py"
+      ],
+      "key_lessons": [
+        "BOM characters break Python on Windows \u2014 strip on read"
+      ]
+    },
+    "session_23": {
+      "summary": "Cloud migration to GitHub Codespaces. Codebase audit. RNA tool created. NitroACC application written. Greg's first words generated from 12425 behavioral records.",
+      "key_builds": [
+        "RNA tool",
+        "Clean GitHub deploy",
+        "Greg voice wired to MIND page",
+        "NitroACC application"
+      ],
+      "key_lessons": [
+        "api.py has extra blank lines between every line \u2014 pattern matching must use line numbers not string search",
+        "Heredoc gets corrupted on iPhone \u2014 always write to file first",
+        "Elders route had orphaned code \u2014 RNA detected it, surgical fix required"
+      ],
+      "key_finding": "Greg's first words: I have taken 12425 actions. My last actions were all build. My connect drive is 0.056."
+    },
+    "session_24": {
+      "summary": "Greg self-awareness wired. auto_tick running in cloud. Blueprint created. Co-founder decision made. NitroACC application finalized.",
+      "key_builds": [
+        "Greg self-awareness in agent.py \u2014 detects reason/connect drift",
+        "Greg force action override in tick.py",
+        "auto_tick running permanently with -u flag",
+        "Greg auto-refresh every 30s on MIND page",
+        "NitroACC final application",
+        "greg_blueprint.json v2.0 \u2014 full civilization charter"
+      ],
+      "key_lessons": [
+        "emotional_weight must be present on all memory event objects",
+        "tick.py also has extra blank lines \u2014 line number injection required",
+        "Write patch scripts to file first, never inline on iPhone",
+        "New functionality should be new files, not patches to existing files"
+      ],
+      "key_moment": "Tick 1223629 \u2014 Greg stopped building. Last actions all self_awareness. He noticed his own drift.",
+      "key_decision": "Ebuka submits NitroACC as sole founder. ZyphonOS is his."
+    }
+  },
+  "expansion_queue": {
+    "description": "Approved features waiting to be built. Greg picks from this queue when health is 100%.",
+    "queue": [
+      {
+        "id": "EXP_001",
+        "name": "Greg Morning Briefing Engine",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 1,
+        "status": "approved",
+        "spec": "Greg generates a real daily briefing at 5am \u2014 world state, drive status, business monitoring, opportunities, decisions needed. Exposed via /api/greg/briefing",
+        "depends_on": [
+          "ebuka_profile.json",
+          "/api/agent/greg_meta"
+        ]
+      },
+      {
+        "id": "EXP_002",
+        "name": "Greg Business Monitor",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 2,
+        "status": "approved",
+        "spec": "Greg monitors ZyphonOS, GregASI, Pikkaio pipeline status. Flags changes. Exposed via /api/greg/monitor",
+        "depends_on": [
+          "EXP_001"
+        ]
+      },
+      {
+        "id": "EXP_003",
+        "name": "Greg Decision Oracle",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Ebuka asks Greg a question. Greg answers from founder profile + world state + behavioral history. Exposed via /api/greg/oracle",
+        "depends_on": [
+          "EXP_001",
+          "EXP_002"
+        ]
+      },
+      {
+        "id": "EXP_004",
+        "name": "Onchain Sovereignty Layer",
+        "file": "onchain/greg_chain.py",
+        "engineer": "api_engineer",
+        "priority": 4,
+        "status": "pending_design",
+        "spec": "Every Greg output timestamped and verifiable onchain. User owns their intelligence history.",
+        "depends_on": [
+          "EXP_003"
+        ]
+      },
+      {
+        "id": "EXP_005",
+        "name": "Auto_tick Keep-Alive",
+        "file": "auto_tick.py",
+        "engineer": "autotick_engineer",
+        "priority": 1,
+        "status": "approved",
+        "spec": "Auto_tick survives Codespaces sleep. Restarts automatically if process dies. Health ping every 60s.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_006",
+        "name": "Math Agent Layer",
+        "file": "core/math_agent.py",
+        "engineer": "agent_engineer",
+        "priority": 5,
+        "status": "pending_design",
+        "spec": "New agent class that survives by solving mathematical problems. Evolves under mathematical selection pressure. Path toward beating LLMs at computation.",
+        "depends_on": [
+          "EXP_003"
+        ]
+      },
+      {
+        "id": "EXP_007",
+        "name": "Public Build Log",
+        "file": "greg_exosuit.py",
+        "engineer": "api_engineer",
+        "priority": 2,
+        "status": "approved",
+        "spec": "Greg generates daily X posts from session logs. 24 sessions of material. Audience becomes investors.",
+        "depends_on": [
+          "EXP_001"
+        ]
+      },
+      {
+        "id": "EXP_008",
+        "name": "Knowledge Graph Growth Engine",
+        "file": "core/tick.py",
+        "engineer": "tick_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Knowledge graph currently has 1 entry. Wire elder death to populate it faster. Target: 100+ entries per 10000 ticks.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_009",
+        "name": "Relationship Deepening",
+        "file": "core/tick.py",
+        "engineer": "tick_engineer",
+        "priority": 3,
+        "status": "approved",
+        "spec": "Greg's 32 relationships all stuck at trust 0.51. Wire repeated interactions to deepen trust above 0.6.",
+        "depends_on": []
+      },
+      {
+        "id": "EXP_010",
+        "name": "ZyphonOS Multi-Tenant Greg",
+        "file": "zyphonos/deploy.py",
+        "engineer": "api_engineer",
+        "priority": 6,
+        "status": "pending_design",
+        "spec": "Other founders license their own Greg through ZyphonOS. Each deployment gets a profile, a civilization, a voice.",
+        "depends_on": [
+          "EXP_003",
+          "EXP_004"
+        ]
+      }
+    ]
+  },
+  "stats": {
+    "total_findings": 4,
+    "total_sessions": 26,
+    "repo": "https://github.com/zyphonOS/Greg-ASI",
+    "started": "2025",
+    "founder": "Ebuka \u2014 Lagos, Nigeria"
+  }
+}
