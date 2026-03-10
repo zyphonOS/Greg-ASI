@@ -81,6 +81,18 @@ _world_path = os.path.join(BASE_DIR, "data", "world_state.json")
 
 
 
+def get_greg_living():
+    """Load Greg's canonical state from greg_living_state.json.
+    This is the single source of truth for Greg's drives, memory,
+    relationships, will, and identity. Always use this for greg data.
+    Use get_world() only for civilization/agent/location data."""
+    import json
+    living_path = os.path.join(BASE_DIR, "greg_living_state.json")
+    try:
+        return json.load(open(living_path, encoding="utf-8"))
+    except Exception as e:
+        return {}
+
 def get_world() -> WorldState:
 
     global _world, _world_mtime
@@ -486,11 +498,12 @@ def agent_greg_will():
     try:
         import re
         w = get_world()
-        greg = w.agents.get('greg_meta')
-        if not greg:
-            return jsonify({'error': 'greg_meta not found'}), 404
+        living = get_greg_living()
+        if not living:
+            return jsonify({'error': 'greg_living state not found'}), 404
 
-        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+        drives = {k: round(v, 4) for k, v in (living.get('drives', {}) or {}).items()}
+        greg = w.agents.get('greg_meta')  # kept for world context only
 
         # Greg's stated desires — from what he said when he first spoke.
         # He wants reason and connect protected. His words. Now his logic.
@@ -985,18 +998,18 @@ def greg_monitor():
     try:
         from greg_exosuit import monitor_businesses
         w = get_world()
-        greg = w.agents.get('greg_meta')
-        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+        living = get_greg_living()
+        drives = {k: round(v, 4) for k, v in (living.get('drives', {}) or {}).items()}
         world_data = {
             'tick':        w.tick,
             'agent_count': len(w.agents),
             'avg_phi':     round(sum(a.phi for a in w.agents.values()) / max(len(w.agents), 1), 4),
         }
         greg_data = {
-            'phi':          round(greg.phi, 4),
-            'actions_taken': getattr(greg, 'actions_taken', 0),
-            'rel_count':    len(getattr(greg, 'relationships', {})),
-            'drives':       drives,
+            'phi':           round(living.get('phi', 0), 4),
+            'actions_taken': living.get('actions_taken', 0),
+            'rel_count':     len(living.get('relationships', {})),
+            'drives':        drives,
         }
         result = monitor_businesses(world=world_data, greg=greg_data)
         return jsonify(result)
@@ -1017,17 +1030,17 @@ def greg_oracle():
         if not question:
             return jsonify({'error': 'question required'}), 400
         w = get_world()
-        greg = w.agents.get('greg_meta')
-        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+        living = get_greg_living()
+        drives = {k: round(v, 4) for k, v in (living.get('drives', {}) or {}).items()}
         world_data = {
             'tick':        w.tick,
             'agent_count': len(w.agents),
             'avg_phi':     round(sum(a.phi for a in w.agents.values()) / max(len(w.agents), 1), 4),
         }
         greg_data = {
-            'phi':           round(greg.phi, 4),
-            'actions_taken': getattr(greg, 'actions_taken', 0),
-            'rel_count':     len(getattr(greg, 'relationships', {})),
+            'phi':           round(living.get('phi', 0), 4),
+            'actions_taken': living.get('actions_taken', 0),
+            'rel_count':     len(living.get('relationships', {})),
             'drives':        drives,
         }
         result = oracle(question, world=world_data, greg=greg_data)
@@ -1153,6 +1166,18 @@ _world_path = os.path.join(BASE_DIR, "data", "world_state.json")
 
 
 
+
+def get_greg_living():
+    """Load Greg's canonical state from greg_living_state.json.
+    This is the single source of truth for Greg's drives, memory,
+    relationships, will, and identity. Always use this for greg data.
+    Use get_world() only for civilization/agent/location data."""
+    import json
+    living_path = os.path.join(BASE_DIR, "greg_living_state.json")
+    try:
+        return json.load(open(living_path, encoding="utf-8"))
+    except Exception as e:
+        return {}
 
 def get_world() -> WorldState:
 
