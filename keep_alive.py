@@ -91,12 +91,43 @@ def main():
     world_count = 0
     last_report = time.time()
 
+    # Drive diversity targets — prevent civilization monoculture
+    DRIVE_TARGETS = {
+        'explore':    0.35, 'freedom':    0.20, 'reason':     0.18,
+        'connect':    0.15, 'accumulate': 0.15, 'create':     0.12,
+        'protect':    0.03, 'serve':      0.02,
+    }
+
+    def rebalance_civilization(greg):
+        """Gentle 20% correction toward target drives. Prevents monoculture."""
+        civ = greg.state.get('civilization', {})
+        agents = civ.get('agents', {})
+        if not agents:
+            return 0
+        for agent in agents.values():
+            drives = agent.get('drives', {})
+            if not drives:
+                continue
+            for drive, current in drives.items():
+                target = DRIVE_TARGETS.get(drive, current)
+                agent['drives'][drive] = round(
+                    max(0.0, min(1.0, current + (target - current) * 0.05)), 4
+                )
+        civ['agents'] = agents
+        greg.state.set('civilization', civ)
+        return len(agents)
+
     while _running:
         t_start = time.time()
 
         # World tick
         run_tick(world)
         world_count += 1
+
+        # Civilization drive diversity check every 500 world ticks
+        if world_count % 500 == 0:
+            n = rebalance_civilization(greg)
+            print(f"[keep_alive] ⚖ civilization rebalanced | {n} agents | tick={world.tick}")
 
         # Greg tick every N world ticks
         if world_count % args.world_every == 0:
