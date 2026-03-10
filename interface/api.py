@@ -976,6 +976,66 @@ def greg_briefing():
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
 
+
+# -----------------------------------------
+# GET /api/greg/monitor  — EXP_002
+# -----------------------------------------
+@app.route("/api/greg/monitor")
+def greg_monitor():
+    try:
+        from greg_exosuit import monitor_businesses
+        w = get_world()
+        greg = w.agents.get('greg_meta')
+        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+        world_data = {
+            'tick':        w.tick,
+            'agent_count': len(w.agents),
+            'avg_phi':     round(sum(a.phi for a in w.agents.values()) / max(len(w.agents), 1), 4),
+        }
+        greg_data = {
+            'phi':          round(greg.phi, 4),
+            'actions_taken': getattr(greg, 'actions_taken', 0),
+            'rel_count':    len(getattr(greg, 'relationships', {})),
+            'drives':       drives,
+        }
+        result = monitor_businesses(world=world_data, greg=greg_data)
+        return jsonify(result)
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
+
+# -----------------------------------------
+# POST /api/greg/oracle  — EXP_003
+# -----------------------------------------
+@app.route("/api/greg/oracle", methods=["POST"])
+def greg_oracle():
+    try:
+        from greg_exosuit import oracle
+        data = request.get_json(force=True) or {}
+        question = data.get('question', '').strip()
+        if not question:
+            return jsonify({'error': 'question required'}), 400
+        w = get_world()
+        greg = w.agents.get('greg_meta')
+        drives = {k: round(v, 4) for k, v in (getattr(greg, 'drives', {}) or {}).items()}
+        world_data = {
+            'tick':        w.tick,
+            'agent_count': len(w.agents),
+            'avg_phi':     round(sum(a.phi for a in w.agents.values()) / max(len(w.agents), 1), 4),
+        }
+        greg_data = {
+            'phi':           round(greg.phi, 4),
+            'actions_taken': getattr(greg, 'actions_taken', 0),
+            'rel_count':     len(getattr(greg, 'relationships', {})),
+            'drives':        drives,
+        }
+        result = oracle(question, world=world_data, greg=greg_data)
+        return jsonify(result)
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
