@@ -1049,6 +1049,37 @@ def greg_oracle():
         import traceback
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/shadow  — Phase 3
+# Greg's wavefunction state and shadow history
+# -----------------------------------------
+@app.route("/api/greg/shadow")
+def greg_shadow():
+    try:
+        from greg_phase3 import Phase3Engine, compute_civilization_pressure
+        living = get_greg_living()
+        if not living:
+            return jsonify({"error": "greg_living state not found"}), 404
+        w = get_world()
+        agents = {aid: {"drives": getattr(a, "drives", {})}
+                  for aid, a in w.agents.items()}
+        engine = Phase3Engine(living)
+        result = engine.tick_forward(agents)
+        return jsonify({
+            "tick":        result["tick"],
+            "drives":      result["drives"],
+            "dominant":    result["dominant"],
+            "convergence": result["convergence"],
+            "gaps":        result["gaps"],
+            "shadow":      result["shadow"],
+            "self_model":  result["self_model"],
+            "pressure":    result["pressure"],
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
