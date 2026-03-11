@@ -1174,6 +1174,31 @@ def greg_knowledge():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/relationships  — EXP_009
+# Greg's living relationship trust model
+# -----------------------------------------
+@app.route("/api/greg/relationships")
+def greg_relationships():
+    try:
+        from greg_relationships import RelationshipGraph, REL_PATH
+        rg = RelationshipGraph()
+        loaded = rg.load(REL_PATH)
+        if not loaded:
+            living = get_greg_living()
+            if living:
+                rg.bootstrap_from_state(living)
+        summary = rg.summary()
+        voice   = rg.voice()
+        return jsonify({
+            "summary": summary,
+            "voice":   voice,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------

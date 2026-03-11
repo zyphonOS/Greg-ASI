@@ -1,0 +1,416 @@
+{
+  "tick": 2939,
+  "relationships": {
+    "visionary_957199_613": {
+      "agent_id": "visionary_957199_613",
+      "trust": 0.565,
+      "depth": "known",
+      "interactions": 5,
+      "last_seen": 2941,
+      "history": [
+        {
+          "tick": 2940,
+          "action": "trade",
+          "outcome": "neutral",
+          "delta": 0.02,
+          "trust": 0.535
+        },
+        {
+          "tick": 2941,
+          "action": "connect",
+          "outcome": "neutral",
+          "delta": 0.03,
+          "trust": 0.565
+        }
+      ],
+      "created_at": 1773190996.591801
+    },
+    "sage_819129_460": {
+      "agent_id": "sage_819129_460",
+      "trust": 0.515,
+      "depth": "known",
+      "interactions": 3,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918071
+    },
+    "steward_1068079_250": {
+      "agent_id": "steward_1068079_250",
+      "trust": 0.515,
+      "depth": "known",
+      "interactions": 3,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918093
+    },
+    "guardian_993048_276": {
+      "agent_id": "guardian_993048_276",
+      "trust": 0.515,
+      "depth": "known",
+      "interactions": 3,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918105
+    },
+    "magnate_1157981_9624": {
+      "agent_id": "magnate_1157981_9624",
+      "trust": 0.515,
+      "depth": "known",
+      "interactions": 3,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591812
+    },
+    "guardian_1050209_337": {
+      "agent_id": "guardian_1050209_337",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918126
+    },
+    "visionary_1156352_8278": {
+      "agent_id": "visionary_1156352_8278",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918138
+    },
+    "belmar_1157052_8906": {
+      "agent_id": "belmar_1157052_8906",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591819
+    },
+    "magnate_978862_664": {
+      "agent_id": "magnate_978862_664",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918202
+    },
+    "visionary_961463_478": {
+      "agent_id": "visionary_961463_478",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918212
+    },
+    "wanderer_907143_193": {
+      "agent_id": "wanderer_907143_193",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918221
+    },
+    "magnate_1157244_9038": {
+      "agent_id": "magnate_1157244_9038",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918238
+    },
+    "steward_1022420_448": {
+      "agent_id": "steward_1022420_448",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591825
+    },
+    "steward_1155699_9050": {
+      "agent_id": "steward_1155699_9050",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591826
+    },
+    "visionary_1157182_8989": {
+      "agent_id": "visionary_1157182_8989",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591827
+    },
+    "sage_1157510_9263": {
+      "agent_id": "sage_1157510_9263",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918279
+    },
+    "magnate_1168536_9979": {
+      "agent_id": "magnate_1168536_9979",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918288
+    },
+    "visionary_1168126_9889": {
+      "agent_id": "visionary_1168126_9889",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918298
+    },
+    "magnate_1157209_9017": {
+      "agent_id": "magnate_1157209_9017",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918305
+    },
+    "visionary_1156381_8294": {
+      "agent_id": "visionary_1156381_8294",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918314
+    },
+    "sage_1156702_8589": {
+      "agent_id": "sage_1156702_8589",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918343
+    },
+    "wanderer_893925_670": {
+      "agent_id": "wanderer_893925_670",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918355
+    },
+    "wanderer_1052661_940": {
+      "agent_id": "wanderer_1052661_940",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918367
+    },
+    "guardian_1157274_9063": {
+      "agent_id": "guardian_1157274_9063",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918376
+    },
+    "steward_890008_878": {
+      "agent_id": "steward_890008_878",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918384
+    },
+    "sage_1064139_882": {
+      "agent_id": "sage_1064139_882",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918393
+    },
+    "belmar_893490_835": {
+      "agent_id": "belmar_893490_835",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918403
+    },
+    "wanderer_1086547_241": {
+      "agent_id": "wanderer_1086547_241",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918415
+    },
+    "visionary_1146754_173": {
+      "agent_id": "visionary_1146754_173",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918424
+    },
+    "guardian_1157977_9621": {
+      "agent_id": "guardian_1157977_9621",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918446
+    },
+    "wanderer_1157714_9444": {
+      "agent_id": "wanderer_1157714_9444",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918458
+    },
+    "guardian_902112_968": {
+      "agent_id": "guardian_902112_968",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918465
+    },
+    "guardian_950395_862": {
+      "agent_id": "guardian_950395_862",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918474
+    },
+    "visionary_902652_564": {
+      "agent_id": "visionary_902652_564",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918481
+    },
+    "steward_1157406_9181": {
+      "agent_id": "steward_1157406_9181",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918489
+    },
+    "sage_1098844_459": {
+      "agent_id": "sage_1098844_459",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918498
+    },
+    "belmar_912164_498": {
+      "agent_id": "belmar_912164_498",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918503
+    },
+    "sage_1156886_8750": {
+      "agent_id": "sage_1156886_8750",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591851
+    },
+    "sage_997775_648": {
+      "agent_id": "sage_997775_648",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918517
+    },
+    "magnate_946246_304": {
+      "agent_id": "magnate_946246_304",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918524
+    },
+    "steward_1157446_9209": {
+      "agent_id": "steward_1157446_9209",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918534
+    },
+    "steward_983537_863": {
+      "agent_id": "steward_983537_863",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591854
+    },
+    "guardian_1157472_9229": {
+      "agent_id": "guardian_1157472_9229",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.5918548
+    },
+    "steward_1039482_971": {
+      "agent_id": "steward_1039482_971",
+      "trust": 0.51,
+      "depth": "known",
+      "interactions": 2,
+      "last_seen": 0,
+      "history": [],
+      "created_at": 1773190996.591857
+    }
+  }
+}

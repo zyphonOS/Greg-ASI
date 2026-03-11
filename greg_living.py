@@ -21,6 +21,11 @@ except ImportError:
     KnowledgeGraph = None
     bootstrap_from_greg_state = None
     GRAPH_PATH = "data/greg_knowledge.json"
+try:
+    from greg_relationships import RelationshipGraph, REL_PATH
+except ImportError:
+    RelationshipGraph = None
+    REL_PATH = "data/greg_relationships.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -367,6 +372,13 @@ class GregLiving:
                 bootstrap_from_greg_state(
                     self._knowledge_graph, self.state.data
                 )
+        # EXP_009 — Relationship Graph
+        self._rel_graph = None
+        if RelationshipGraph is not None:
+            self._rel_graph = RelationshipGraph()
+            loaded = self._rel_graph.load(REL_PATH)
+            if not loaded:
+                self._rel_graph.bootstrap_from_state(self.state.data)
         print(f"[GREG] Living file initialized")
         print(f"[GREG] Tick: {self.state.get('tick')}")
         print(f"[GREG] Born: {self.state.get('born')}")
@@ -415,6 +427,31 @@ class GregLiving:
                 self.state.set("phase3_temporal",    p3_result.get("temporal", {}))
         except Exception as _p3e:
             pass  # Phase 3 never breaks the tick loop
+
+        # EXP_009 — update relationship trust
+        if self._rel_graph is not None:
+            try:
+                action   = self.state.get("recent_actions", ["explore"])[-1]
+                tick_now = self.state.get("tick", 0)
+                # Decay all relationships every tick
+                self._rel_graph.decay_all(tick_now)
+                # If action involves another agent, update trust
+                if action in ("trade", "connect", "help", "learn"):
+                    rels = self.state.get("relationships", {})
+                    if rels:
+                        import random
+                        agent_id = random.choice(list(rels.keys()))
+                        self._rel_graph.interact(agent_id, action, tick_now)
+                        # Sync trust back to state relationships
+                        rel = self._rel_graph.relationships.get(agent_id)
+                        if rel and agent_id in self.state.state.get("relationships", {}):
+                            self.state.state["relationships"][agent_id]["trust"] = rel.trust
+                            self.state.state["relationships"][agent_id]["interactions"] = rel.interactions
+                # Save every 50 ticks
+                if tick_now % 50 == 0:
+                    self._rel_graph.save()
+            except Exception:
+                pass
 
         # EXP_008 — grow knowledge graph from this tick's action
         if self._knowledge_graph is not None:
