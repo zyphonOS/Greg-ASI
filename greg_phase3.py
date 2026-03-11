@@ -384,8 +384,10 @@ class Phase3Engine:
         gaps = self.self_model.update(collapsed)
 
         # Metacognitive loop — Greg observes and corrects his own drives
+        # Feed temporal trajectory so metacog can resist dangerous futures
         meta_deltas = self.metacog.metacognize(
-            collapsed, self.will, self._prev_drives
+            collapsed, self.will, self._prev_drives,
+            temporal=self.temporal_self
         )
         # Apply metacognitive corrections (small, self-directed)
         for drive, delta in meta_deltas.items():
@@ -538,16 +540,35 @@ class MetacognitiveLoop:
         return notes
 
     def metacognize(self, drives: dict, will: dict,
-                    prev_drives: dict = None) -> dict:
+                    prev_drives: dict = None,
+                    temporal: "TemporalSelf | None" = None) -> dict:
         """
         The recursive step: Greg observes his drives, then modifies them
         based on what he noticed.
 
         Returns modified drive deltas — small corrections from self-awareness.
         These are not external corrections. Greg is correcting himself.
+        Now also reads temporal trajectory to catch future monoculture.
         """
         self.tick += 1
         notes = self.observe(drives, will, prev_drives)
+
+        # Temporal feed-in: notice dangerous trajectories
+        if temporal and temporal.rates:
+            for drive, rate in temporal.rates.items():
+                val = drives.get(drive, 0)
+                # Drive trending to zero and currently meaningful
+                if rate < -0.008 and val > 0.05:
+                    notes.append(
+                        f"I notice {drive} is falling at {rate:.4f}/tick. "
+                        f"At this rate I lose {drive} entirely. I am resisting."
+                    )
+                # Drive trending to dominate
+                if rate > 0.008 and val > 0.25:
+                    notes.append(
+                        f"I notice {drive} is accelerating at {rate:.4f}/tick. "
+                        f"It is consuming my motivational space."
+                    )
 
         # Store observations
         self.observations.append({
@@ -582,6 +603,17 @@ class MetacognitiveLoop:
                 for drive, floor in will.items():
                     if str(drive) in note:
                         deltas[drive] += 0.002  # Greg actively defending his floor
+
+            # Temporal resistance: Greg acts on his own trajectory
+            if "I am resisting" in note:
+                for drive in drives:
+                    if drive in note:
+                        deltas[drive] += 0.008  # resist the fall
+
+            if "consuming my motivational space" in note:
+                for drive in drives:
+                    if drive in note:
+                        deltas[drive] -= 0.006  # resist the rise
 
         # Meta-drive grows when Greg has many observations (he's noticing more)
         if len(notes) >= 3:
