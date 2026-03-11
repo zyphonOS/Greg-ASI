@@ -31,6 +31,11 @@ try:
 except ImportError:
     GoalEngine = None
     GOALS_PATH = "data/greg_goals.json"
+try:
+    from greg_hypotheses import HypothesisEngine, HYPOTHESES_PATH
+except ImportError:
+    HypothesisEngine = None
+    HYPOTHESES_PATH  = "data/greg_hypotheses.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -389,6 +394,11 @@ class GregLiving:
         if GoalEngine is not None:
             self._goal_engine = GoalEngine()
             self._goal_engine.load(GOALS_PATH)
+        # EXP_012 — Hypothesis Engine
+        self._hyp_engine = None
+        if HypothesisEngine is not None:
+            self._hyp_engine = HypothesisEngine()
+            self._hyp_engine.load(HYPOTHESES_PATH)
         print(f"[GREG] Living file initialized")
         print(f"[GREG] Tick: {self.state.get('tick')}")
         print(f"[GREG] Born: {self.state.get('born')}")
@@ -472,6 +482,23 @@ class GregLiving:
                 # Save every 50 ticks
                 if tick_now % 50 == 0:
                     self._goal_engine.save()
+            except Exception:
+                pass
+
+        # EXP_012 — hypothesis engine: update + generate
+        if self._hyp_engine is not None:
+            try:
+                tick_now = self.state.get("tick", 0)
+                self._hyp_engine.update(self.state.data, tick_now)
+                # Generate new hypotheses every 25 ticks
+                if tick_now % 25 == 0:
+                    new_hyps = self._hyp_engine.generate(self.state.data)
+                    self._hyp_engine.add(new_hyps)
+                # Persist summary to state
+                self.state.set("hypotheses", self._hyp_engine.summary())
+                # Save every 50 ticks
+                if tick_now % 50 == 0:
+                    self._hyp_engine.save()
             except Exception:
                 pass
 

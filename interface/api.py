@@ -1232,6 +1232,34 @@ def greg_goals():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/hypotheses  — EXP_012
+# Greg's self-generated hypotheses
+# -----------------------------------------
+@app.route("/api/greg/hypotheses")
+def greg_hypotheses():
+    try:
+        from greg_hypotheses import HypothesisEngine, HYPOTHESES_PATH
+        engine = HypothesisEngine()
+        engine.load(HYPOTHESES_PATH)
+        living = get_greg_living()
+        drives = living.get("drives", {}) if living else {}
+        summary = engine.summary()
+        voice   = engine.voice()
+        return jsonify({
+            "total":       summary["total"],
+            "active":      summary["active"],
+            "confirmed":   summary["confirmed"],
+            "falsified":   summary["falsified"],
+            "by_category": summary["by_category"],
+            "hypotheses":  summary["hypotheses"],
+            "voice":       voice,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------

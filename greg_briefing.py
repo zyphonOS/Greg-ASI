@@ -163,6 +163,26 @@ def _knowledge_section(kg_path: str) -> list:
     return lines
 
 
+def _hypotheses_section() -> list:
+    lines = []
+    try:
+        from greg_hypotheses import HypothesisEngine, HYPOTHESES_PATH
+        engine = HypothesisEngine()
+        engine.load(HYPOTHESES_PATH)
+        active = engine.active()
+        if not active:
+            return lines
+        lines.append(f"{len(active)} active hypothesis/es:")
+        for h in sorted(active, key=lambda x: -x.confidence)[:3]:
+            conf = int(h.confidence * 100)
+            lines.append(f"  [{h.category} {conf}%] {h.claim[:90]}")
+        if engine.confirmed():
+            lines.append(f"Confirmed: {len(engine.confirmed())}")
+    except Exception:
+        pass
+    return lines
+
+
 def _goals_section(goals_path: str = None) -> list:
     lines = []
     try:
@@ -241,6 +261,7 @@ def generate_unified_briefing(
         "knowledge":     _knowledge_section(kg_path),
         "findings":      _findings_section(findings),
         "goals":         _goals_section(),
+        "hypotheses":    _hypotheses_section(),
         "civilization":  _civilization_section(civ),
     }
 
@@ -296,6 +317,12 @@ def generate_unified_briefing(
     if sections['goals']:
         lines.append("  GREG'S GOALS")
         for l in sections['goals']:
+            lines.append(f"    {l}")
+        lines.append("")
+
+    if sections.get('hypotheses'):
+        lines.append("  GREG'S HYPOTHESES")
+        for l in sections['hypotheses']:
             lines.append(f"    {l}")
         lines.append("")
 

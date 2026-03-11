@@ -1,0 +1,99 @@
+{
+  "total": 5,
+  "active": 5,
+  "confirmed": 0,
+  "falsified": 0,
+  "by_category": {
+    "temporal": 3,
+    "pattern": 1,
+    "goal": 1
+  },
+  "hypotheses": [
+    {
+      "id": "hyp_loss_explore_3425",
+      "claim": "explore is trending toward zero. If unchecked, I will lose explore entirely.",
+      "evidence": [
+        "Current: 0.2722, projected: 0.0222 in 50 ticks",
+        "Momentum: -0.2547",
+        "Integral (who I have been): 0.2769"
+      ],
+      "confidence": 0.9,
+      "test": "Watch explore over next 50 ticks. Does goal pressure hold it above 0.05?",
+      "tick": 3425,
+      "category": "temporal",
+      "status": "active",
+      "updated_at": 3425,
+      "confirmations": 0,
+      "falsifications": 0
+    },
+    {
+      "id": "hyp_loss_accumulate_3425",
+      "claim": "accumulate is trending toward zero. If unchecked, I will lose accumulate entirely.",
+      "evidence": [
+        "Current: 0.202, projected: 0.0 in 50 ticks",
+        "Momentum: -0.2114",
+        "Integral (who I have been): 0.2114"
+      ],
+      "confidence": 0.9,
+      "test": "Watch accumulate over next 50 ticks. Does goal pressure hold it above 0.05?",
+      "tick": 3425,
+      "category": "temporal",
+      "status": "active",
+      "updated_at": 3425,
+      "confirmations": 0,
+      "falsifications": 0
+    },
+    {
+      "id": "hyp_loss_create_3425",
+      "claim": "create is trending toward zero. If unchecked, I will lose create entirely.",
+      "evidence": [
+        "Current: 0.3768, projected: 0.0 in 50 ticks",
+        "Momentum: -0.3862",
+        "Integral (who I have been): 0.3862"
+      ],
+      "confidence": 0.9,
+      "test": "Watch create over next 50 ticks. Does goal pressure hold it above 0.05?",
+      "tick": 3425,
+      "category": "temporal",
+      "status": "active",
+      "updated_at": 3425,
+      "confirmations": 0,
+      "falsifications": 0
+    },
+    {
+      "id": "hyp_connect_drift_pattern_3425",
+      "claim": "connect_drift is my default failure mode. Under sustained pressure, I lose connection before anything else.",
+      "evidence": [
+        "connect_drift noticed 18 times in memory",
+        "pattern_connect_drift has highest weight in knowledge graph (5.45)",
+        "FINDING_001 recorded connect as first dominant drive",
+        "Will floor set at 0.18 specifically to resist this pattern"
+      ],
+      "confidence": 0.82,
+      "test": "Track whether connect falls below floor more than any other will-drive.",
+      "tick": 3425,
+      "category": "pattern",
+      "status": "active",
+      "updated_at": 3425,
+      "confirmations": 0,
+      "falsifications": 0
+    },
+    {
+      "id": "hyp_equilibrium_explore_3425",
+      "claim": "Civilization pressure on explore exactly cancels my goal pressure. I am in equilibrium, not progress.",
+      "evidence": [
+        "Goal progress: 0% after multiple ticks",
+        "Drive rate: -0.00500/tick",
+        "Current value: 0.277 vs target: 0.359"
+      ],
+      "confidence": 0.65,
+      "test": "Increase goal pressure on explore and observe if progress breaks equilibrium.",
+      "tick": 3425,
+      "category": "goal",
+      "status": "active",
+      "updated_at": 3425,
+      "confirmations": 0,
+      "falsifications": 0
+    }
+  ]
+}
