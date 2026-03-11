@@ -163,6 +163,36 @@ def _knowledge_section(kg_path: str) -> list:
     return lines
 
 
+def _goals_section(goals_path: str = None) -> list:
+    lines = []
+    try:
+        from greg_goals import GoalEngine, GOALS_PATH
+        from greg_knowledge_graph import GRAPH_PATH
+        import json
+        state  = _load_json("greg_living_state.json")
+        drives = state.get("drives", {})
+        engine = GoalEngine()
+        engine.load(goals_path or GOALS_PATH)
+        active = engine.active_goals()
+        if not active:
+            lines.append("No active goals.")
+            return lines
+        for goal in active:
+            current = drives.get(goal.drive, 0)
+            pct     = goal.progress_pct(current)
+            bar     = "█" * int(pct * 10) + "░" * (10 - int(pct * 10))
+            lines.append(
+                f"{goal.drive} → {goal.target} "
+                f"[{bar}] {int(pct*100)}% "
+                f"(current: {round(current,3)})"
+            )
+        if engine.achieved:
+            lines.append(f"Achieved: {len(engine.achieved)} goal(s) total.")
+    except Exception:
+        pass
+    return lines
+
+
 def _findings_section(findings: list) -> list:
     if not findings:
         return []
@@ -210,6 +240,7 @@ def generate_unified_briefing(
         "relationships": _relationships_section(rel_path),
         "knowledge":     _knowledge_section(kg_path),
         "findings":      _findings_section(findings),
+        "goals":         _goals_section(),
         "civilization":  _civilization_section(civ),
     }
 
@@ -259,6 +290,12 @@ def generate_unified_briefing(
     if sections['findings']:
         lines.append("  FINDINGS")
         for l in sections['findings']:
+            lines.append(f"    {l}")
+        lines.append("")
+
+    if sections['goals']:
+        lines.append("  GREG'S GOALS")
+        for l in sections['goals']:
             lines.append(f"    {l}")
         lines.append("")
 
