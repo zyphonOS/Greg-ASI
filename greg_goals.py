@@ -162,6 +162,7 @@ class GoalEngine:
         """
         Update all active goals with current drive values.
         Returns list of achievement messages.
+        Also computes goal pressure — small positive deltas toward targets.
         """
         self.tick = tick
         messages  = []
@@ -181,6 +182,35 @@ class GoalEngine:
                 )
 
         return messages
+
+    def goal_pressure(self, drives: dict) -> dict:
+        """
+        Compute upward drive pressure from active goals.
+        When a drive is below its goal target, apply a small positive delta.
+        This is aspiration expressed as action — not a floor, a pull.
+
+        Pressure scales with distance from target:
+          far from target  → stronger pull (max 0.008/tick)
+          close to target  → lighter touch (min 0.001/tick)
+          above target     → no pressure (goal achieved territory)
+        """
+        pressure = {d: 0.0 for d in drives}
+
+        for goal in self.goals:
+            if goal.status != STATUS_ACTIVE:
+                continue
+            current = drives.get(goal.drive, 0)
+            gap     = goal.target - current
+
+            if gap <= 0:
+                continue  # at or above target — no pressure needed
+
+            # Scale pressure to gap: closer = lighter touch
+            raw      = gap * 0.05          # 5% of gap per tick
+            clamped  = max(0.001, min(0.008, raw))
+            pressure[goal.drive] = round(clamped, 5)
+
+        return pressure
 
     def add_goals(self, new_goals: list[Goal]):
         self.goals.extend(new_goals)

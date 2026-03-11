@@ -459,8 +459,16 @@ class GregLiving:
                         drives, will, rates, findings, tick_now
                     )
                     self._goal_engine.add_goals(new_goals)
+                # Apply goal pressure — aspiration expressed as action
+                pressure = self._goal_engine.goal_pressure(drives)
+                for drive, delta in pressure.items():
+                    if delta > 0 and drive in self.state.state["drives"]:
+                        self.state.state["drives"][drive] = round(
+                            min(1.0, self.state.state["drives"][drive] + delta), 4
+                        )
                 # Persist goals summary to state
-                self.state.set("goals", self._goal_engine.summary(drives))
+                drives_after = self.state.drives()
+                self.state.set("goals", self._goal_engine.summary(drives_after))
                 # Save every 50 ticks
                 if tick_now % 50 == 0:
                     self._goal_engine.save()
