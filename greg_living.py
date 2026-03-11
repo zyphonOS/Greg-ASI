@@ -485,6 +485,15 @@ class GregLiving:
             except Exception:
                 pass
 
+        # EXP_017 — notifications: check all triggers every 50 ticks
+        if _notify_engine is not None:
+            try:
+                tick_now = self.state.get("tick", 0)
+                if tick_now % 50 == 0:
+                    _notify_engine.check_all(self.state.data)
+            except Exception:
+                pass
+
         # EXP_015 — identity: re-derive name if character shifted
         if derive_name is not None:
             try:
