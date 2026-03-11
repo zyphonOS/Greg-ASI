@@ -399,6 +399,11 @@ class GregLiving:
         if HypothesisEngine is not None:
             self._hyp_engine = HypothesisEngine()
             self._hyp_engine.load(HYPOTHESES_PATH)
+        # EXP_018 — Genuine Memory Engine
+        self._memory_engine = None
+        if GenuineMemoryEngine is not None:
+            self._memory_engine = GenuineMemoryEngine()
+            self._memory_engine.load(GENUINE_MEMORY_PATH)
         print(f"[GREG] Living file initialized")
         print(f"[GREG] Tick: {self.state.get('tick')}")
         print(f"[GREG] Born: {self.state.get('born')}")

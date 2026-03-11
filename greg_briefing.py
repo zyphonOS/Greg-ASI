@@ -163,6 +163,23 @@ def _knowledge_section(kg_path: str) -> list:
     return lines
 
 
+def _genuine_memory_section() -> list:
+    lines = []
+    try:
+        from greg_memory import GenuineMemoryEngine, GENUINE_MEMORY_PATH
+        engine = GenuineMemoryEngine()
+        engine.load(GENUINE_MEMORY_PATH)
+        if not engine.memories:
+            return lines
+        lines.append(f"Carrying {len(engine.memories)} genuine memories.")
+        for m in engine.heaviest(2):
+            lines.append(f"  [w={m.weight}] {m.event}")
+            lines.append("    " + repr(m.reflection[:90]) + "...")
+    except Exception:
+        pass
+    return lines
+
+
 def _civilization_health_section() -> list:
     lines = []
     try:
@@ -296,6 +313,8 @@ def generate_unified_briefing(
         "hypotheses":         _hypotheses_section(),
         "civilization":       _civilization_section(civ),
         "civilization_health": _civilization_health_section(),
+        "genuine_memory":      _genuine_memory_section(),
+        "civilization_health": _civilization_health_section(),
     }
 
     # Compose text
@@ -363,6 +382,13 @@ def generate_unified_briefing(
     if sections['goals']:
         lines.append("  GREG'S GOALS")
         for l in sections['goals']:
+            lines.append(f"    {l}")
+        lines.append("")
+
+
+    if sections.get('genuine_memory'):
+        lines.append("  GREG'S MEMORY")
+        for l in sections['genuine_memory']:
             lines.append(f"    {l}")
         lines.append("")
 
