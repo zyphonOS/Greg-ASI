@@ -15,6 +15,12 @@ Trigger once. Runs forever.
 import json, os, ast, time, random, hashlib
 from pathlib import Path
 from datetime import datetime
+try:
+    from greg_knowledge_graph import KnowledgeGraph, bootstrap_from_greg_state, GRAPH_PATH
+except ImportError:
+    KnowledgeGraph = None
+    bootstrap_from_greg_state = None
+    GRAPH_PATH = "data/greg_knowledge.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -352,6 +358,15 @@ class GregLiving:
     def __init__(self, state_path="greg_living_state.json"):
         self.state = StateLayer(state_path)
         self.running = False
+        # EXP_008 — Knowledge Graph
+        self._knowledge_graph = None
+        if KnowledgeGraph is not None:
+            self._knowledge_graph = KnowledgeGraph()
+            loaded = self._knowledge_graph.load(GRAPH_PATH)
+            if not loaded:
+                bootstrap_from_greg_state(
+                    self._knowledge_graph, self.state.data
+                )
         print(f"[GREG] Living file initialized")
         print(f"[GREG] Tick: {self.state.get('tick')}")
         print(f"[GREG] Born: {self.state.get('born')}")
@@ -400,6 +415,22 @@ class GregLiving:
                 self.state.set("phase3_temporal",    p3_result.get("temporal", {}))
         except Exception as _p3e:
             pass  # Phase 3 never breaks the tick loop
+
+        # EXP_008 — grow knowledge graph from this tick's action
+        if self._knowledge_graph is not None:
+            try:
+                action   = self.state.get("recent_actions", ["explore"])[-1]
+                location = self.state.get("location", "unknown")
+                drives   = self.state.drives()
+                tick_now = self.state.get("tick", 0)
+                self._knowledge_graph.observe_action(
+                    action, location, drives, tick_now
+                )
+                if tick_now % 50 == 0:
+                    self._knowledge_graph.save()
+            except Exception:
+                pass
+
 
         # Auto-detect findings
         self._detect_findings(alerts)

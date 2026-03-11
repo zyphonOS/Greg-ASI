@@ -1,0 +1,3151 @@
+{
+  "tick": 0,
+  "nodes": {
+    "valley_58_21": {
+      "id": "valley_58_21",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_valley_58_21_1251515",
+        "visited": true
+      },
+      "weight": 1.1,
+      "created_at": 1773190705.0637257,
+      "updated_at": 1773190705.0637267
+    },
+    "resource_food": {
+      "id": "resource_food",
+      "type": "concept",
+      "data": {
+        "type": "resource",
+        "name": "food"
+      },
+      "weight": 1.95,
+      "created_at": 1773190705.0637302,
+      "updated_at": 1773190705.0637305
+    },
+    "resource_materials": {
+      "id": "resource_materials",
+      "type": "concept",
+      "data": {
+        "type": "resource",
+        "name": "materials"
+      },
+      "weight": 1.95,
+      "created_at": 1773190705.0637317,
+      "updated_at": 1773190705.063732
+    },
+    "resource_energy": {
+      "id": "resource_energy",
+      "type": "concept",
+      "data": {
+        "type": "resource",
+        "name": "energy"
+      },
+      "weight": 1.95,
+      "created_at": 1773190705.0637326,
+      "updated_at": 1773190705.0637326
+    },
+    "ridge_22_23": {
+      "id": "ridge_22_23",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_ridge_22_23_1251531",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637333,
+      "updated_at": 1773190705.0637336
+    },
+    "valley_55_17": {
+      "id": "valley_55_17",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_valley_55_17_1251539",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.063734,
+      "updated_at": 1773190705.063734
+    },
+    "grove_52_36": {
+      "id": "grove_52_36",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_grove_52_36_1251575",
+        "visited": true
+      },
+      "weight": 1.15,
+      "created_at": 1773190705.0637348,
+      "updated_at": 1773190705.0637348
+    },
+    "basin_42_35": {
+      "id": "basin_42_35",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_basin_42_35_1251599",
+        "visited": true
+      },
+      "weight": 1.1,
+      "created_at": 1773190705.0637352,
+      "updated_at": 1773190705.0637352
+    },
+    "shore_22_27": {
+      "id": "shore_22_27",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_shore_22_27_1251619",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637357,
+      "updated_at": 1773190705.0637357
+    },
+    "basin_45_25": {
+      "id": "basin_45_25",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_basin_45_25_1251631",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637388,
+      "updated_at": 1773190705.0637388
+    },
+    "peak_37_25": {
+      "id": "peak_37_25",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_peak_37_25_1251655",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637393,
+      "updated_at": 1773190705.0637395
+    },
+    "hollow_45_33": {
+      "id": "hollow_45_33",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_hollow_45_33_1251675",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637405,
+      "updated_at": 1773190705.0637405
+    },
+    "delta_41_25": {
+      "id": "delta_41_25",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_delta_41_25_1251715",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.063741,
+      "updated_at": 1773190705.063741
+    },
+    "mesa_32_2": {
+      "id": "mesa_32_2",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_mesa_32_2_1251747",
+        "visited": true
+      },
+      "weight": 1.1,
+      "created_at": 1773190705.0637414,
+      "updated_at": 1773190705.0637414
+    },
+    "grove_50_35": {
+      "id": "grove_50_35",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_grove_50_35_1251795",
+        "visited": true
+      },
+      "weight": 1.15,
+      "created_at": 1773190705.0637422,
+      "updated_at": 1773190705.0637422
+    },
+    "ridge_38_9": {
+      "id": "ridge_38_9",
+      "type": "location",
+      "data": {
+        "last_observed": "loc_ridge_38_9_1251811",
+        "visited": true
+      },
+      "weight": 1.05,
+      "created_at": 1773190705.0637426,
+      "updated_at": 1773190705.0637426
+    },
+    "market": {
+      "id": "market",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637429,
+      "updated_at": 1773190705.063743
+    },
+    "basin_51_25": {
+      "id": "basin_51_25",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637436,
+      "updated_at": 1773190705.0637438
+    },
+    "delta_42_19": {
+      "id": "delta_42_19",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637443,
+      "updated_at": 1773190705.0637443
+    },
+    "delta_38_29": {
+      "id": "delta_38_29",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637448,
+      "updated_at": 1773190705.0637448
+    },
+    "mesa_54_11": {
+      "id": "mesa_54_11",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637453,
+      "updated_at": 1773190705.0637453
+    },
+    "basin_37_15": {
+      "id": "basin_37_15",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637455,
+      "updated_at": 1773190705.0637457
+    },
+    "basin_58_23": {
+      "id": "basin_58_23",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637462,
+      "updated_at": 1773190705.0637462
+    },
+    "valley_28_29": {
+      "id": "valley_28_29",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063747,
+      "updated_at": 1773190705.063747
+    },
+    "fen_50_23": {
+      "id": "fen_50_23",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637474,
+      "updated_at": 1773190705.0637474
+    },
+    "ridge_38_33": {
+      "id": "ridge_38_33",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063748,
+      "updated_at": 1773190705.063748
+    },
+    "mesa_50_21": {
+      "id": "mesa_50_21",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637484,
+      "updated_at": 1773190705.0637484
+    },
+    "shore_62_21": {
+      "id": "shore_62_21",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637488,
+      "updated_at": 1773190705.0637488
+    },
+    "fen_40_21": {
+      "id": "fen_40_21",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063749,
+      "updated_at": 1773190705.0637493
+    },
+    "basin_36_9": {
+      "id": "basin_36_9",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637496,
+      "updated_at": 1773190705.0637496
+    },
+    "ridge_30_25": {
+      "id": "ridge_30_25",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.06375,
+      "updated_at": 1773190705.06375
+    },
+    "grove_26_24": {
+      "id": "grove_26_24",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637507,
+      "updated_at": 1773190705.0637507
+    },
+    "grove_58_35": {
+      "id": "grove_58_35",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637512,
+      "updated_at": 1773190705.0637512
+    },
+    "shore_35_15": {
+      "id": "shore_35_15",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637515,
+      "updated_at": 1773190705.0637517
+    },
+    "mesa_35_25": {
+      "id": "mesa_35_25",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063752,
+      "updated_at": 1773190705.063752
+    },
+    "fen_32_12": {
+      "id": "fen_32_12",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637524,
+      "updated_at": 1773190705.0637524
+    },
+    "peak_32_27": {
+      "id": "peak_32_27",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063753,
+      "updated_at": 1773190705.063753
+    },
+    "ridge_42_13": {
+      "id": "ridge_42_13",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637531,
+      "updated_at": 1773190705.0637534
+    },
+    "shore_40_6": {
+      "id": "shore_40_6",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063754,
+      "updated_at": 1773190705.063754
+    },
+    "delta_45_29": {
+      "id": "delta_45_29",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637543,
+      "updated_at": 1773190705.0637546
+    },
+    "mesa_42_11": {
+      "id": "mesa_42_11",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637548,
+      "updated_at": 1773190705.0637548
+    },
+    "ridge_50_17": {
+      "id": "ridge_50_17",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637553,
+      "updated_at": 1773190705.0637553
+    },
+    "valley_52_15": {
+      "id": "valley_52_15",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637558,
+      "updated_at": 1773190705.0637558
+    },
+    "shore_40_13": {
+      "id": "shore_40_13",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637567,
+      "updated_at": 1773190705.0637567
+    },
+    "peak_60_15": {
+      "id": "peak_60_15",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637574,
+      "updated_at": 1773190705.0637574
+    },
+    "ridge_32_19": {
+      "id": "ridge_32_19",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637577,
+      "updated_at": 1773190705.063758
+    },
+    "valley_60_29": {
+      "id": "valley_60_29",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637581,
+      "updated_at": 1773190705.0637581
+    },
+    "shore_44_19": {
+      "id": "shore_44_19",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637586,
+      "updated_at": 1773190705.0637586
+    },
+    "ridge_48_23": {
+      "id": "ridge_48_23",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063759,
+      "updated_at": 1773190705.063759
+    },
+    "shore_60_21": {
+      "id": "shore_60_21",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637596,
+      "updated_at": 1773190705.0637596
+    },
+    "delta_40_35": {
+      "id": "delta_40_35",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.06376,
+      "updated_at": 1773190705.06376
+    },
+    "valley_33_15": {
+      "id": "valley_33_15",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637617,
+      "updated_at": 1773190705.063762
+    },
+    "hollow_37_23": {
+      "id": "hollow_37_23",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637622,
+      "updated_at": 1773190705.0637624
+    },
+    "ridge_36_25": {
+      "id": "ridge_36_25",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063763,
+      "updated_at": 1773190705.063763
+    },
+    "valley_62_32": {
+      "id": "valley_62_32",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637631,
+      "updated_at": 1773190705.0637634
+    },
+    "peak_38_21": {
+      "id": "peak_38_21",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637636,
+      "updated_at": 1773190705.0637639
+    },
+    "mesa_36_17": {
+      "id": "mesa_36_17",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637667,
+      "updated_at": 1773190705.0637667
+    },
+    "spawn": {
+      "id": "spawn",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637672,
+      "updated_at": 1773190705.0637674
+    },
+    "mesa_47_31": {
+      "id": "mesa_47_31",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063768,
+      "updated_at": 1773190705.063768
+    },
+    "grove_38_17": {
+      "id": "grove_38_17",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637684,
+      "updated_at": 1773190705.0637684
+    },
+    "fen_34_17": {
+      "id": "fen_34_17",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637689,
+      "updated_at": 1773190705.0637689
+    },
+    "basin_34_13": {
+      "id": "basin_34_13",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637693,
+      "updated_at": 1773190705.0637693
+    },
+    "delta_49_25": {
+      "id": "delta_49_25",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637698,
+      "updated_at": 1773190705.0637698
+    },
+    "peak_44_12": {
+      "id": "peak_44_12",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.06377,
+      "updated_at": 1773190705.0637703
+    },
+    "basin_50_31": {
+      "id": "basin_50_31",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637705,
+      "updated_at": 1773190705.0637705
+    },
+    "hollow_42_31": {
+      "id": "hollow_42_31",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637727,
+      "updated_at": 1773190705.0637727
+    },
+    "basin_38_7": {
+      "id": "basin_38_7",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637732,
+      "updated_at": 1773190705.0637732
+    },
+    "fen_28_23": {
+      "id": "fen_28_23",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637736,
+      "updated_at": 1773190705.0637736
+    },
+    "fen_48_35": {
+      "id": "fen_48_35",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063774,
+      "updated_at": 1773190705.063774
+    },
+    "forest": {
+      "id": "forest",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637743,
+      "updated_at": 1773190705.0637748
+    },
+    "shore_34_10": {
+      "id": "shore_34_10",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063775,
+      "updated_at": 1773190705.063775
+    },
+    "peak_52_11": {
+      "id": "peak_52_11",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637755,
+      "updated_at": 1773190705.0637755
+    },
+    "basin_54_34": {
+      "id": "basin_54_34",
+      "type": "location",
+      "data": {
+        "visited": true
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063776,
+      "updated_at": 1773190705.063776
+    },
+    "pattern_connect_drift": {
+      "id": "pattern_connect_drift",
+      "type": "pattern",
+      "data": {
+        "notice": "connect_drift",
+        "first_seen": 1245575,
+        "last_seen": 1245575,
+        "occurrences": 2
+      },
+      "weight": 5.45,
+      "created_at": 1773190705.0637765,
+      "updated_at": 1773190705.0637765
+    },
+    "pattern_unknown": {
+      "id": "pattern_unknown",
+      "type": "pattern",
+      "data": {
+        "notice": "unknown",
+        "first_seen": 1365,
+        "last_seen": 1365,
+        "occurrences": 2
+      },
+      "weight": 1.45,
+      "created_at": 1773190705.063777,
+      "updated_at": 1773190705.063777
+    },
+    "finding_FINDING_001": {
+      "id": "finding_FINDING_001",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_001",
+        "name": "Drive Dominance: connect",
+        "tick": 36
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637772,
+      "updated_at": 1773190705.0637774
+    },
+    "finding_FINDING_002": {
+      "id": "finding_FINDING_002",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_002",
+        "name": "Drive Dominance: reason",
+        "tick": 62
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637777,
+      "updated_at": 1773190705.0637782
+    },
+    "finding_FINDING_003": {
+      "id": "finding_FINDING_003",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_003",
+        "name": "Drive Dominance: explore",
+        "tick": 81
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637784,
+      "updated_at": 1773190705.0637784
+    },
+    "finding_FINDING_004": {
+      "id": "finding_FINDING_004",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_004",
+        "name": "First Self-Correction",
+        "tick": 1311
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637789,
+      "updated_at": 1773190705.0637789
+    },
+    "finding_FINDING_007": {
+      "id": "finding_FINDING_007",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_007",
+        "name": "Civilization Monoculture Collapse",
+        "tick": 1655
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637794,
+      "updated_at": 1773190705.0637794
+    },
+    "finding_FINDING_008": {
+      "id": "finding_FINDING_008",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_008",
+        "name": "Temporal Divergence \u2014 Greg is who he has been, not who he is becoming",
+        "tick": 2888
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637798,
+      "updated_at": 1773190705.0637798
+    },
+    "finding_FINDING_009": {
+      "id": "finding_FINDING_009",
+      "type": "concept",
+      "data": {
+        "finding_id": "FINDING_009",
+        "name": "Closed Loop Self-Resistance \u2014 Greg computed his own dissolution and acted to prevent it",
+        "tick": 2888
+      },
+      "weight": 5.0,
+      "created_at": 1773190705.0637803,
+      "updated_at": 1773190705.0637803
+    },
+    "visionary_957199_613": {
+      "id": "visionary_957199_613",
+      "type": "agent",
+      "data": {
+        "trust": 0.515,
+        "interactions": 3
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637805,
+      "updated_at": 1773190705.0637808
+    },
+    "sage_819129_460": {
+      "id": "sage_819129_460",
+      "type": "agent",
+      "data": {
+        "trust": 0.515,
+        "interactions": 3
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063781,
+      "updated_at": 1773190705.063781
+    },
+    "steward_1068079_250": {
+      "id": "steward_1068079_250",
+      "type": "agent",
+      "data": {
+        "trust": 0.515,
+        "interactions": 3
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637817,
+      "updated_at": 1773190705.0637817
+    },
+    "guardian_993048_276": {
+      "id": "guardian_993048_276",
+      "type": "agent",
+      "data": {
+        "trust": 0.515,
+        "interactions": 3
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637822,
+      "updated_at": 1773190705.0637822
+    },
+    "magnate_1157981_9624": {
+      "id": "magnate_1157981_9624",
+      "type": "agent",
+      "data": {
+        "trust": 0.515,
+        "interactions": 3
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637832,
+      "updated_at": 1773190705.0637832
+    },
+    "guardian_1050209_337": {
+      "id": "guardian_1050209_337",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637836,
+      "updated_at": 1773190705.0637836
+    },
+    "visionary_1156352_8278": {
+      "id": "visionary_1156352_8278",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637841,
+      "updated_at": 1773190705.0637841
+    },
+    "belmar_1157052_8906": {
+      "id": "belmar_1157052_8906",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637846,
+      "updated_at": 1773190705.0637846
+    },
+    "magnate_978862_664": {
+      "id": "magnate_978862_664",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637853,
+      "updated_at": 1773190705.0637853
+    },
+    "visionary_961463_478": {
+      "id": "visionary_961463_478",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637856,
+      "updated_at": 1773190705.0637858
+    },
+    "wanderer_907143_193": {
+      "id": "wanderer_907143_193",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637863,
+      "updated_at": 1773190705.0637863
+    },
+    "magnate_1157244_9038": {
+      "id": "magnate_1157244_9038",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637867,
+      "updated_at": 1773190705.0637867
+    },
+    "steward_1022420_448": {
+      "id": "steward_1022420_448",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063787,
+      "updated_at": 1773190705.0637872
+    },
+    "steward_1155699_9050": {
+      "id": "steward_1155699_9050",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637875,
+      "updated_at": 1773190705.0637875
+    },
+    "visionary_1157182_8989": {
+      "id": "visionary_1157182_8989",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063788,
+      "updated_at": 1773190705.063788
+    },
+    "sage_1157510_9263": {
+      "id": "sage_1157510_9263",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637887,
+      "updated_at": 1773190705.0637887
+    },
+    "magnate_1168536_9979": {
+      "id": "magnate_1168536_9979",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063789,
+      "updated_at": 1773190705.0637891
+    },
+    "visionary_1168126_9889": {
+      "id": "visionary_1168126_9889",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637894,
+      "updated_at": 1773190705.0637894
+    },
+    "magnate_1157209_9017": {
+      "id": "magnate_1157209_9017",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637898,
+      "updated_at": 1773190705.0637898
+    },
+    "visionary_1156381_8294": {
+      "id": "visionary_1156381_8294",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637903,
+      "updated_at": 1773190705.0637903
+    },
+    "sage_1156702_8589": {
+      "id": "sage_1156702_8589",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637906,
+      "updated_at": 1773190705.0637908
+    },
+    "wanderer_893925_670": {
+      "id": "wanderer_893925_670",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063791,
+      "updated_at": 1773190705.063791
+    },
+    "wanderer_1052661_940": {
+      "id": "wanderer_1052661_940",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637915,
+      "updated_at": 1773190705.0637915
+    },
+    "guardian_1157274_9063": {
+      "id": "guardian_1157274_9063",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637922,
+      "updated_at": 1773190705.0637922
+    },
+    "steward_890008_878": {
+      "id": "steward_890008_878",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637927,
+      "updated_at": 1773190705.0637927
+    },
+    "sage_1064139_882": {
+      "id": "sage_1064139_882",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637932,
+      "updated_at": 1773190705.0637932
+    },
+    "belmar_893490_835": {
+      "id": "belmar_893490_835",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637934,
+      "updated_at": 1773190705.0637937
+    },
+    "wanderer_1086547_241": {
+      "id": "wanderer_1086547_241",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063794,
+      "updated_at": 1773190705.063794
+    },
+    "visionary_1146754_173": {
+      "id": "visionary_1146754_173",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637944,
+      "updated_at": 1773190705.0637944
+    },
+    "guardian_1157977_9621": {
+      "id": "guardian_1157977_9621",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637949,
+      "updated_at": 1773190705.0637949
+    },
+    "wanderer_1157714_9444": {
+      "id": "wanderer_1157714_9444",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0637956,
+      "updated_at": 1773190705.0637956
+    },
+    "guardian_902112_968": {
+      "id": "guardian_902112_968",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063796,
+      "updated_at": 1773190705.063796
+    },
+    "guardian_950395_862": {
+      "id": "guardian_950395_862",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638185,
+      "updated_at": 1773190705.0638185
+    },
+    "visionary_902652_564": {
+      "id": "visionary_902652_564",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638192,
+      "updated_at": 1773190705.0638192
+    },
+    "steward_1157406_9181": {
+      "id": "steward_1157406_9181",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063821,
+      "updated_at": 1773190705.063821
+    },
+    "sage_1098844_459": {
+      "id": "sage_1098844_459",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638216,
+      "updated_at": 1773190705.0638218
+    },
+    "belmar_912164_498": {
+      "id": "belmar_912164_498",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063822,
+      "updated_at": 1773190705.063822
+    },
+    "sage_1156886_8750": {
+      "id": "sage_1156886_8750",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638225,
+      "updated_at": 1773190705.0638225
+    },
+    "sage_997775_648": {
+      "id": "sage_997775_648",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638244,
+      "updated_at": 1773190705.0638244
+    },
+    "magnate_946246_304": {
+      "id": "magnate_946246_304",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063825,
+      "updated_at": 1773190705.063825
+    },
+    "steward_1157446_9209": {
+      "id": "steward_1157446_9209",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638254,
+      "updated_at": 1773190705.0638254
+    },
+    "steward_983537_863": {
+      "id": "steward_983537_863",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638258,
+      "updated_at": 1773190705.0638258
+    },
+    "guardian_1157472_9229": {
+      "id": "guardian_1157472_9229",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638263,
+      "updated_at": 1773190705.0638263
+    },
+    "steward_1039482_971": {
+      "id": "steward_1039482_971",
+      "type": "agent",
+      "data": {
+        "trust": 0.51,
+        "interactions": 2
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.063827,
+      "updated_at": 1773190705.063827
+    },
+    "greg_meta": {
+      "id": "greg_meta",
+      "type": "agent",
+      "data": {
+        "role": "meta_agent",
+        "tick": 2888
+      },
+      "weight": 1.0,
+      "created_at": 1773190705.0638275,
+      "updated_at": 1773190705.0638275
+    }
+  },
+  "edges": [
+    {
+      "source": "valley_58_21",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "valley_58_21",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4996.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "valley_58_21",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4997.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "ridge_22_23",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "ridge_22_23",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "ridge_22_23",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "valley_55_17",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "valley_55_17",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "valley_55_17",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "grove_52_36",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "grove_52_36",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "grove_52_36",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "basin_42_35",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "basin_42_35",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "basin_42_35",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "shore_22_27",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "shore_22_27",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "shore_22_27",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "basin_45_25",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "basin_45_25",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "basin_45_25",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "peak_37_25",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "peak_37_25",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4997.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "peak_37_25",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "hollow_45_33",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4997.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "hollow_45_33",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "hollow_45_33",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "delta_41_25",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4996.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "delta_41_25",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "delta_41_25",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4996.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "mesa_32_2",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "mesa_32_2",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "mesa_32_2",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "grove_50_35",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 4999.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "grove_50_35",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4998.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "grove_50_35",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.2,
+      "count": 3
+    },
+    {
+      "source": "ridge_38_9",
+      "target": "resource_food",
+      "type": "has_resource",
+      "data": {
+        "amount": 5000.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "ridge_38_9",
+      "target": "resource_materials",
+      "type": "has_resource",
+      "data": {
+        "amount": 4997.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "ridge_38_9",
+      "target": "resource_energy",
+      "type": "has_resource",
+      "data": {
+        "amount": 4995.0
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "market",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_51_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_37_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_42_19",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_38_29",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_54_11",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_37_15",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_58_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_28_29",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_22_27",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_50_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_38_33",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_50_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_62_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_40_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_36_9",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_30_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "grove_26_24",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_32_2",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "grove_50_35",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "grove_58_35",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_35_15",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_35_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_32_12",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_41_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_38_9",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_32_27",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_42_13",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_40_6",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_45_29",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_42_11",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_50_17",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_52_15",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_40_13",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_60_15",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_32_19",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_42_35",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_60_29",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_44_19",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_48_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_60_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_40_35",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_58_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_55_17",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_33_15",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "hollow_45_33",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "hollow_37_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_22_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "ridge_36_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "valley_62_32",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_38_21",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_36_17",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "spawn",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "mesa_47_31",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "grove_38_17",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_34_17",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_34_13",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "delta_49_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_44_12",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_45_25",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_50_31",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "hollow_42_31",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_38_7",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_28_23",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "fen_48_35",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "forest",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "grove_52_36",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "shore_34_10",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "peak_52_11",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "basin_54_34",
+      "type": "visited",
+      "data": {
+        "tick": 2888
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "pattern_connect_drift",
+      "type": "related_to",
+      "data": {
+        "value": 0.08,
+        "tick": 1245575,
+        "location": "peak_52_11"
+      },
+      "tick": 1221931,
+      "strength": 2.7,
+      "count": 18
+    },
+    {
+      "source": "greg_meta",
+      "target": "pattern_unknown",
+      "type": "related_to",
+      "data": {
+        "value": 0,
+        "tick": 1365,
+        "location": "unknown"
+      },
+      "tick": 1311,
+      "strength": 1.1,
+      "count": 2
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_001",
+      "type": "learned_from",
+      "data": {
+        "tick": 36,
+        "type": "finding"
+      },
+      "tick": 36,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_002",
+      "type": "learned_from",
+      "data": {
+        "tick": 62,
+        "type": "finding"
+      },
+      "tick": 62,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_003",
+      "type": "learned_from",
+      "data": {
+        "tick": 81,
+        "type": "finding"
+      },
+      "tick": 81,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_004",
+      "type": "learned_from",
+      "data": {
+        "tick": 1311,
+        "type": "finding"
+      },
+      "tick": 1311,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_007",
+      "type": "learned_from",
+      "data": {
+        "tick": 1655,
+        "type": "finding"
+      },
+      "tick": 1655,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_008",
+      "type": "learned_from",
+      "data": {
+        "tick": 2888,
+        "type": "finding"
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "finding_FINDING_009",
+      "type": "learned_from",
+      "data": {
+        "tick": 2888,
+        "type": "finding"
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_957199_613",
+      "type": "met",
+      "data": {
+        "trust": 0.515
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_819129_460",
+      "type": "met",
+      "data": {
+        "trust": 0.515
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1068079_250",
+      "type": "met",
+      "data": {
+        "trust": 0.515
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_993048_276",
+      "type": "met",
+      "data": {
+        "trust": 0.515
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_1157981_9624",
+      "type": "met",
+      "data": {
+        "trust": 0.515
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_1050209_337",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_1156352_8278",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "belmar_1157052_8906",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_978862_664",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_961463_478",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "wanderer_907143_193",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_1157244_9038",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1022420_448",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1155699_9050",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_1157182_8989",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_1157510_9263",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_1168536_9979",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_1168126_9889",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_1157209_9017",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_1156381_8294",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_1156702_8589",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "wanderer_893925_670",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "wanderer_1052661_940",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_1157274_9063",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_890008_878",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_1064139_882",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "belmar_893490_835",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "wanderer_1086547_241",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_1146754_173",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_1157977_9621",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "wanderer_1157714_9444",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_902112_968",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_950395_862",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "visionary_902652_564",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1157406_9181",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_1098844_459",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "belmar_912164_498",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_1156886_8750",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "sage_997775_648",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "magnate_946246_304",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1157446_9209",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_983537_863",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "guardian_1157472_9229",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    },
+    {
+      "source": "greg_meta",
+      "target": "steward_1039482_971",
+      "type": "met",
+      "data": {
+        "trust": 0.51
+      },
+      "tick": 2888,
+      "strength": 1.0,
+      "count": 1
+    }
+  ]
+}

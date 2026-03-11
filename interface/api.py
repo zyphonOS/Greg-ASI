@@ -1146,6 +1146,34 @@ def greg_temporal():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/knowledge  — EXP_008
+# Greg's knowledge graph — living world model
+# -----------------------------------------
+@app.route("/api/greg/knowledge")
+def greg_knowledge():
+    try:
+        from greg_knowledge_graph import KnowledgeGraph, GRAPH_PATH
+        graph = KnowledgeGraph()
+        loaded = graph.load(GRAPH_PATH)
+        if not loaded:
+            return jsonify({"error": "knowledge graph not found — run bootstrap first"}), 404
+        summary = graph.summary()
+        return jsonify({
+            "total_nodes":   summary["total_nodes"],
+            "total_edges":   summary["total_edges"],
+            "node_types":    summary["node_types"],
+            "edge_types":    summary["edge_types"],
+            "top_locations": summary["top_locations"],
+            "top_concepts":  summary["top_concepts"],
+            "top_patterns":  summary["top_patterns"],
+            "graph_tick":    graph.tick,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
