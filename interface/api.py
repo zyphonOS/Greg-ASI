@@ -941,10 +941,20 @@ def world_agents():
 
 
 # -----------------------------------------
-# GET /api/greg/briefing
+# GET /api/greg/briefing  — EXP_010 Unified Synthesis
 # -----------------------------------------
 @app.route('/api/greg/briefing')
 def greg_briefing():
+    try:
+        from greg_briefing import generate_unified_briefing
+        briefing = generate_unified_briefing()
+        return jsonify(briefing)
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
+@app.route('/api/greg/briefing_legacy')
+def greg_briefing_legacy():
     try:
         from greg_exosuit import generate_morning_briefing, format_briefing_text, get_founder_profile, assess_greg_drives, assess_actions
         w = get_world()
