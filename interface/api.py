@@ -1335,14 +1335,6 @@ def build_log():
 
 # -----------------------------------------
 
-if __name__ == "__main__":
-
-    print("[API] Starting GregASI v2 API on http://localhost:5000")
-
-    get_world()
-
-    app.run(host="0.0.0.0", port=5000, debug=False)
-
 
 
 # -----------------------------------------
@@ -1481,3 +1473,11 @@ def get_world() -> WorldState:
 
 # -----------------------------------------
 
+
+
+if __name__ == "__main__":
+    import os
+    print("[API] Starting GregASI API")
+    get_world()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)

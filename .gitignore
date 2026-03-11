@@ -18,7 +18,6 @@ secrets.json
 
 # Large data files (too big for GitHub)
 data/behavioral_corpus.txt
-data/world_state.json
 data/voice_ngram.json
 data/behavioral_corpus_vocab.txt
 *.db
