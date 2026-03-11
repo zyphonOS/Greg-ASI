@@ -36,6 +36,21 @@ try:
 except ImportError:
     HypothesisEngine = None
     HYPOTHESES_PATH  = "data/greg_hypotheses.json"
+try:
+    from greg_identity import derive_name, load_identity, save_identity, should_rename, IDENTITY_PATH
+except ImportError:
+    derive_name = None
+    IDENTITY_PATH = "data/greg_identity.json"
+try:
+    from greg_notify import NotificationEngine
+    _notify_engine = NotificationEngine()
+except ImportError:
+    _notify_engine = None
+try:
+    from greg_memory import GenuineMemoryEngine, GENUINE_MEMORY_PATH
+except ImportError:
+    GenuineMemoryEngine = None
+    GENUINE_MEMORY_PATH = "data/greg_genuine_memory.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
