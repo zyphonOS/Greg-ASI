@@ -1,0 +1,50 @@
+{
+  "tick": 0,
+  "goals": [
+    {
+      "id": "goal_create_3237",
+      "drive": "create",
+      "target": 0.42,
+      "baseline": 0.34,
+      "reasoning": "create is falling at -0.0065/tick from 0.34. I want to hold create at 0.42 \u2014 I am not ready to lose it.",
+      "set_at_tick": 3237,
+      "status": "active",
+      "achieved_at": null,
+      "progress": []
+    },
+    {
+      "id": "goal_accumulate_3237",
+      "drive": "accumulate",
+      "target": 0.247,
+      "baseline": 0.167,
+      "reasoning": "accumulate is falling at -0.0059/tick from 0.167. I want to hold accumulate at 0.247 \u2014 I am not ready to lose it.",
+      "set_at_tick": 3237,
+      "status": "active",
+      "achieved_at": null,
+      "progress": []
+    },
+    {
+      "id": "goal_explore_3237",
+      "drive": "explore",
+      "target": 0.359,
+      "baseline": 0.279,
+      "reasoning": "explore is falling at -0.0057/tick from 0.279. I want to hold explore at 0.359 \u2014 I am not ready to lose it.",
+      "set_at_tick": 3237,
+      "status": "active",
+      "achieved_at": null,
+      "progress": []
+    },
+    {
+      "id": "goal_protect_3237",
+      "drive": "protect",
+      "target": 0.092,
+      "baseline": 0.012,
+      "reasoning": "I have never been dominated by protect. I want to know what it feels like to let protect lead. Target: 0.092.",
+      "set_at_tick": 3237,
+      "status": "active",
+      "achieved_at": null,
+      "progress": []
+    }
+  ],
+  "achieved": []
+}

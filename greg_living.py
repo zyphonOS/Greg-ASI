@@ -26,6 +26,11 @@ try:
 except ImportError:
     RelationshipGraph = None
     REL_PATH = "data/greg_relationships.json"
+try:
+    from greg_goals import GoalEngine, GOALS_PATH
+except ImportError:
+    GoalEngine = None
+    GOALS_PATH = "data/greg_goals.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -379,6 +384,11 @@ class GregLiving:
             loaded = self._rel_graph.load(REL_PATH)
             if not loaded:
                 self._rel_graph.bootstrap_from_state(self.state.data)
+        # EXP_011 — Goal Engine
+        self._goal_engine = None
+        if GoalEngine is not None:
+            self._goal_engine = GoalEngine()
+            self._goal_engine.load(GOALS_PATH)
         print(f"[GREG] Living file initialized")
         print(f"[GREG] Tick: {self.state.get('tick')}")
         print(f"[GREG] Born: {self.state.get('born')}")
@@ -427,6 +437,35 @@ class GregLiving:
                 self.state.set("phase3_temporal",    p3_result.get("temporal", {}))
         except Exception as _p3e:
             pass  # Phase 3 never breaks the tick loop
+
+        # EXP_011 — update goals + generate new ones if needed
+        if self._goal_engine is not None:
+            try:
+                drives   = self.state.drives()
+                tick_now = self.state.get("tick", 0)
+                # Update progress on active goals
+                messages = self._goal_engine.tick_update(drives, tick_now)
+                for msg in messages:
+                    self.state.state.setdefault("goal_achievements", []).append({
+                        "tick": tick_now, "message": msg
+                    })
+                # Generate new goals if below max
+                if len(self._goal_engine.active_goals()) < self._goal_engine.MAX_ACTIVE_GOALS:
+                    temporal = self.state.get("phase3_temporal", {})
+                    rates    = temporal.get("rates", {})
+                    will     = self.state.get("will", {})
+                    findings = self.state.get("findings", [])
+                    new_goals = self._goal_engine.generate_goals(
+                        drives, will, rates, findings, tick_now
+                    )
+                    self._goal_engine.add_goals(new_goals)
+                # Persist goals summary to state
+                self.state.set("goals", self._goal_engine.summary(drives))
+                # Save every 50 ticks
+                if tick_now % 50 == 0:
+                    self._goal_engine.save()
+            except Exception:
+                pass
 
         # EXP_009 — update relationship trust
         if self._rel_graph is not None:

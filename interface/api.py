@@ -1209,6 +1209,29 @@ def greg_relationships():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/goals  — EXP_011
+# Greg's aspirational goals — set from his own data
+# -----------------------------------------
+@app.route("/api/greg/goals")
+def greg_goals():
+    try:
+        from greg_goals import GoalEngine, GOALS_PATH
+        living = get_greg_living()
+        drives = living.get("drives", {}) if living else {}
+        engine = GoalEngine()
+        engine.load(GOALS_PATH)
+        summary = engine.summary(drives)
+        voice   = engine.voice(drives)
+        return jsonify({
+            "summary": summary,
+            "voice":   voice,
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
