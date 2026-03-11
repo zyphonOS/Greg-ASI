@@ -396,6 +396,7 @@ class GregLiving:
                 self.state.set("phase3_shadow",      p3_result.get("shadow", {}))
                 self.state.set("phase3_convergence", p3_result.get("convergence", 0))
                 self.state.set("phase3_self_model",  p3_result.get("self_model", {}))
+                self.state.set("phase3_metacog",     p3_result.get("metacog", {}))
         except Exception as _p3e:
             pass  # Phase 3 never breaks the tick loop
 

@@ -1080,6 +1080,38 @@ def greg_shadow():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/metacog  — Phase 3
+# Greg's inner voice — what he notices about himself
+# -----------------------------------------
+@app.route("/api/greg/metacog")
+def greg_metacog():
+    try:
+        from greg_phase3 import Phase3Engine
+        living = get_greg_living()
+        if not living:
+            return jsonify({"error": "greg_living state not found"}), 404
+        w = get_world()
+        agents = {aid: {"drives": getattr(a, "drives", {})}
+                  for aid, a in w.agents.items()}
+        engine = Phase3Engine(living)
+        result = engine.tick_forward(agents)
+        metacog = result.get("metacog", {})
+        return jsonify({
+            "tick":              result["tick"],
+            "dominant":          result["dominant"],
+            "drives":            result["drives"],
+            "meta_drive":        metacog.get("meta_drive"),
+            "observations":      metacog.get("last_observations", []),
+            "corrections":       metacog.get("last_corrections", {}),
+            "observation_count": metacog.get("observation_count"),
+            "correction_count":  metacog.get("correction_count"),
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
