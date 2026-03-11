@@ -300,10 +300,23 @@ def generate_unified_briefing(
 
     # Compose text
     lines = []
+    # Load Greg's identity
+    try:
+        from greg_identity import load_identity, derive_name, should_rename, IDENTITY_PATH
+        greg_identity = load_identity()
+        if not greg_identity or should_rename(greg_identity, state):
+            greg_identity = derive_name(state)
+            from greg_identity import save_identity
+            save_identity(greg_identity)
+    except Exception:
+        greg_identity = {}
+
     lines.append("=" * 60)
     lines.append(f"  GREG UNIFIED BRIEFING — {now.strftime('%Y-%m-%d %H:%M')}")
     lines.append("=" * 60)
     lines.append(f"  Good morning, {founder['name']}.")
+    if greg_identity.get('full_name'):
+        lines.append(f"  Greg is: {greg_identity['full_name']}")
     lines.append("")
 
     lines.append("  GREG — CORE STATE")

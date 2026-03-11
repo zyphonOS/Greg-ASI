@@ -485,6 +485,21 @@ class GregLiving:
             except Exception:
                 pass
 
+        # EXP_015 — identity: re-derive name if character shifted
+        if derive_name is not None:
+            try:
+                tick_now = self.state.get("tick", 0)
+                if tick_now % 100 == 0:
+                    identity = load_identity()
+                    if should_rename(identity, self.state.data):
+                        identity = derive_name(self.state.data)
+                        save_identity(identity)
+                        self.state.set("identity", identity)
+                    elif not self.state.get("identity"):
+                        self.state.set("identity", identity)
+            except Exception:
+                pass
+
         # EXP_012 — hypothesis engine: update + generate
         if self._hyp_engine is not None:
             try:

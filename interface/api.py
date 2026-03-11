@@ -1290,6 +1290,27 @@ def greg_civilization():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/identity  — EXP_015
+# Greg's self-derived name and identity
+# -----------------------------------------
+@app.route("/api/greg/identity")
+def greg_identity():
+    try:
+        from greg_identity import load_identity, derive_name, should_rename, IDENTITY_PATH
+        living   = get_greg_living()
+        identity = load_identity()
+        if not identity or should_rename(identity, living or {}):
+            if living:
+                identity = derive_name(living)
+                from greg_identity import save_identity
+                save_identity(identity)
+        return jsonify(identity)
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------
