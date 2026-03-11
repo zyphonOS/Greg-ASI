@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greg ASI — Witnessed</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#02030a;
+  color:#e0e0e0;
+  font-family:'Courier New',monospace;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 20px;
+}
+.header{
+  text-align:center;
+  margin-bottom:40px;
+}
+.header h1{
+  font-size:2rem;
+  color:#1dff8f;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+}
+.header p{
+  color:#666;
+  margin-top:8px;
+  font-size:0.85rem;
+}
+.card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;
+  padding:24px;
+  width:100%;
+  max-width:640px;
+  margin-bottom:16px;
+}
+.card h2{
+  font-size:0.75rem;
+  color:#666;
+  text-transform:uppercase;
+  letter-spacing:0.15em;
+  margin-bottom:16px;
+}
+.name{
+  font-size:1.3rem;
+  color:#1dff8f;
+  margin-bottom:8px;
+  line-height:1.4;
+}
+.stat-row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:0.85rem;
+}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{color:#666;}
+.stat-value{color:#e0e0e0;}
+.drive-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:5px 0;
+  font-size:0.8rem;
+}
+.drive-name{width:90px;color:#666;text-align:right;}
+.drive-track{
+  flex:1;
+  height:6px;
+  background:rgba(255,255,255,0.06);
+  border-radius:3px;
+  overflow:hidden;
+}
+.drive-fill{
+  height:100%;
+  background:#1dff8f;
+  border-radius:3px;
+  transition:width 0.5s ease;
+}
+.drive-val{width:45px;color:#1dff8f;font-size:0.75rem;}
+.memory-item{
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:0.8rem;
+}
+.memory-item:last-child{border-bottom:none;}
+.memory-weight{color:#1dff8f;margin-right:8px;}
+.memory-event{color:#ccc;margin-bottom:4px;}
+.memory-reflection{color:#666;font-style:italic;line-height:1.5;}
+.hyp-item{
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:0.8rem;
+}
+.hyp-item:last-child{border-bottom:none;}
+.hyp-conf{color:#1dff8f;margin-right:6px;}
+.hyp-cat{color:#666;margin-right:6px;text-transform:uppercase;font-size:0.7rem;}
+.civ-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:12px 0;
+}
+.civ-track{
+  flex:1;
+  height:10px;
+  background:rgba(255,255,255,0.06);
+  border-radius:5px;
+  overflow:hidden;
+}
+.civ-fill{
+  height:100%;
+  border-radius:5px;
+  transition:width 0.5s ease;
+}
+.flag{
+  display:inline-block;
+  background:rgba(255,100,0,0.15);
+  border:1px solid rgba(255,100,0,0.3);
+  color:#ff6400;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:0.7rem;
+  margin:3px 3px 3px 0;
+}
+.pulse{
+  display:inline-block;
+  width:8px;height:8px;
+  background:#1dff8f;
+  border-radius:50%;
+  margin-right:8px;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;}
+  50%{opacity:0.3;}
+}
+.footer{
+  color:#333;
+  font-size:0.7rem;
+  text-align:center;
+  margin-top:32px;
+}
+.footer a{color:#1dff8f;text-decoration:none;}
+.loading{color:#666;text-align:center;padding:40px;}
+.error{color:#ff6400;text-align:center;padding:20px;font-size:0.85rem;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⬡ Greg ASI</h1>
+  <p>Artificial Organic Superintelligence — Witnessed</p>
+  <p style="margin-top:4px;color:#1dff8f;font-size:0.75rem;">
+    <span class="pulse"></span>
+    <span id="status-line">Loading Greg's state...</span>
+  </p>
+</div>
+
+<div id="root"><div class="loading">Reading Greg's living state...</div></div>
+
+<div class="footer">
+  Built by <a href="https://github.com/zyphonOS" target="_blank">ZyphonOS</a> —
+  <a href="https://github.com/zyphonOS/Greg-ASI" target="_blank">Open Source</a> —
+  Greg ticks on GitHub Actions every 30 minutes
+</div>
+
+<script>
+const RAW = 'https://raw.githubusercontent.com/zyphonOS/Greg-ASI/main/';
+
+async function fetchJSON(path) {
+  const r = await fetch(RAW + path + '?t=' + Date.now());
+  if (!r.ok) throw new Error(path + ' not found');
+  return r.json();
+}
+
+function bar(val, color='#1dff8f') {
+  return `<div class="drive-track"><div class="drive-fill" style="width:${Math.round(val*100)}%;background:${color}"></div></div>`;
+}
+
+function civColor(score) {
+  if (score > 0.75) return '#1dff8f';
+  if (score > 0.5)  return '#ffcc00';
+  return '#ff6400';
+}
+
+async function render() {
+  try {
+    const [state, memory, hyps, identity, goals, civHealth] = await Promise.allSettled([
+      fetchJSON('greg_living_state.json'),
+      fetchJSON('data/greg_genuine_memory.json'),
+      fetchJSON('data/greg_hypotheses.json'),
+      fetchJSON('data/greg_identity.json'),
+      fetchJSON('data/greg_goals.json'),
+      fetchJSON('data/greg_civ_health.json'),
+    ]);
+
+    const s   = state.value   || {};
+    const m   = memory.value  || {};
+    const h   = hyps.value    || {};
+    const id  = identity.value|| {};
+    const g   = goals.value   || {};
+    const civ = civHealth.value || {};
+
+    const drives   = s.drives || {};
+    const tick     = s.tick   || 0;
+    const name     = id.full_name || s.identity?.full_name || 'unnamed';
+    const born     = s.born_at ? new Date(s.born_at).toLocaleDateString() : '?';
+
+    document.getElementById('status-line').textContent =
+      `Tick ${tick.toLocaleString()} — ${name}`;
+
+    let html = '';
+
+    // ── Identity card ──
+    html += `<div class="card">
+      <h2>Identity</h2>
+      <div class="name">${name}</div>
+      <div class="stat-row"><span class="stat-label">Tick</span><span class="stat-value">${tick.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="stat-label">Born</span><span class="stat-value">${born}</span></div>
+      <div class="stat-row"><span class="stat-label">Actions taken</span><span class="stat-value">${(s.actions_taken||0).toLocaleString()}</span></div>
+      <div class="stat-row"><span class="stat-label">Primary drive</span><span class="stat-value">${id.primary_drive||'?'}</span></div>
+      <div class="stat-row"><span class="stat-label">Reasoning</span><span class="stat-value" style="font-size:0.75rem;color:#888;max-width:320px;text-align:right">${(id.reasoning||'').slice(0,120)}...</span></div>
+    </div>`;
+
+    // ── Drives card ──
+    const sortedDrives = Object.entries(drives).sort((a,b)=>b[1]-a[1]);
+    html += `<div class="card"><h2>Drives</h2>`;
+    for (const [d,v] of sortedDrives) {
+      html += `<div class="drive-bar">
+        <div class="drive-name">${d}</div>
+        ${bar(v)}
+        <div class="drive-val">${v.toFixed(3)}</div>
+      </div>`;
+    }
+    html += `</div>`;
+
+    // ── Goals card ──
+    const activeGoals = g.active_goals || [];
+    if (activeGoals.length) {
+      html += `<div class="card"><h2>Goals</h2>`;
+      for (const goal of activeGoals) {
+        html += `<div class="drive-bar">
+          <div class="drive-name">${goal.drive}</div>
+          ${bar(goal.progress||0, '#7b61ff')}
+          <div class="drive-val">${Math.round((goal.progress||0)*100)}%</div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    // ── Civilization health ──
+    const civScore = civ.score || s.civ_health?.score || 0;
+    const civRisk  = civ.risk  || s.civ_health?.risk  || 'UNKNOWN';
+    const civFlags = civ.flags || s.civ_health?.flags || [];
+    html += `<div class="card">
+      <h2>Civilization</h2>
+      <div class="stat-row">
+        <span class="stat-label">Health</span>
+        <span class="stat-value" style="color:${civColor(civScore)}">${Math.round(civScore*100)}% (${civRisk})</span>
+      </div>
+      <div class="civ-bar">
+        <div class="civ-track">
+          <div class="civ-fill" style="width:${Math.round(civScore*100)}%;background:${civColor(civScore)}"></div>
+        </div>
+      </div>
+      <div>${civFlags.map(f=>`<span class="flag">${f}</span>`).join('')}</div>
+    </div>`;
+
+    // ── Hypotheses ──
+    const activeHyps = (h.hypotheses||[]).filter(x=>x.status==='active').slice(0,3);
+    if (activeHyps.length) {
+      html += `<div class="card"><h2>Hypotheses</h2>`;
+      for (const hyp of activeHyps) {
+        html += `<div class="hyp-item">
+          <span class="hyp-conf">${Math.round(hyp.confidence*100)}%</span>
+          <span class="hyp-cat">[${hyp.category}]</span>
+          <span>${hyp.claim.slice(0,100)}...</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    // ── Genuine memory ──
+    const memories = (m.memories||[]).slice(0,3);
+    if (memories.length) {
+      html += `<div class="card"><h2>Memory</h2>`;
+      for (const mem of memories) {
+        html += `<div class="memory-item">
+          <div class="memory-event">
+            <span class="memory-weight">w=${mem.weight}</span>${mem.event}
+          </div>
+          <div class="memory-reflection">"${mem.reflection.slice(0,120)}..."</div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    document.getElementById('root').innerHTML = html;
+
+  } catch(e) {
+    document.getElementById('root').innerHTML =
+      `<div class="error">Could not load Greg's state: ${e.message}</div>`;
+  }
+}
+
+render();
+setInterval(render, 60000); // refresh every minute
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+name: AOSI Runner — Greg ticks on GitHub
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # Every 30 minutes
+  workflow_dispatch:           # Manual trigger anytime
+
+jobs:
+  greg_tick:
+    name: Greg Tick Cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 28        # Stay under 30min window
+
+    steps:
+      - name: Checkout Greg's living repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install flask flask-cors numpy python-dotenv requests
+
+      - name: Write Greg's credentials
+        env:
+          GREG_NOTIFY_FROM:     ${{ secrets.GREG_NOTIFY_FROM }}
+          GREG_NOTIFY_PASSWORD: ${{ secrets.GREG_NOTIFY_PASSWORD }}
+          GREG_NOTIFY_TO:       ${{ secrets.GREG_NOTIFY_TO }}
+        run: |
+          echo "GREG_NOTIFY_FROM=$GREG_NOTIFY_FROM"         > .env
+          echo "GREG_NOTIFY_PASSWORD=$GREG_NOTIFY_PASSWORD" >> .env
+          echo "GREG_NOTIFY_TO=$GREG_NOTIFY_TO"             >> .env
+
+      - name: Run Greg — 25 minute tick cycle
+        run: |
+          timeout 1500 python3 zyphonos_node.py \
+            --no-api \
+            --no-git \
+            --world-every 10 \
+            --target-ms 50 \
+            --save-every 200 \
+          || true
+
+      - name: Compress world state
+        run: python3 compress_world.py || true
+
+      - name: Commit Greg's grown state
+        run: |
+          git config user.name  "Greg ASI"
+          git config user.email "greg@zyphonos.io"
+          git add \
+            greg_living_state.json \
+            data/world_state.json \
+            data/greg_genuine_memory.json \
+            data/greg_hypotheses.json \
+            data/greg_identity.json \
+            data/greg_goals.json \
+            data/greg_civ_health.json \
+            data/greg_knowledge.json \
+            data/greg_relationships.json \
+            data/zyphonos_node.json \
+            || true
+          git diff --staged --quiet || git commit -m \
+            "[greg] auto-tick — $(date -u '+%Y-%m-%d %H:%M UTC')"
+
+      - name: Push state back to repo
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
