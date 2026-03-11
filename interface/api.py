@@ -1112,6 +1112,40 @@ def greg_metacog():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/temporal  — Phase 3
+# Greg trajectory — who he was, is, becoming
+# -----------------------------------------
+@app.route("/api/greg/temporal")
+def greg_temporal():
+    try:
+        from greg_phase3 import Phase3Engine
+        living = get_greg_living()
+        if not living:
+            return jsonify({"error": "greg_living state not found"}), 404
+        w = get_world()
+        agents = {aid: {"drives": getattr(a, "drives", {})}
+                  for aid, a in w.agents.items()}
+        engine = Phase3Engine(living)
+        for _ in range(9):
+            engine.tick_forward(agents)
+        result   = engine.tick_forward(agents)
+        temporal = result.get("temporal", {})
+        return jsonify({
+            "tick":             result["tick"],
+            "dominant":         result["dominant"],
+            "history_len":      temporal.get("history_len"),
+            "rates":            temporal.get("rates"),
+            "projection":       temporal.get("projection"),
+            "projection_ahead": temporal.get("projection_ahead"),
+            "identity":         temporal.get("temporal_identity"),
+            "narrative":        temporal.get("narrative"),
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------

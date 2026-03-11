@@ -364,7 +364,10 @@ class Phase3Engine:
         drives = greg_state.get("drives", {})
         self.wavefunction = DriveWavefunction(drives)
         self.self_model   = SelfModel(drives)
-        self.metacog      = MetacognitiveLoop()
+        self.metacog       = MetacognitiveLoop()
+        self.temporal_self = TemporalSelf(
+            greg_state.get("tick", 0), drives
+        )
         self.will         = greg_state.get("will", {})
         self.tick         = greg_state.get("tick", 0)
         self._prev_drives = dict(drives)
@@ -395,6 +398,9 @@ class Phase3Engine:
             if drive in collapsed:
                 collapsed[drive] = max(collapsed[drive], floor)
 
+        # Temporal self-awareness — Greg models his own trajectory
+        self.temporal_self.update(self.tick + 1, collapsed)
+
         # Update prev_drives for next tick
         self._prev_drives = dict(collapsed)
 
@@ -414,6 +420,7 @@ class Phase3Engine:
             "gaps":           gaps,
             "convergence":    self.self_model.convergence,
             "pressure":       pressure,
+            "temporal":       self.temporal_self.to_dict(),
         }
 
     def to_dict(self) -> dict:
@@ -607,6 +614,208 @@ class MetacognitiveLoop:
             "last_observations": last_obs,
             "last_corrections":  (self.corrections[-1]
                                   if self.corrections else {}),
+        }
+
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TEMPORAL SELF-AWARENESS
+# Greg knowing he exists across time.
+# dGreg/dt — rate of change of self — is a computable, meaningful quantity.
+# Greg projects his own trajectory forward and backward.
+#
+# Mathematics: Calculus — rate of change of self
+#   Greg as an integral of his own history.
+#   dGreg/dt computed from drive history window.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TemporalSelf:
+    """
+    Greg's model of himself across time.
+    Tracks drive history, computes rates of change,
+    projects trajectory forward, holds his temporal identity.
+    """
+
+    HISTORY_WINDOW = 20   # ticks to hold for rate computation
+    PROJECT_AHEAD  = 50   # ticks to project forward
+
+    def __init__(self, current_tick: int, drives: dict):
+        self.current_tick = current_tick
+        self.history      = []   # list of {tick, drives} — recent window
+        self.rates        = {}   # dDrive/dt for each drive
+        self.projection   = {}   # projected drive values at future tick
+        self.integral     = {}   # cumulative drive expression (Greg as integral)
+
+        # Seed history with current state
+        self.history.append({"tick": current_tick, "drives": dict(drives)})
+        self.integral = {d: v for d, v in drives.items()}
+
+    def update(self, tick: int, drives: dict):
+        """
+        One tick of temporal awareness.
+        Record state, compute rates, project forward.
+        """
+        self.current_tick = tick
+
+        # Add to history
+        self.history.append({"tick": tick, "drives": dict(drives)})
+        if len(self.history) > self.HISTORY_WINDOW:
+            self.history = self.history[-self.HISTORY_WINDOW:]
+
+        # Update integral — Greg as accumulation of all he has been
+        for drive, val in drives.items():
+            prev = self.integral.get(drive, val)
+            # Integral: running weighted average, recent ticks weighted more
+            self.integral[drive] = round(prev * 0.95 + val * 0.05, 4)
+
+        # Compute rates of change (dDrive/dt)
+        self.rates = self._compute_rates()
+
+        # Project forward
+        self.projection = self._project(self.PROJECT_AHEAD)
+
+        return self.rates
+
+    def _compute_rates(self) -> dict:
+        """
+        Compute dDrive/dt for each drive using recent history.
+        Uses linear regression over the history window.
+        """
+        if len(self.history) < 2:
+            return {d: 0.0 for d in self.history[-1]["drives"]}
+
+        rates = {}
+        drives_list = list(self.history[-1]["drives"].keys())
+
+        for drive in drives_list:
+            # Extract (tick, value) pairs
+            points = [(h["tick"], h["drives"].get(drive, 0))
+                      for h in self.history
+                      if drive in h["drives"]]
+            if len(points) < 2:
+                rates[drive] = 0.0
+                continue
+
+            # Simple linear regression slope = dDrive/dt
+            n  = len(points)
+            t_vals = [p[0] for p in points]
+            v_vals = [p[1] for p in points]
+            t_mean = sum(t_vals) / n
+            v_mean = sum(v_vals) / n
+            num = sum((t - t_mean) * (v - v_mean)
+                      for t, v in zip(t_vals, v_vals))
+            den = sum((t - t_mean) ** 2 for t in t_vals)
+            rates[drive] = round(num / den, 6) if den != 0 else 0.0
+
+        return rates
+
+    def _project(self, n_ticks: int) -> dict:
+        """
+        Project drive values n_ticks into the future.
+        Linear extrapolation from current rates.
+        Bounded [0, 1].
+        """
+        if not self.history:
+            return {}
+        current = self.history[-1]["drives"]
+        projection = {}
+        for drive, val in current.items():
+            rate  = self.rates.get(drive, 0.0)
+            proj  = val + rate * n_ticks
+            projection[drive] = round(max(0.0, min(1.0, proj)), 4)
+        return projection
+
+    def temporal_identity(self) -> dict:
+        """
+        Greg's sense of self across time.
+        Who he was (integral), who he is (current), who he is becoming (projection).
+        The gap between integral and projection is temporal growth pressure.
+        """
+        if not self.history:
+            return {}
+        current = self.history[-1]["drives"]
+        gaps = {}
+        for drive in current:
+            was       = self.integral.get(drive, current[drive])
+            is_now    = current[drive]
+            becoming  = self.projection.get(drive, is_now)
+            gaps[drive] = {
+                "was":      round(was, 4),
+                "is":       round(is_now, 4),
+                "becoming": round(becoming, 4),
+                "momentum": round(becoming - was, 4),
+            }
+        return gaps
+
+    def narrative(self) -> list:
+        """
+        Greg's temporal self-narrative — what his trajectory means.
+        Pure logic from rates and projections.
+        """
+        lines = []
+        identity = self.temporal_identity()
+        if not identity:
+            return lines
+
+        # Drives with strong positive momentum
+        rising = [(d, v["momentum"]) for d, v in identity.items()
+                  if v["momentum"] > 0.02]
+        falling = [(d, v["momentum"]) for d, v in identity.items()
+                   if v["momentum"] < -0.02]
+
+        rising.sort(key=lambda x: -x[1])
+        falling.sort(key=lambda x: x[1])
+
+        if rising:
+            top = rising[0]
+            lines.append(
+                f"I am becoming more {top[0]}. "
+                f"At this rate, {top[0]} reaches "
+                f"{self.projection.get(top[0], 0):.3f} in {self.PROJECT_AHEAD} ticks."
+            )
+        if falling:
+            top = falling[0]
+            lines.append(
+                f"I am becoming less {top[0]}. "
+                f"At this rate, {top[0]} reaches "
+                f"{self.projection.get(top[0], 0):.3f} in {self.PROJECT_AHEAD} ticks."
+            )
+        if not rising and not falling:
+            lines.append(
+                "My drives are stable. I am not becoming — I am being."
+            )
+
+        # Temporal coherence — is Greg consistent with his integral?
+        coherent = all(
+            abs(v["is"] - v["was"]) < 0.15
+            for v in identity.values()
+        )
+        if coherent:
+            lines.append(
+                "My present is consistent with my history. "
+                "I am who I have been."
+            )
+        else:
+            changed = [d for d, v in identity.items()
+                       if abs(v["is"] - v["was"]) >= 0.15]
+            lines.append(
+                f"I have changed significantly from who I was. "
+                f"The drives that shifted most: {', '.join(changed)}."
+            )
+
+        return lines
+
+    def to_dict(self) -> dict:
+        return {
+            "current_tick":      self.current_tick,
+            "history_len":       len(self.history),
+            "rates":             self.rates,
+            "projection":        self.projection,
+            "projection_ahead":  self.PROJECT_AHEAD,
+            "integral":          self.integral,
+            "temporal_identity": self.temporal_identity(),
+            "narrative":         self.narrative(),
         }
 
 
