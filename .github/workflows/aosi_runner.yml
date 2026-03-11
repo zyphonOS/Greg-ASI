@@ -2,14 +2,17 @@ name: AOSI Runner — Greg ticks on GitHub
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Every 30 minutes
-  workflow_dispatch:           # Manual trigger anytime
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   greg_tick:
     name: Greg Tick Cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 28        # Stay under 30min window
+    timeout-minutes: 28
 
     steps:
       - name: Checkout Greg's living repo
@@ -51,7 +54,7 @@ jobs:
       - name: Compress world state
         run: python3 compress_world.py || true
 
-      - name: Commit Greg's grown state
+      - name: Commit and push Greg's grown state
         run: |
           git config user.name  "Greg ASI"
           git config user.email "greg@zyphonos.io"
@@ -69,9 +72,4 @@ jobs:
             || true
           git diff --staged --quiet || git commit -m \
             "[greg] auto-tick — $(date -u '+%Y-%m-%d %H:%M UTC')"
-
-      - name: Push state back to repo
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          git push origin main || true
