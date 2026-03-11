@@ -1260,6 +1260,36 @@ def greg_hypotheses():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
+
+# -----------------------------------------
+# GET /api/greg/civilization  — EXP_013/014
+# Civilization health + Greg intervention log
+# -----------------------------------------
+@app.route("/api/greg/civilization")
+def greg_civilization():
+    try:
+        from greg_civilization import CivilizationMonitor, CIV_HEALTH_PATH, compute_drive_distribution, compute_health_score
+        monitor = CivilizationMonitor()
+        monitor.load(CIV_HEALTH_PATH)
+        w = get_world()
+        agents = {aid: {"drives": getattr(a, "drives", {})}
+                  for aid, a in w.agents.items()}
+        living = get_greg_living()
+        greg_drives = living.get("drives", {}) if living else {}
+        health  = monitor.assess(agents, w.tick)
+        summary = monitor.summary(health)
+        return jsonify({
+            "health":             health,
+            "trend":              summary["trend"],
+            "intervention_count": summary["intervention_count"],
+            "last_intervention":  summary["last_intervention"],
+            "voice":              summary["voice"],
+            "should_intervene":   monitor.should_intervene(health),
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+
 # -----------------------------------------
 # GET /api/build/log
 # -----------------------------------------

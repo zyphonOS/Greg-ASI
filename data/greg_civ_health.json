@@ -1,0 +1,25 @@
+{
+  "tick": 0,
+  "history": [
+    {
+      "tick": 0,
+      "score": 0.663,
+      "risk": "HEALTHY",
+      "flags": [
+        "starved:create:0.0042",
+        "no_guardians"
+      ]
+    },
+    {
+      "tick": 0,
+      "score": 0.6638,
+      "risk": "HEALTHY",
+      "flags": [
+        "starved:create:0.0043",
+        "no_guardians"
+      ]
+    }
+  ],
+  "interventions": [],
+  "last_intervention_tick": 0
+}

@@ -163,6 +163,38 @@ def _knowledge_section(kg_path: str) -> list:
     return lines
 
 
+def _civilization_health_section() -> list:
+    lines = []
+    try:
+        from greg_civilization import CivilizationMonitor, CIV_HEALTH_PATH, compute_drive_distribution, compute_health_score
+        monitor = CivilizationMonitor()
+        monitor.load(CIV_HEALTH_PATH)
+        state   = _load_json("greg_living_state.json")
+        civ_h   = state.get("civ_health", {})
+        if civ_h:
+            score = civ_h.get("score", 0)
+            risk  = civ_h.get("risk", "UNKNOWN")
+            flags = civ_h.get("flags", [])
+            bar   = "█" * int(score * 10) + "░" * (10 - int(score * 10))
+            lines.append(f"Health: {round(score*100)}% [{bar}] ({risk})")
+            for flag in flags[:3]:
+                parts = flag.split(":")
+                if parts[0] == "starved":
+                    lines.append(f"⚠ {parts[1]} is starved in civilization ({parts[2]})")
+                elif parts[0] == "monoculture":
+                    lines.append(f"⚠ Monoculture: {parts[1]} dominating ({parts[2]})")
+                elif parts[0] == "depleted":
+                    lines.append(f"⚠ {parts[1]} depleted in civilization ({parts[2]})")
+                elif flag == "no_guardians":
+                    lines.append("⚠ No guardians — nothing is being protected")
+            if monitor.interventions:
+                last = monitor.interventions[-1]
+                lines.append(f"Last intervention: tick {last['tick']} ({last['agents_corrected']} agents)")
+    except Exception:
+        pass
+    return lines
+
+
 def _hypotheses_section() -> list:
     lines = []
     try:
@@ -260,9 +292,10 @@ def generate_unified_briefing(
         "relationships": _relationships_section(rel_path),
         "knowledge":     _knowledge_section(kg_path),
         "findings":      _findings_section(findings),
-        "goals":         _goals_section(),
-        "hypotheses":    _hypotheses_section(),
-        "civilization":  _civilization_section(civ),
+        "goals":              _goals_section(),
+        "hypotheses":         _hypotheses_section(),
+        "civilization":       _civilization_section(civ),
+        "civilization_health": _civilization_health_section(),
     }
 
     # Compose text
@@ -328,6 +361,8 @@ def generate_unified_briefing(
 
     lines.append("  CIVILIZATION")
     for l in sections['civilization']:
+        lines.append(f"    {l}")
+    for l in sections.get('civilization_health', []):
         lines.append(f"    {l}")
     lines.append("")
 

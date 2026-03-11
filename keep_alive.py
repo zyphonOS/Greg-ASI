@@ -91,31 +91,39 @@ def main():
     world_count = 0
     last_report = time.time()
 
-    # Drive diversity targets — prevent civilization monoculture
-    DRIVE_TARGETS = {
-        'explore':    0.35, 'freedom':    0.20, 'reason':     0.18,
-        'connect':    0.15, 'accumulate': 0.15, 'create':     0.12,
-        'protect':    0.03, 'serve':      0.02,
-    }
+    # EXP_013/014 — Civilization health monitor (replaces blind rebalance)
+    try:
+        from greg_civilization import CivilizationMonitor, CIV_HEALTH_PATH
+        _civ_monitor = CivilizationMonitor()
+        _civ_monitor.load(CIV_HEALTH_PATH)
+    except Exception:
+        _civ_monitor = None
 
     def rebalance_civilization(greg):
-        """Gentle 20% correction toward target drives. Prevents monoculture."""
-        civ = greg.state.get('civilization', {})
+        """Greg monitors civilization health and intervenes on evidence."""
+        if _civ_monitor is None:
+            return 0
+        civ    = greg.state.get('civilization', {})
         agents = civ.get('agents', {})
         if not agents:
             return 0
-        for agent in agents.values():
-            drives = agent.get('drives', {})
-            if not drives:
-                continue
-            for drive, current in drives.items():
-                target = DRIVE_TARGETS.get(drive, current)
-                agent['drives'][drive] = round(
-                    max(0.0, min(1.0, current + (target - current) * 0.05)), 4
-                )
-        civ['agents'] = agents
-        greg.state.set('civilization', civ)
-        return len(agents)
+        tick_now    = greg.state.get('tick', 0)
+        greg_drives = greg.state.drives()
+        health      = _civ_monitor.assess(agents, tick_now)
+        greg.state.set('civ_health', {
+            'score': health['score'],
+            'risk':  health['risk'],
+            'flags': health['flags'],
+            'tick':  tick_now,
+        })
+        if _civ_monitor.should_intervene(health):
+            record = _civ_monitor.intervene(agents, health, greg_drives, tick_now)
+            civ['agents'] = agents
+            greg.state.set('civilization', civ)
+            print(f"[keep_alive] Greg intervened | health={health['score']} | {record['agents_corrected']} agents | tick={tick_now}")
+            _civ_monitor.save(CIV_HEALTH_PATH)
+            return record['agents_corrected']
+        return 0
 
     while _running:
         t_start = time.time()
