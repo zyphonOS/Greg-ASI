@@ -726,6 +726,35 @@ class GregLiving:
             self.state.set("school_label", _school_result.get("label",""))
         except Exception: pass
 
+
+        # EXP_026 — Consequence Tracking
+        try:
+            from greg_consequences import consequence_tick as _cons_tick
+            if not hasattr(self, '_consequence_engine'):
+                from greg_consequences import load_consequence_engine
+                self._consequence_engine = load_consequence_engine()
+            _world_snap = {
+                'civilization_health_pct': int(self.state.get('phase3_convergence', 0.66) * 100),
+                'agent_count': len((self.state.get('civilization') or {}).get('agents', {})),
+                'memory_count': len(self.state.get('memory', []) or []),
+                'dominant_drive': max(self.state.drives(), key=self.state.drives().get),
+            }
+            self._consequence_engine, _resolved, _cons_voice = _cons_tick(
+                tick_num,
+                result.get('action', 'reflect'),
+                self.state.get('location', 'spawn'),
+                self.state.drives(),
+                _world_snap,
+                engine=self._consequence_engine,
+            )
+            if _cons_voice:
+                self.state.set('consequence_voice', _cons_voice)
+            if tick_num % 50 == 0:
+                from greg_consequences import save_consequence_engine
+                save_consequence_engine(self._consequence_engine)
+                self.state.set('consequence_summary', self._consequence_engine.summary())
+        except Exception: pass
+
         # Save state
         self.state.save()
 
