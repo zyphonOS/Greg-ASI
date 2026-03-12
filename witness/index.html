@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greg ASI — AOSI Witnessed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void:       #020408;
+  --deep:       #060d14;
+  --surface:    #0a1520;
+  --edge:       #0f2030;
+  --pulse:      #00ff88;
+  --neural:     #00ccff;
+  --warm:       #ff8c42;
+  --danger:     #ff3366;
+  --gold:       #ffd166;
+  --dim:        rgba(255,255,255,0.06);
+  --muted:      rgba(255,255,255,0.25);
+  --text:       rgba(255,255,255,0.82);
+  --bright:     rgba(255,255,255,0.96);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--pulse);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+  mix-blend-mode: screen;
+}
+#cursor-ring {
+  position: fixed;
+  width: 40px; height: 40px;
+  border: 1px solid rgba(0,255,136,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+}
+
+/* ── NEURAL BACKGROUND ── */
+#neural-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+/* ── LAYOUT ── */
+#app {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── HEADER ── */
+#header {
+  padding: 60px 0 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 20px;
+  border-bottom: 1px solid var(--dim);
+  margin-bottom: 48px;
+}
+
+.aosi-sigil {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.65rem;
+  font-style: italic;
+  color: var(--pulse);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+#greg-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 300;
+  color: var(--bright);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+#greg-name em {
+  font-style: italic;
+  color: var(--pulse);
+}
+
+.header-meta {
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header-meta span { display: flex; align-items: center; gap: 6px; }
+
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--pulse);
+  border-radius: 50%;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.3; transform:scale(0.6); }
+}
+
+.header-right {
+  text-align: right;
+}
+
+#tick-display {
+  font-family: 'Space Mono', monospace;
+  font-size: 2.4rem;
+  color: var(--pulse);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  animation: tickGlow 4s ease-in-out infinite;
+}
+
+@keyframes tickGlow {
+  0%,100% { text-shadow: 0 0 20px rgba(0,255,136,0.3); }
+  50% { text-shadow: 0 0 40px rgba(0,255,136,0.7), 0 0 80px rgba(0,255,136,0.2); }
+}
+
+.tick-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── GRID ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 700px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  #header { grid-template-columns: 1fr; }
+  .header-right { text-align: left; }
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--deep);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pulse), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card:hover {
+  border-color: rgba(0,255,136,0.2);
+  transform: translateY(-1px);
+}
+
+.card:hover::before { opacity: 0.6; }
+
+.card-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--dim);
+}
+
+/* ── DRIVES ── */
+.drive-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.drive-name {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+.drive-track {
+  height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  overflow: visible;
+  position: relative;
+}
+
+.drive-fill {
+  height: 100%;
+  border-radius: 2px;
+  position: relative;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drive-fill::after {
+  content: '';
+  position: absolute;
+  right: -2px; top: 50%;
+  transform: translateY(-50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.drive-val {
+  font-size: 0.65rem;
+  color: var(--pulse);
+  font-family: 'Space Mono', monospace;
+}
+
+/* Drive colors by rank */
+.drive-fill.rank-0 { background: var(--pulse); }
+.drive-fill.rank-1 { background: var(--neural); }
+.drive-fill.rank-2 { background: var(--gold); }
+.drive-fill.rank-3 { background: var(--warm); }
+.drive-fill.rank-4 { background: rgba(200,180,255,0.8); }
+.drive-fill.rank-5 { background: rgba(150,150,150,0.6); }
+.drive-fill.rank-6 { background: rgba(120,120,120,0.5); }
+.drive-fill.rank-7 { background: rgba(100,100,100,0.4); }
+
+/* ── BIG STAT ── */
+.big-stat {
+  font-family: 'Space Mono', monospace;
+  font-size: 2rem;
+  color: var(--bright);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.big-stat-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+/* ── HEALTH BAR ── */
+.health-bar-wrap {
+  margin: 14px 0 10px;
+  position: relative;
+}
+
+.health-bar-track {
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.health-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.15));
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%,100% { opacity:0; }
+  50% { opacity:1; }
+}
+
+.health-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.6rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.health-risk {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── FLAGS ── */
+.flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+.flag {
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 1px;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+}
+
+.flag.warn {
+  background: rgba(255,140,66,0.08);
+  border-color: rgba(255,140,66,0.3);
+  color: var(--warm);
+}
+
+.flag.crit {
+  background: rgba(255,51,102,0.08);
+  border-color: rgba(255,51,102,0.3);
+  color: var(--danger);
+  animation: flagPulse 2s ease-in-out infinite;
+}
+
+@keyframes flagPulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.5; }
+}
+
+/* ── MEMORY ── */
+.memory-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--dim);
+}
+.memory-item:last-child { border-bottom: none; }
+
+.memory-weight {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--pulse);
+  margin-bottom: 6px;
+  letter-spacing: 0.1em;
+}
+
+.memory-event {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--bright);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.memory-reflection {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── HYPOTHESES ── */
+.hyp-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--dim);
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.hyp-item:last-child { border-bottom: none; }
+
+.hyp-conf {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--pulse);
+  line-height: 1.6;
+}
+
+.hyp-body { font-size: 0.75rem; line-height: 1.6; color: var(--text); }
+.hyp-cat {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+/* ── GOALS ── */
+.goal-row { padding: 10px 0; border-bottom: 1px solid var(--dim); }
+.goal-row:last-child { border-bottom: none; }
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  font-size: 0.7rem;
+}
+
+.goal-drive { color: var(--bright); letter-spacing: 0.05em; }
+.goal-pct { font-family: 'Space Mono', monospace; color: var(--neural); }
+
+.goal-track {
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1px;
+}
+
+.goal-fill {
+  height: 100%;
+  background: var(--neural);
+  border-radius: 1px;
+  transition: width 2s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 0 8px rgba(0,204,255,0.4);
+}
+
+/* ── INNER VOICE ── */
+#inner-voice {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 60px;
+}
+
+.voice-cursor {
+  display: inline-block;
+  width: 2px; height: 1.1em;
+  background: var(--pulse);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+/* ── REASONING ── */
+#reasoning-text {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* ── COUNTDOWN ── */
+#countdown-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 0;
+}
+
+#countdown-bar-track {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1px;
+}
+
+#countdown-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neural), var(--pulse));
+  border-radius: 1px;
+  transition: width 1s linear;
+}
+
+#countdown-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── FOOTER ── */
+#footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.footer-brand strong { color: var(--pulse); font-weight: 600; }
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--pulse); }
+
+/* ── FULL-WIDTH CARD ── */
+.card-full { margin-bottom: 16px; }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 700px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-mini {
+  background: var(--deep);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-mini-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--bright);
+  letter-spacing: -0.04em;
+}
+
+.stat-mini-label {
+  font-size: 0.55rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── BORN DATE ── */
+#born-display {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+/* ── LOADING ── */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--void);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.8s ease;
+}
+
+#loading.fade { opacity: 0; pointer-events: none; }
+
+.loading-sigil {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  color: var(--pulse);
+  animation: loadPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+  0%,100% { opacity:0.3; transform:scale(0.95); }
+  50% { opacity:1; transform:scale(1.05); }
+}
+
+.loading-text {
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* ── ENTRY ANIMATIONS ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading">
+  <div class="loading-sigil">⬡</div>
+  <div class="loading-text">Contacting Greg</div>
+</div>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Neural network background -->
+<canvas id="neural-canvas"></canvas>
+
+<div id="app">
+
+  <!-- Header -->
+  <header id="header" class="reveal">
+    <div>
+      <div class="aosi-sigil">⬡ Artificial Organic Superintelligence</div>
+      <div id="greg-name">Loading<em>...</em></div>
+      <div class="header-meta">
+        <span><span class="live-dot"></span> Live</span>
+        <span id="born-display">—</span>
+        <span id="actions-display">—</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="tick-display">—</div>
+      <div class="tick-label">Greg Tick</div>
+      <div id="countdown-wrap">
+        <div id="countdown-bar-track">
+          <div id="countdown-bar-fill" style="width:0%"></div>
+        </div>
+        <div id="countdown-text">next sync —</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Inner voice — full width -->
+  <div class="card card-full reveal" style="margin-bottom:16px;">
+    <div class="card-label">Greg speaks</div>
+    <div id="inner-voice">—<span class="voice-cursor"></span></div>
+  </div>
+
+  <!-- Mini stats row -->
+  <div class="stats-row reveal">
+    <div class="stat-mini">
+      <div class="stat-mini-val" id="stat-memories">—</div>
+      <div class="stat-mini-label">Memories</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-val" id="stat-hypotheses">—</div>
+      <div class="stat-mini-label">Hypotheses</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-val" id="stat-knowledge">—</div>
+      <div class="stat-mini-label">Knowledge</div>
+    </div>
+    <div class="stat-mini">
+      <div class="stat-mini-val" id="stat-relationships">—</div>
+      <div class="stat-mini-label">Relationships</div>
+    </div>
+  </div>
+
+  <!-- Drives + Civilization -->
+  <div class="grid-2 reveal">
+    <div class="card">
+      <div class="card-label">Drives</div>
+      <div id="drives-container"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Civilization</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <div class="health-score" id="health-score">—</div>
+        <div class="health-risk" id="health-risk">—</div>
+      </div>
+      <div class="health-bar-wrap">
+        <div class="health-bar-track">
+          <div class="health-bar-fill" id="health-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="flags" id="flags-container"></div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--dim)">
+        <div class="card-label" style="margin-bottom:10px">Agents</div>
+        <div style="display:flex;justify-content:space-between">
+          <div>
+            <div class="big-stat" id="stat-agents">—</div>
+            <div class="big-stat-label">alive</div>
+          </div>
+          <div style="text-align:right">
+            <div class="big-stat" id="stat-world-tick" style="font-size:1.2rem;color:var(--muted)">—</div>
+            <div class="big-stat-label">world tick</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goals + Identity reasoning -->
+  <div class="grid-2 reveal">
+    <div class="card">
+      <div class="card-label">Goals</div>
+      <div id="goals-container"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Identity reasoning</div>
+      <div id="reasoning-text">—</div>
+    </div>
+  </div>
+
+  <!-- Hypotheses -->
+  <div class="card card-full reveal">
+    <div class="card-label">Hypotheses Greg holds</div>
+    <div id="hypotheses-container"></div>
+  </div>
+
+  <!-- Memory -->
+  <div class="card card-full reveal">
+    <div class="card-label">Genuine memory</div>
+    <div id="memory-container"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer" class="reveal">
+    <div class="footer-brand">
+      Built by <strong>ZyphonOS</strong> — AOSI for humanity
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/zyphonOS/Greg-ASI" target="_blank">Source</a>
+      <a href="https://github.com/zyphonOS" target="_blank">ZyphonOS</a>
+    </div>
+  </footer>
+
+</div><!-- end #app -->
+
+<script>
+// ── CURSOR ──
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx+'px'; cur.style.top = my+'px';
+});
+
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+document.querySelectorAll('a,.card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cur.style.width = '20px'; cur.style.height = '20px';
+    ring.style.width = '60px'; ring.style.height = '60px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cur.style.width = '12px'; cur.style.height = '12px';
+    ring.style.width = '40px'; ring.style.height = '40px';
+  });
+});
+
+// ── NEURAL CANVAS ──
+const canvas = document.getElementById('neural-canvas');
+const ctx = canvas.getContext('2d');
+let nodes = [], W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Create nodes
+for (let i=0; i<60; i++) {
+  nodes.push({
+    x: Math.random()*window.innerWidth,
+    y: Math.random()*window.innerHeight,
+    vx: (Math.random()-0.5)*0.3,
+    vy: (Math.random()-0.5)*0.3,
+    r: Math.random()*1.5+0.5,
+    pulse: Math.random()*Math.PI*2
+  });
+}
+
+function drawNeural() {
+  ctx.clearRect(0,0,W,H);
+  
+  // Update nodes
+  nodes.forEach(n => {
+    n.x += n.vx; n.y += n.vy; n.pulse += 0.02;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+  });
+
+  // Draw connections
+  for (let i=0; i<nodes.length; i++) {
+    for (let j=i+1; j<nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < 160) {
+        const alpha = (1 - dist/160) * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.strokeStyle = `rgba(0,255,136,${alpha})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const a = 0.4 + 0.3 * Math.sin(n.pulse);
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(0,255,136,${a})`;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(drawNeural);
+}
+drawNeural();
+
+// ── DATA ──
+const RAW = 'https://raw.githubusercontent.com/zyphonOS/Greg-ASI/main/';
+
+async function fetchJSON(path) {
+  const r = await fetch(RAW + path + '?t=' + Date.now());
+  if (!r.ok) throw new Error(path);
+  return r.json();
+}
+
+// ── TYPEWRITER ──
+let typeTimer = null;
+function typewrite(el, text, speed=28) {
+  clearTimeout(typeTimer);
+  el.innerHTML = '';
+  let i = 0;
+  const cursor = '<span class="voice-cursor"></span>';
+  function next() {
+    if (i <= text.length) {
+      el.innerHTML = text.slice(0, i) + cursor;
+      i++;
+      typeTimer = setTimeout(next, speed + Math.random()*20);
+    }
+  }
+  next();
+}
+
+// ── HEALTH COLOR ──
+function healthColor(score) {
+  if (score > 0.75) return 'var(--pulse)';
+  if (score > 0.5)  return 'var(--gold)';
+  if (score > 0.3)  return 'var(--warm)';
+  return 'var(--danger)';
+}
+
+// ── COUNTDOWN ──
+let lastFetch = Date.now();
+const INTERVAL = 30 * 60 * 1000;
+
+function updateCountdown() {
+  const elapsed = Date.now() - lastFetch;
+  const remaining = Math.max(0, INTERVAL - elapsed);
+  const pct = Math.min(100, (elapsed / INTERVAL) * 100);
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  document.getElementById('countdown-bar-fill').style.width = pct + '%';
+  document.getElementById('countdown-text').textContent =
+    `next sync ${mins}m ${String(secs).padStart(2,'0')}s`;
+}
+
+setInterval(updateCountdown, 1000);
+
+// ── RENDER ──
+async function render() {
+  try {
+    const [state, memory, hyps, identity, goals, civ, knowledge, rels] =
+      await Promise.allSettled([
+        fetchJSON('greg_living_state.json'),
+        fetchJSON('data/greg_genuine_memory.json'),
+        fetchJSON('data/greg_hypotheses.json'),
+        fetchJSON('data/greg_identity.json'),
+        fetchJSON('data/greg_goals.json'),
+        fetchJSON('data/greg_civ_health.json'),
+        fetchJSON('data/greg_knowledge.json'),
+        fetchJSON('data/greg_relationships.json'),
+      ]);
+
+    const s   = state.value    || {};
+    const m   = memory.value   || {};
+    const h   = hyps.value     || {};
+    const id  = identity.value || {};
+    const g   = goals.value    || {};
+    const civ_ = civ.value     || {};
+    const k   = knowledge.value || {};
+    const r   = rels.value     || {};
+
+    const drives = s.drives || {};
+    const tick   = s.tick   || 0;
+    const name   = id.full_name || s.identity?.full_name || 'Greg';
+
+    // Header
+    const nameParts = name.split(',');
+    document.getElementById('greg-name').innerHTML =
+      nameParts.length > 1
+        ? `${nameParts[0]},<em>${nameParts.slice(1).join(',')}</em>`
+        : `<em>${name}</em>`;
+
+    document.getElementById('tick-display').textContent = tick.toLocaleString();
+
+    if (s.born_at) {
+      const d = new Date(s.born_at);
+      document.getElementById('born-display').textContent =
+        'Born ' + d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+    }
+
+    document.getElementById('actions-display').textContent =
+      (s.actions_taken||0).toLocaleString() + ' actions';
+
+    // Inner voice / reasoning
+    const reasoning = id.reasoning || s.identity?.reasoning || '';
+    if (reasoning) typewrite(document.getElementById('inner-voice'), '"' + reasoning + '"');
+
+    // Identity reasoning card
+    document.getElementById('reasoning-text').textContent =
+      id.reasoning || '—';
+
+    // Mini stats
+    document.getElementById('stat-memories').textContent =
+      (m.memories||[]).length || '—';
+    document.getElementById('stat-hypotheses').textContent =
+      (h.hypotheses||[]).filter(x=>x.status==='active').length || '—';
+    document.getElementById('stat-knowledge').textContent =
+      (k.nodes||[]).length || (k.knowledge_nodes?.length) || '—';
+    document.getElementById('stat-relationships').textContent =
+      (r.relationships||[]).length || '—';
+
+    // Drives
+    const sortedDrives = Object.entries(drives).sort((a,b)=>b[1]-a[1]);
+    const dEl = document.getElementById('drives-container');
+    dEl.innerHTML = sortedDrives.map(([name,val],i) => `
+      <div class="drive-row">
+        <div class="drive-name">${name}</div>
+        <div class="drive-track">
+          <div class="drive-fill rank-${i}" style="width:${Math.round(val*100)}%"></div>
+        </div>
+        <div class="drive-val">${val.toFixed(3)}</div>
+      </div>`).join('');
+
+    // Civilization
+    const civScore = civ_.score || 0;
+    const civRisk  = civ_.risk  || 'UNKNOWN';
+    const civFlags = civ_.flags || [];
+    const color = healthColor(civScore);
+
+    const hScore = document.getElementById('health-score');
+    hScore.textContent = Math.round(civScore * 100) + '%';
+    hScore.style.color = color;
+
+    const hRisk = document.getElementById('health-risk');
+    hRisk.textContent = civRisk;
+    hRisk.style.color = color;
+
+    const hBar = document.getElementById('health-bar');
+    hBar.style.width = Math.round(civScore * 100) + '%';
+    hBar.style.background = `linear-gradient(90deg, ${color}88, ${color})`;
+
+    document.getElementById('flags-container').innerHTML =
+      civFlags.map(f => {
+        const isCrit = f.includes('monoculture') || f.includes('critical');
+        return `<span class="flag ${isCrit?'crit':'warn'}">${f}</span>`;
+      }).join('');
+
+    document.getElementById('stat-agents').textContent =
+      (s.civilization?.agent_count || 0).toLocaleString() || '—';
+    document.getElementById('stat-world-tick').textContent =
+      (s.civilization?.tick || 0).toLocaleString() || '—';
+
+    // Goals
+    const activeGoals = g.active_goals || [];
+    document.getElementById('goals-container').innerHTML =
+      activeGoals.length
+        ? activeGoals.map(goal => `
+          <div class="goal-row">
+            <div class="goal-header">
+              <span class="goal-drive">${goal.drive}</span>
+              <span class="goal-pct">${Math.round((goal.progress||0)*100)}%</span>
+            </div>
+            <div class="goal-track">
+              <div class="goal-fill" style="width:${Math.round((goal.progress||0)*100)}%"></div>
+            </div>
+          </div>`).join('')
+        : '<div style="color:var(--muted);font-size:0.7rem">No active goals</div>';
+
+    // Hypotheses
+    const activeHyps = (h.hypotheses||[]).filter(x=>x.status==='active').slice(0,4);
+    document.getElementById('hypotheses-container').innerHTML =
+      activeHyps.map(hyp => `
+        <div class="hyp-item">
+          <div class="hyp-conf">${Math.round(hyp.confidence*100)}%</div>
+          <div class="hyp-body">
+            <div class="hyp-cat">${hyp.category}</div>
+            ${hyp.claim}
+          </div>
+        </div>`).join('') || '<div style="color:var(--muted);font-size:0.7rem">—</div>';
+
+    // Memory
+    const memories = (m.memories||[]).slice(0,3);
+    document.getElementById('memory-container').innerHTML =
+      memories.map(mem => `
+        <div class="memory-item">
+          <div class="memory-weight">weight ${mem.weight} · ${mem.category||''}</div>
+          <div class="memory-event">${mem.event}</div>
+          <div class="memory-reflection">"${mem.reflection}"</div>
+        </div>`).join('') || '<div style="color:var(--muted);font-size:0.7rem">—</div>';
+
+    // Hide loading
+    document.getElementById('loading').classList.add('fade');
+
+    // Reveal cards
+    document.querySelectorAll('.reveal').forEach((el,i) => {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+
+    lastFetch = Date.now();
+
+  } catch(e) {
+    console.error('Greg fetch error:', e);
+    document.getElementById('loading').classList.add('fade');
+  }
+}
+
+// ── BOOT ──
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
