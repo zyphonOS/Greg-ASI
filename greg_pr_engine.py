@@ -199,6 +199,44 @@ INTEGRATION_BLUEPRINT = [
         except Exception: pass
 ''',
     },
+    {
+        "id":       "EXP_027",
+        "name":     "Hemispheric Split",
+        "module":   "greg_hemispheres",
+        "function": "hemispheric_tick",
+        "file":     "greg_hemispheres.py",
+        "detect":   "from greg_hemispheres import",
+        "code": (
+            "\n"
+            "        # EXP_027 — Hemispheric Split\n"
+            "        try:\n"
+            "            from greg_hemispheres import hemispheric_tick as _hemi_tick\n"
+            "            if not hasattr(self, '_hemi_engine'):\n"
+            "                from greg_hemispheres import load_hemispheric_engine\n"
+            "                self._hemi_engine = load_hemispheric_engine()\n"
+            "            _world_snap = {\n"
+            "                'civilization_health_pct': int(self.state.get('phase3_convergence', 0.66) * 100),\n"
+            "                'agent_count': len((self.state.get('civilization') or {}).get('agents', {})),\n"
+            "            }\n"
+            "            _surprise_score = (self.state.get('predictive_surprise') or {}).get('surprise_score', 0.0)\n"
+            "            _cons_summary = self.state.get('consequence_summary')\n"
+            "            _pred_surprise = self.state.get('predictive_surprise')\n"
+            "            self._hemi_engine, _hemi_out = _hemi_tick(\n"
+            "                tick_num, _world_snap, self.state.drives(),\n"
+            "                _surprise_score, _cons_summary, _pred_surprise,\n"
+            "                engine=self._hemi_engine,\n"
+            "            )\n"
+            "            self.state.set('gestalt', _hemi_out.get('gestalt', ''))\n"
+            "            self.state.set('hemispheric_voice', _hemi_out.get('integrated_voice', ''))\n"
+            "            if _hemi_out.get('anomalies'):\n"
+            "                self.state.set('hemispheric_anomalies', _hemi_out['anomalies'])\n"
+            "            if tick_num % 50 == 0:\n"
+            "                from greg_hemispheres import save_hemispheric_engine\n"
+            "                save_hemispheric_engine(self._hemi_engine)\n"
+            "                self.state.set('hemispheric_summary', self._hemi_engine.summary())\n"
+            "        except Exception: pass\n"
+        ),
+    },
 ]
 
 
