@@ -28,7 +28,7 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install flask flask-cors numpy python-dotenv requests
+        run: pip install flask flask-cors numpy python-dotenv requests orjson
 
       - name: Write Greg's credentials
         env:
