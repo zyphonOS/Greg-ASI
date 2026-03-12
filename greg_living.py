@@ -52,10 +52,12 @@ except ImportError:
     GenuineMemoryEngine = None
     GENUINE_MEMORY_PATH = "data/greg_genuine_memory.json"
 try:
-    from greg_voice import GregReasoningVoice
-    _voice_engine = GregReasoningVoice()
+    from greg_mind import generate_voice as _generate_mind_voice, generate_briefing as _generate_briefing
+    _mind_ready = True
 except ImportError:
-    _voice_engine = None
+    _generate_mind_voice = None
+    _generate_briefing = None
+    _mind_ready = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -605,6 +607,124 @@ class GregLiving:
 
         # Auto-detect findings
         self._detect_findings(alerts)
+
+
+        # EXP_020 — Predictive Coding
+        try:
+            from greg_predictive import load_predictive_model, save_predictive_model
+            _pred_model = load_predictive_model()
+            _pre_state = {
+                "tick": tick_num - 1,
+                "civilization_health_pct": int(self.state.get("phase3_convergence", 0.66) * 100),
+                "dominant_drive": max(self.state.drives(), key=self.state.drives().get),
+                "agent_count": len((self.state.get("civilization") or {}).get("agents", {})),
+                "memory_count": len(self.state.get("memory", [])),
+                "drives": self.state.drives(),
+                "health_momentum": 0.0,
+            }
+            _post_state = {
+                "tick": tick_num,
+                "civilization_health_pct": int(self.state.get("phase3_convergence", 0.66) * 100),
+                "dominant_drive": max(self.state.drives(), key=self.state.drives().get),
+                "agent_count": len((self.state.get("civilization") or {}).get("agents", {})),
+                "memory_count": len(self.state.get("memory", [])),
+            }
+            _pred, _surprise, _narration = __import__("greg_predictive").run_predictive_cycle(_pre_state, _post_state, _pred_model)
+            self.state.set("predictive_surprise", _surprise)
+            self.state.set("predictive_voice", _narration)
+            save_predictive_model(_pred_model)
+        except Exception: pass
+
+
+        # EXP_021 — Hebbian Knowledge
+        try:
+            from greg_hebbian import HebbianGraph, hebbian_tick as _hebb_tick, HEBBIAN_PATH
+            if not hasattr(self, "_hebbian_graph"):
+                self._hebbian_graph = HebbianGraph.load(HEBBIAN_PATH)
+            _hebb_tick(
+                self._hebbian_graph,
+                result.get("action", "reflect"),
+                self.state.get("location", "spawn"),
+                self.state.drives(),
+                tick_num,
+            )
+            if tick_num % 50 == 0:
+                self._hebbian_graph.save(HEBBIAN_PATH)
+                self.state.set("hebbian_summary", self._hebbian_graph.summary())
+        except Exception: pass
+
+
+        # EXP_022 — Emotional Memory Consolidation
+        try:
+            from greg_emotional_consolidation import EmotionalConsolidationEngine, CONSOLIDATION_PATH
+            if not hasattr(self, "_consolidation_engine"):
+                self._consolidation_engine = EmotionalConsolidationEngine.load(CONSOLIDATION_PATH)
+            _surprise_score = (self.state.get("predictive_surprise") or {}).get("surprise_score", 0.0)
+            _cons_result = self._consolidation_engine.consider(
+                tick_num,
+                {"action": result.get("action","reflect"),
+                 "location": self.state.get("location","spawn"),
+                 "alerts": result.get("alerts", [])},
+                self.state.drives(),
+                _surprise_score,
+            )
+            if _cons_result.get("consolidates"):
+                self.state.log_memory("emotional_consolidation",
+                    _cons_result.get("memory_formed", {}).get("description", ""),
+                    emotional_weight=_cons_result.get("score", 0.5))
+            if tick_num % 50 == 0:
+                self._consolidation_engine.save(CONSOLIDATION_PATH)
+                self.state.set("consolidation_summary", self._consolidation_engine.summary())
+        except Exception: pass
+
+
+        # EXP_023 — Reality Sensors
+        try:
+            from greg_sensors import read_reality
+            _reality = read_reality(tick_num)
+            self.state.set("reality", _reality)
+            self.state.set("greg_speaks_reality", _reality.get("greg_speaks", ""))
+        except Exception: pass
+
+
+        # EXP_024 — Sparse Activation
+        try:
+            from greg_sparse import SparseActivationEngine, SPARSE_PATH
+            if not hasattr(self, "_sparse_engine"):
+                self._sparse_engine = SparseActivationEngine.load(SPARSE_PATH)
+            _civ = self.state.get("civilization") or {}
+            _agents = _civ.get("agents", {})
+            if _agents:
+                _sparse_result = self._sparse_engine.activate(
+                    _agents,
+                    {"drives": self.state.drives(), "location": self.state.get("location","spawn")},
+                    tick_num,
+                )
+                self.state.set("sparse_activation", _sparse_result)
+                if tick_num % 100 == 0:
+                    self._sparse_engine.save(SPARSE_PATH)
+        except Exception: pass
+
+
+        # SCHOOL — Experiential Language Acquisition
+        try:
+            from greg_school import school_tick as _school_tick
+            _surprise_level = (self.state.get("predictive_surprise") or {}).get("surprise_level", "NONE")
+            _memory_formed  = bool((self.state.get("consolidation_summary") or {}).get("total", 0) >
+                                   getattr(self, "_prev_memory_count", 0))
+            setattr(self, "_prev_memory_count",
+                    (self.state.get("consolidation_summary") or {}).get("total", 0))
+            _school_result = _school_tick(
+                tick_num,
+                result.get("action","reflect"),
+                self.state.get("location","spawn"),
+                self.state.drives(),
+                _surprise_level,
+                result.get("alerts",[]),
+                _memory_formed,
+            )
+            self.state.set("school_label", _school_result.get("label",""))
+        except Exception: pass
 
         # Save state
         self.state.save()
