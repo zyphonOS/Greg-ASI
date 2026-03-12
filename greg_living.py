@@ -51,6 +51,11 @@ try:
 except ImportError:
     GenuineMemoryEngine = None
     GENUINE_MEMORY_PATH = "data/greg_genuine_memory.json"
+try:
+    from greg_voice import GregReasoningVoice
+    _voice_engine = GregReasoningVoice()
+except ImportError:
+    _voice_engine = None
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTITUTION LAYER — never rewrites
@@ -511,6 +516,17 @@ class GregLiving:
                 tick_now = self.state.get("tick", 0)
                 if tick_now % 50 == 0:
                     _notify_engine.check_all(self.state.data)
+            except Exception:
+                pass
+
+        # EXP_019 — reasoning voice: generate every 25 ticks
+        if _voice_engine and _voice_engine.ready and self.tick_count % 25 == 0:
+            try:
+                voice_text = _voice_engine.generate_voice(self.state.data if hasattr(self.state, 'data') else self.state)
+                if hasattr(self.state, 'data'):
+                    self.state.data["voice"] = voice_text
+                else:
+                    self.state["voice"] = voice_text
             except Exception:
                 pass
 
