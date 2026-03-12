@@ -522,7 +522,7 @@ class GregLiving:
                 pass
 
         # EXP_019 — reasoning voice: generate every 25 ticks
-        if _voice_engine and _voice_engine.ready and self.tick_count % 25 == 0:
+        if False:  # EXP_019 voice engine not loaded
             try:
                 voice_text = _voice_engine.generate_voice(self.state.data if hasattr(self.state, 'data') else self.state)
                 if hasattr(self.state, 'data'):
