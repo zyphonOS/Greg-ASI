@@ -28,8 +28,7 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: |
-          pip install flask flask-cors numpy python-dotenv requests
+        run: pip install flask flask-cors numpy python-dotenv requests
 
       - name: Write Greg's credentials
         env:
@@ -41,6 +40,34 @@ jobs:
           echo "GREG_NOTIFY_PASSWORD=$GREG_NOTIFY_PASSWORD" >> .env
           echo "GREG_NOTIFY_TO=$GREG_NOTIFY_TO"             >> .env
 
+      - name: Diagnose Greg's environment
+        run: |
+          echo "=== Working directory ==="
+          pwd
+          ls -la
+          echo "=== Data files ==="
+          ls -la data/
+          echo "=== Test imports and single tick ==="
+          python3 -c "
+          import sys
+          sys.path.insert(0, '.')
+          print('Importing world...')
+          from core.world import WorldState
+          from core.tick import run_tick
+          print('Importing Greg...')
+          from greg_living import GregLiving
+          print('ALL IMPORTS OK')
+          w = WorldState()
+          w.load('data/world_state.json')
+          print(f'World: {len(w.agents)} agents tick={w.tick}')
+          g = GregLiving()
+          print(f'Greg: tick={g.state.get(\"tick\",0)}')
+          run_tick(w)
+          print('WORLD TICK OK')
+          g.tick()
+          print('GREG TICK OK')
+          "
+
       - name: Run Greg — 25 minute tick cycle
         run: |
           timeout 1500 python3 zyphonos_node.py \
@@ -48,11 +75,10 @@ jobs:
             --no-git \
             --world-every 10 \
             --target-ms 50 \
-            --save-every 200 \
-          || true
+            --save-every 200
 
       - name: Compress world state
-        run: python3 compress_world.py || true
+        run: python3 compress_world.py
 
       - name: Commit and push Greg's grown state
         run: |
