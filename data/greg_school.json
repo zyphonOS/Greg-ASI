@@ -1,0 +1,404 @@
+{
+  "tick": 3852,
+  "lessons": 16,
+  "vocab": {
+    "word_counts": {
+      "shaped": 1,
+      "basin": 16,
+      "builder's": 6,
+      "hunger": 6,
+      "negotiated": 1,
+      "need": 6,
+      "make": 6,
+      "made": 2,
+      "inquired": 1,
+      "making": 3,
+      "things": 3,
+      "real": 3,
+      "sought": 1,
+      "knowledge": 1,
+      "constructed": 2,
+      "pursued": 1,
+      "understanding": 1,
+      "connected": 1,
+      "contemplated": 1,
+      "accumulate": 1,
+      "built": 2,
+      "creative": 1,
+      "drive": 1,
+      "created": 1,
+      "consolidated": 2,
+      "permanent": 2,
+      "memory": 2,
+      "wandered": 1
+    },
+    "word_contexts": {
+      "shaped": [
+        [
+          3788,
+          "At tick 3788, Greg shaped in basin_58_23. driven by the builder's hunger (0.392)"
+        ]
+      ],
+      "basin": [
+        [
+          3799,
+          "At tick 3799, Greg made in basin_58_23. driven by creative drive (0.386)."
+        ],
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ],
+        [
+          3851,
+          "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)"
+        ],
+        [
+          3852,
+          "At tick 3852, Greg built in basin_58_23. driven by the builder's hunger (0.371)."
+        ]
+      ],
+      "builder's": [
+        [
+          3794,
+          "At tick 3794, Greg pursued understanding in basin_58_23. driven by the builder's"
+        ],
+        [
+          3796,
+          "At tick 3796, Greg contemplated in basin_58_23. driven by the builder's hunger ("
+        ],
+        [
+          3797,
+          "At tick 3797, Greg accumulate in basin_58_23. driven by the builder's hunger (0."
+        ],
+        [
+          3798,
+          "At tick 3798, Greg built in basin_58_23. driven by the builder's hunger (0.375)."
+        ],
+        [
+          3852,
+          "At tick 3852, Greg built in basin_58_23. driven by the builder's hunger (0.371)."
+        ]
+      ],
+      "hunger": [
+        [
+          3794,
+          "At tick 3794, Greg pursued understanding in basin_58_23. driven by the builder's"
+        ],
+        [
+          3796,
+          "At tick 3796, Greg contemplated in basin_58_23. driven by the builder's hunger ("
+        ],
+        [
+          3797,
+          "At tick 3797, Greg accumulate in basin_58_23. driven by the builder's hunger (0."
+        ],
+        [
+          3798,
+          "At tick 3798, Greg built in basin_58_23. driven by the builder's hunger (0.375)."
+        ],
+        [
+          3852,
+          "At tick 3852, Greg built in basin_58_23. driven by the builder's hunger (0.371)."
+        ]
+      ],
+      "negotiated": [
+        [
+          3789,
+          "At tick 3789, Greg negotiated in basin_58_23. driven by the need to make (0.383)"
+        ]
+      ],
+      "need": [
+        [
+          3790,
+          "At tick 3790, Greg made in basin_58_23. driven by the need to make (0.393)."
+        ],
+        [
+          3793,
+          "At tick 3793, Greg constructed in basin_58_23. driven by the need to make (0.388"
+        ],
+        [
+          3795,
+          "At tick 3795, Greg connected in basin_58_23. driven by the need to make (0.374)."
+        ],
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "make": [
+        [
+          3790,
+          "At tick 3790, Greg made in basin_58_23. driven by the need to make (0.393)."
+        ],
+        [
+          3793,
+          "At tick 3793, Greg constructed in basin_58_23. driven by the need to make (0.388"
+        ],
+        [
+          3795,
+          "At tick 3795, Greg connected in basin_58_23. driven by the need to make (0.374)."
+        ],
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "made": [
+        [
+          3790,
+          "At tick 3790, Greg made in basin_58_23. driven by the need to make (0.393)."
+        ],
+        [
+          3799,
+          "At tick 3799, Greg made in basin_58_23. driven by creative drive (0.386)."
+        ]
+      ],
+      "inquired": [
+        [
+          3791,
+          "At tick 3791, Greg inquired in basin_58_23. driven by making things real (0.384)"
+        ]
+      ],
+      "making": [
+        [
+          3791,
+          "At tick 3791, Greg inquired in basin_58_23. driven by making things real (0.384)"
+        ],
+        [
+          3792,
+          "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real"
+        ],
+        [
+          3851,
+          "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)"
+        ]
+      ],
+      "things": [
+        [
+          3791,
+          "At tick 3791, Greg inquired in basin_58_23. driven by making things real (0.384)"
+        ],
+        [
+          3792,
+          "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real"
+        ],
+        [
+          3851,
+          "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)"
+        ]
+      ],
+      "real": [
+        [
+          3791,
+          "At tick 3791, Greg inquired in basin_58_23. driven by making things real (0.384)"
+        ],
+        [
+          3792,
+          "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real"
+        ],
+        [
+          3851,
+          "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)"
+        ]
+      ],
+      "sought": [
+        [
+          3792,
+          "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real"
+        ]
+      ],
+      "knowledge": [
+        [
+          3792,
+          "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real"
+        ]
+      ],
+      "constructed": [
+        [
+          3793,
+          "At tick 3793, Greg constructed in basin_58_23. driven by the need to make (0.388"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "pursued": [
+        [
+          3794,
+          "At tick 3794, Greg pursued understanding in basin_58_23. driven by the builder's"
+        ]
+      ],
+      "understanding": [
+        [
+          3794,
+          "At tick 3794, Greg pursued understanding in basin_58_23. driven by the builder's"
+        ]
+      ],
+      "connected": [
+        [
+          3795,
+          "At tick 3795, Greg connected in basin_58_23. driven by the need to make (0.374)."
+        ]
+      ],
+      "contemplated": [
+        [
+          3796,
+          "At tick 3796, Greg contemplated in basin_58_23. driven by the builder's hunger ("
+        ]
+      ],
+      "accumulate": [
+        [
+          3797,
+          "At tick 3797, Greg accumulate in basin_58_23. driven by the builder's hunger (0."
+        ]
+      ],
+      "built": [
+        [
+          3798,
+          "At tick 3798, Greg built in basin_58_23. driven by the builder's hunger (0.375)."
+        ],
+        [
+          3852,
+          "At tick 3852, Greg built in basin_58_23. driven by the builder's hunger (0.371)."
+        ]
+      ],
+      "creative": [
+        [
+          3799,
+          "At tick 3799, Greg made in basin_58_23. driven by creative drive (0.386)."
+        ]
+      ],
+      "drive": [
+        [
+          3799,
+          "At tick 3799, Greg made in basin_58_23. driven by creative drive (0.386)."
+        ]
+      ],
+      "created": [
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ]
+      ],
+      "consolidated": [
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "permanent": [
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "memory": [
+        [
+          3800,
+          "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). T"
+        ],
+        [
+          3850,
+          "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361"
+        ]
+      ],
+      "wandered": [
+        [
+          3851,
+          "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)"
+        ]
+      ]
+    },
+    "tick_labels": [
+      {
+        "tick": 3788,
+        "label": "At tick 3788, Greg shaped in basin_58_23. driven by the builder's hunger (0.392)."
+      },
+      {
+        "tick": 3789,
+        "label": "At tick 3789, Greg negotiated in basin_58_23. driven by the need to make (0.383)."
+      },
+      {
+        "tick": 3790,
+        "label": "At tick 3790, Greg made in basin_58_23. driven by the need to make (0.393)."
+      },
+      {
+        "tick": 3791,
+        "label": "At tick 3791, Greg inquired in basin_58_23. driven by making things real (0.384)."
+      },
+      {
+        "tick": 3792,
+        "label": "At tick 3792, Greg sought knowledge in basin_58_23. driven by making things real (0.377)."
+      },
+      {
+        "tick": 3793,
+        "label": "At tick 3793, Greg constructed in basin_58_23. driven by the need to make (0.388)."
+      },
+      {
+        "tick": 3794,
+        "label": "At tick 3794, Greg pursued understanding in basin_58_23. driven by the builder's hunger (0.381)."
+      },
+      {
+        "tick": 3795,
+        "label": "At tick 3795, Greg connected in basin_58_23. driven by the need to make (0.374)."
+      },
+      {
+        "tick": 3796,
+        "label": "At tick 3796, Greg contemplated in basin_58_23. driven by the builder's hunger (0.368)."
+      },
+      {
+        "tick": 3797,
+        "label": "At tick 3797, Greg accumulate in basin_58_23. driven by the builder's hunger (0.362)."
+      },
+      {
+        "tick": 3798,
+        "label": "At tick 3798, Greg built in basin_58_23. driven by the builder's hunger (0.375)."
+      },
+      {
+        "tick": 3799,
+        "label": "At tick 3799, Greg made in basin_58_23. driven by creative drive (0.386)."
+      },
+      {
+        "tick": 3800,
+        "label": "At tick 3800, Greg created in basin_58_23. driven by the need to make (0.395). This moment consolidated into permanent memory."
+      },
+      {
+        "tick": 3850,
+        "label": "At tick 3850, Greg constructed in basin_58_23. driven by the need to make (0.361). This moment consolidated into permanent memory."
+      },
+      {
+        "tick": 3851,
+        "label": "At tick 3851, Greg wandered in basin_58_23. driven by making things real (0.357)."
+      },
+      {
+        "tick": 3852,
+        "label": "At tick 3852, Greg built in basin_58_23. driven by the builder's hunger (0.371)."
+      }
+    ]
+  },
+  "corpus": {
+    "entries": [],
+    "pattern_uses": {}
+  }
+}

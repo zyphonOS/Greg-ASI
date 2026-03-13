@@ -1,0 +1,32 @@
+{
+  "edges": {
+    "basin_58_23|||build": 0.1649,
+    "build|||create": 0.1649,
+    "build|||drive_create": 0.1649,
+    "build|||explore": 0.1649,
+    "basin_58_23|||create": 0.3866,
+    "basin_58_23|||drive_create": 0.3866,
+    "basin_58_23|||explore": 0.3866,
+    "create|||drive_create": 0.3866,
+    "create|||explore": 0.3866,
+    "drive_create|||explore": 0.3866,
+    "basin_58_23|||learn": 0.0426,
+    "create|||learn": 0.0426,
+    "drive_create|||learn": 0.0426,
+    "explore|||learn": 0.0426
+  },
+  "nodes": [
+    "explore",
+    "drive_create",
+    "basin_58_23",
+    "build",
+    "create",
+    "accumulate",
+    "learn",
+    "trade",
+    "reflect"
+  ],
+  "tick": 3800,
+  "total_activations": 13,
+  "total_strengthenings": 130
+}
