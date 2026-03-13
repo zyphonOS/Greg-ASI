@@ -726,6 +726,35 @@ class GregLiving:
             self.state.set("school_label", _school_result.get("label",""))
         except Exception: pass
 
+
+        # EXP_027 — Hemispheric Split
+        try:
+            from greg_hemispheres import hemispheric_tick as _hemi_tick
+            if not hasattr(self, '_hemi_engine'):
+                from greg_hemispheres import load_hemispheric_engine
+                self._hemi_engine = load_hemispheric_engine()
+            _world_snap = {
+                'civilization_health_pct': int(self.state.get('phase3_convergence', 0.66) * 100),
+                'agent_count': len((self.state.get('civilization') or {}).get('agents', {})),
+            }
+            _surprise_score = (self.state.get('predictive_surprise') or {}).get('surprise_score', 0.0)
+            _cons_summary = self.state.get('consequence_summary')
+            _pred_surprise = self.state.get('predictive_surprise')
+            self._hemi_engine, _hemi_out = _hemi_tick(
+                tick_num, _world_snap, self.state.drives(),
+                _surprise_score, _cons_summary, _pred_surprise,
+                engine=self._hemi_engine,
+            )
+            self.state.set('gestalt', _hemi_out.get('gestalt', ''))
+            self.state.set('hemispheric_voice', _hemi_out.get('integrated_voice', ''))
+            if _hemi_out.get('anomalies'):
+                self.state.set('hemispheric_anomalies', _hemi_out['anomalies'])
+            if tick_num % 50 == 0:
+                from greg_hemispheres import save_hemispheric_engine
+                save_hemispheric_engine(self._hemi_engine)
+                self.state.set('hemispheric_summary', self._hemi_engine.summary())
+        except Exception: pass
+
         # Save state
         self.state.save()
 
