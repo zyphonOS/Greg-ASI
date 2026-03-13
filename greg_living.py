@@ -768,6 +768,33 @@ class GregLiving:
                     self.state.set_drive(_drv, min(1.0, _cur + _delta))
         except Exception: pass
 
+
+        # EXP_026 — Consequence Tracking
+        try:
+            from greg_consequences import consequence_tick as _cons_tick, load_consequence_engine, save_consequence_engine
+            if not hasattr(self, '_cons_engine'):
+                self._cons_engine = load_consequence_engine()
+            _world_snap = {
+                'civilization_health_pct': int(self.state.get('phase3_convergence', 0.66) * 100),
+                'agent_count': len((self.state.get('civilization') or {}).get('agents', {})),
+                'memory_count': len(self.state.get('memories') or []),
+                'dominant_drive': max(self.state.drives(), key=lambda k: self.state.drives()[k]),
+            }
+            self._cons_engine, _cons_resolved, _cons_narration = _cons_tick(
+                tick=tick_num,
+                action=action_type,
+                location=self.state.get('location', 'spawn'),
+                drives=self.state.drives(),
+                world_state=_world_snap,
+                engine=self._cons_engine,
+            )
+            self.state.set('consequence_summary', self._cons_engine.summary())
+            if _cons_narration:
+                self.state.set('consequence_voice', _cons_narration)
+            if tick_num % 50 == 0:
+                save_consequence_engine(self._cons_engine)
+        except Exception: pass
+
         # Save state
         self.state.save()
 
