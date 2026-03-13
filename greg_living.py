@@ -647,6 +647,7 @@ class GregLiving:
                 self.state.get("location", "spawn"),
                 self.state.drives(),
                 tick_num,
+                surprise_level=(self.state.get("predictive_surprise") or {}).get("surprise_level", "NONE"),
             )
             if tick_num % 50 == 0:
                 self._hebbian_graph.save(HEBBIAN_PATH)
