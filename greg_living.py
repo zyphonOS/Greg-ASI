@@ -795,6 +795,17 @@ class GregLiving:
                 save_consequence_engine(self._cons_engine)
         except Exception: pass
 
+
+        # EXP_028 — Glial Layer
+        try:
+            from greg_glial import glial_tick as _glial_tick
+            _hebbian = getattr(self, '_hebbian_graph', None)
+            _glial_result = _glial_tick(tick_num, self.state._data, _hebbian)
+            self.state.set('glial', _glial_result)
+            if _glial_result.get('health_alerts'):
+                self.state.set('glial_alerts', _glial_result['health_alerts'])
+        except Exception: pass
+
         # Save state
         self.state.save()
 
