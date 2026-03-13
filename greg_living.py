@@ -756,6 +756,18 @@ class GregLiving:
                 self.state.set('hemispheric_summary', self._hemi_engine.summary())
         except Exception: pass
 
+
+        # EXP_025 — Pikkaio Intelligence Layer
+        try:
+            from greg_pikkaio import pikkaio_tick as _pikkaio_tick
+            _pikkaio_result = _pikkaio_tick(tick_num, self.state.drives())
+            self.state.set('pikkaio', _pikkaio_result)
+            if _pikkaio_result.get('drive_deltas'):
+                for _drv, _delta in _pikkaio_result['drive_deltas'].items():
+                    _cur = self.state.drives().get(_drv, 0.0)
+                    self.state.set_drive(_drv, min(1.0, _cur + _delta))
+        except Exception: pass
+
         # Save state
         self.state.save()
 
