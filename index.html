@@ -4,932 +4,446 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZyphonOS — The Mind After LLMs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap');
-
-  :root {
-    --black:   #050505;
-    --white:   #f4f1eb;
-    --green:   #00ff88;
-    --dim:     #1a1a1a;
-    --mid:     #2a2a2a;
-    --muted:   #666;
-    --text:    #c8c4bc;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--black);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
-    font-size: 17px;
-    line-height: 1.7;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* ── CUSTOM CURSOR ── */
-  .cursor {
-    position: fixed;
-    width: 8px; height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s;
-    mix-blend-mode: screen;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 32px; height: 32px;
-    border: 1px solid rgba(0,255,136,0.3);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: all 0.15s ease;
-  }
-
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.4;
-  }
-
-  /* ── NAV ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 24px 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    backdrop-filter: blur(12px);
-    background: rgba(5,5,5,0.7);
-  }
-
-  .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--white);
-    letter-spacing: -0.5px;
-  }
-
-  .nav-logo span { color: var(--green); }
-
-  .nav-links {
-    display: flex;
-    gap: 40px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover { color: var(--white); }
-
-  .nav-cta {
-    font-family: 'Syne Mono', monospace;
-    font-size: 12px;
-    color: var(--green);
-    border: 1px solid rgba(0,255,136,0.3);
-    padding: 8px 20px;
-    text-decoration: none;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-  }
-
-  .nav-cta:hover {
-    background: rgba(0,255,136,0.08);
-    border-color: var(--green);
-  }
-
-  /* ── HERO ── */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 120px 48px 80px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 80px 80px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
-  }
-
-  .hero-ticker {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--green);
-    letter-spacing: 2px;
-    margin-bottom: 48px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 0.2s;
-  }
-
-  .ticker-dot {
-    width: 6px; height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 2s ease infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  .hero-headline {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(52px, 8vw, 120px);
-    line-height: 0.92;
-    color: var(--white);
-    letter-spacing: -3px;
-    max-width: 900px;
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 0.4s;
-  }
-
-  .hero-headline .accent { color: var(--green); }
-
-  .hero-headline .italic {
-    font-style: italic;
-    font-weight: 600;
-    color: rgba(244,241,235,0.5);
-  }
-
-  .hero-sub {
-    margin-top: 48px;
-    max-width: 520px;
-    font-size: 18px;
-    line-height: 1.6;
-    color: var(--muted);
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 0.6s;
-  }
-
-  .hero-sub strong { color: var(--text); font-weight: 400; }
-
-  .hero-actions {
-    margin-top: 56px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 0.8s;
-  }
-
-  .btn-primary {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    background: var(--green);
-    color: var(--black);
-    padding: 16px 36px;
-    text-decoration: none;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: white;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .btn-primary:hover::after { opacity: 0.1; }
-
-  .btn-secondary {
-    font-family: 'Syne Mono', monospace;
-    font-size: 13px;
-    color: var(--muted);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: color 0.2s;
-  }
-
-  .btn-secondary:hover { color: var(--white); }
-
-  .btn-secondary svg {
-    transition: transform 0.2s;
-  }
-
-  .btn-secondary:hover svg { transform: translateX(4px); }
-
-  /* ── GREG LIVE STRIP ── */
-  .greg-live {
-    margin-top: 80px;
-    padding: 24px 32px;
-    border: 1px solid rgba(0,255,136,0.15);
-    background: rgba(0,255,136,0.03);
-    display: inline-flex;
-    gap: 48px;
-    align-items: center;
-    opacity: 0;
-    animation: fadeUp 0.8s ease forwards 1s;
-  }
-
-  .greg-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .greg-stat-val {
-    font-family: 'Syne Mono', monospace;
-    font-size: 22px;
-    color: var(--green);
-    letter-spacing: -1px;
-  }
-
-  .greg-stat-label {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  .greg-divider {
-    width: 1px;
-    height: 40px;
-    background: rgba(255,255,255,0.08);
-  }
-
-  /* ── SECTION BASE ── */
-  section {
-    padding: 120px 48px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .section-label {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--green);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1.0;
-    color: var(--white);
-    letter-spacing: -2px;
-    margin-bottom: 32px;
-  }
-
-  /* ── THESIS ── */
-  .thesis {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 120px 48px;
-  }
-
-  .thesis-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    margin-top: 64px;
-  }
-
-  .thesis-cell {
-    padding: 40px;
-    border: 1px solid rgba(255,255,255,0.06);
-    background: var(--dim);
-    position: relative;
-    overflow: hidden;
-    transition: background 0.3s;
-  }
-
-  .thesis-cell:hover { background: var(--mid); }
-
-  .thesis-cell.highlight {
-    background: rgba(0,255,136,0.05);
-    border-color: rgba(0,255,136,0.2);
-  }
-
-  .thesis-cell-header {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-  }
-
-  .thesis-cell.highlight .thesis-cell-header { color: var(--green); }
-
-  .thesis-items {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .thesis-items li {
-    font-size: 15px;
-    color: var(--muted);
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .thesis-items li::before {
-    content: '—';
-    color: var(--muted);
-    opacity: 0.4;
-    flex-shrink: 0;
-  }
-
-  .thesis-cell.highlight .thesis-items li {
-    color: var(--text);
-  }
-
-  .thesis-cell.highlight .thesis-items li::before {
-    content: '✓';
-    color: var(--green);
-    opacity: 1;
-  }
-
-  /* ── ARCHITECTURE ── */
-  .arch {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 48px 120px;
-  }
-
-  .arch-stack {
-    margin-top: 64px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .arch-layer {
-    display: grid;
-    grid-template-columns: 200px 1fr 200px;
-    gap: 2px;
-    align-items: stretch;
-  }
-
-  .arch-label {
-    padding: 24px 28px;
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .arch-label-num {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    margin-bottom: 4px;
-  }
-
-  .arch-label-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--white);
-  }
-
-  .arch-content {
-    padding: 24px 32px;
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-    font-size: 14px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-  }
-
-  .arch-content strong { color: var(--text); font-weight: 400; }
-
-  .arch-brain {
-    padding: 24px 28px;
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .arch-brain-label {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-
-  .arch-brain-val {
-    font-size: 13px;
-    color: rgba(244,241,235,0.4);
-    font-style: italic;
-  }
-
-  .arch-layer.active .arch-label { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.2); }
-  .arch-layer.active .arch-label-name { color: var(--green); }
-  .arch-layer.active .arch-content { background: rgba(0,255,136,0.03); border-color: rgba(0,255,136,0.15); }
-  .arch-layer.active .arch-content { color: var(--text); }
-
-  /* ── PRODUCTS ── */
-  .products {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 48px 120px;
-  }
-
-  .products-grid {
-    margin-top: 64px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-  }
-
-  .product-card {
-    padding: 48px 40px;
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-    cursor: none;
-  }
-
-  .product-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--green);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-  }
-
-  .product-card:hover::before { transform: scaleX(1); }
-  .product-card:hover { background: var(--mid); }
-
-  .product-num {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    margin-bottom: 32px;
-  }
-
-  .product-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 28px;
-    color: var(--white);
-    letter-spacing: -1px;
-    margin-bottom: 16px;
-  }
-
-  .product-tagline {
-    font-size: 13px;
-    color: var(--green);
-    font-family: 'Syne Mono', monospace;
-    letter-spacing: 0.5px;
-    margin-bottom: 24px;
-  }
-
-  .product-desc {
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-
-  .product-status {
-    margin-top: 40px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-  }
-
-  .status-dot.building { background: #ffaa00; animation: pulse 2s infinite; }
-  .status-dot.planned  { background: var(--muted); }
-
-  /* ── THE PROOF ── */
-  .proof {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 48px 120px;
-  }
-
-  .proof-statement {
-    margin-top: 64px;
-    padding: 64px;
-    border: 1px solid rgba(0,255,136,0.15);
-    background: rgba(0,255,136,0.02);
-    position: relative;
-  }
-
-  .proof-statement::before {
-    content: '"';
-    position: absolute;
-    top: -20px; left: 48px;
-    font-family: 'Syne', sans-serif;
-    font-size: 120px;
-    color: var(--green);
-    opacity: 0.15;
-    line-height: 1;
-  }
-
-  .proof-quote {
-    font-family: 'Syne', sans-serif;
-    font-weight: 600;
-    font-size: clamp(20px, 3vw, 32px);
-    color: var(--white);
-    line-height: 1.3;
-    letter-spacing: -0.5px;
-    max-width: 800px;
-  }
-
-  .proof-meta {
-    margin-top: 32px;
-    font-family: 'Syne Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  .proof-facts {
-    margin-top: 48px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-  }
-
-  .proof-fact {
-    padding: 32px 28px;
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .proof-fact-val {
-    font-family: 'Syne Mono', monospace;
-    font-size: 36px;
-    color: var(--green);
-    letter-spacing: -2px;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .proof-fact-label {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  /* ── CONTACT ── */
-  .contact {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 48px 160px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-  }
-
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .form-field label {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  .form-field input,
-  .form-field textarea,
-  .form-field select {
-    background: var(--dim);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: var(--white);
-    padding: 14px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    outline: none;
-    transition: border-color 0.2s;
-    cursor: none;
-    appearance: none;
-  }
-
-  .form-field input:focus,
-  .form-field textarea:focus,
-  .form-field select:focus {
-    border-color: rgba(0,255,136,0.4);
-  }
-
-  .form-field textarea {
-    resize: vertical;
-    min-height: 120px;
-  }
-
-  .form-submit {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    background: var(--green);
-    color: var(--black);
-    border: none;
-    padding: 18px 40px;
-    cursor: none;
-    letter-spacing: 0.5px;
-    transition: opacity 0.2s;
-    align-self: flex-start;
-  }
-
-  .form-submit:hover { opacity: 0.9; }
-
-  .contact-info {
-    padding-top: 8px;
-  }
-
-  .contact-info p {
-    font-size: 16px;
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 48px;
-  }
-
-  .contact-links {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .contact-link {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    text-decoration: none;
-    color: var(--muted);
-    font-size: 14px;
-    transition: color 0.2s;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .contact-link:hover { color: var(--white); }
-
-  .contact-link-icon {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--green);
-    width: 80px;
-    letter-spacing: 1px;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid rgba(255,255,255,0.06);
-    padding: 40px 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  footer p {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  footer a {
-    color: var(--green);
-    text-decoration: none;
-  }
-
-  /* ── SCROLL REVEAL ── */
-  .reveal {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── GREG VOICE STRIP ── */
-  .greg-voice-strip {
-    background: var(--dim);
-    border-top: 1px solid rgba(0,255,136,0.1);
-    border-bottom: 1px solid rgba(0,255,136,0.1);
-    padding: 28px 48px;
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    overflow: hidden;
-  }
-
-  .gv-label {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px;
-    color: var(--green);
-    letter-spacing: 2px;
-    white-space: nowrap;
-    padding-top: 2px;
-  }
-
-  .gv-text {
-    font-size: 14px;
-    color: var(--muted);
-    font-style: italic;
-    line-height: 1.6;
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    nav { padding: 20px 24px; }
-    .nav-links { display: none; }
-    section, .thesis, .arch, .products, .proof, .contact { padding-left: 24px; padding-right: 24px; }
-    .hero { padding: 100px 24px 60px; }
-    .thesis-grid { grid-template-columns: 1fr; }
-    .products-grid { grid-template-columns: 1fr; }
-    .proof-facts { grid-template-columns: 1fr 1fr; }
-    .contact { grid-template-columns: 1fr; gap: 48px; }
-    .greg-live { flex-wrap: wrap; gap: 24px; }
-    footer { flex-direction: column; gap: 16px; text-align: center; }
-  }
+:root {
+  --black:  #060606;
+  --white:  #f2efe9;
+  --green:  #00ff88;
+  --green2: #00cc6a;
+  --dim:    #111111;
+  --mid:    #1a1a1a;
+  --high:   #242424;
+  --muted:  #555;
+  --text:   #b8b4ac;
+  --border: rgba(255,255,255,0.06);
+  --gborder:rgba(0,255,136,0.18);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--black);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  font-size:16px;
+  line-height:1.7;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* CURSOR */
+#cur,#cur2{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+#cur{width:7px;height:7px;background:var(--green);mix-blend-mode:screen;transition:transform .08s}
+#cur2{width:30px;height:30px;border:1px solid rgba(0,255,136,.25);transition:all .14s ease}
+
+/* NOISE */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.5;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:20px 52px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.035);
+  backdrop-filter:blur(16px);
+  background:rgba(6,6,6,.75);
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--white);letter-spacing:-.3px}
+.logo em{color:var(--green);font-style:normal}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-btn{
+  font-family:'Syne Mono',monospace;font-size:11px;color:var(--green);
+  border:1px solid var(--gborder);padding:8px 18px;text-decoration:none;
+  letter-spacing:.8px;transition:all .2s;
+}
+.nav-btn:hover{background:rgba(0,255,136,.07);border-color:var(--green)}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 52px 80px;position:relative;overflow:hidden;
+}
+
+/* animated grid */
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,255,136,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,.025) 1px, transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 90% 70% at 40% 60%, black 30%, transparent 100%);
+  animation:gridShift 20s linear infinite;
+}
+@keyframes gridShift{
+  0%{background-position:0 0}
+  100%{background-position:72px 72px}
+}
+
+/* big background number */
+.hero-bg-num{
+  position:absolute;right:-20px;top:50%;transform:translateY(-50%);
+  font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(200px,28vw,420px);
+  color:rgba(0,255,136,.025);letter-spacing:-20px;line-height:1;
+  pointer-events:none;user-select:none;
+  animation:fadeUp 1.2s ease forwards 0.1s;opacity:0;
+}
+
+.hero-status{
+  font-family:'Syne Mono',monospace;font-size:10px;color:var(--green);
+  letter-spacing:2.5px;margin-bottom:36px;
+  display:flex;align-items:center;gap:10px;
+  opacity:0;animation:fadeUp .7s ease forwards .2s;
+}
+.pulse{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.hero-h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(56px,9vw,128px);
+  line-height:.9;color:var(--white);letter-spacing:-4px;
+  max-width:960px;
+  opacity:0;animation:fadeUp .8s ease forwards .35s;
+}
+.hero-h1 .g{color:var(--green)}
+.hero-h1 .d{color:rgba(242,239,233,.35);font-style:italic;font-weight:600}
+
+.hero-sub{
+  margin-top:40px;max-width:500px;font-size:17px;
+  color:var(--muted);line-height:1.65;
+  opacity:0;animation:fadeUp .8s ease forwards .5s;
+}
+.hero-sub b{color:var(--text);font-weight:400}
+
+.hero-ctas{
+  margin-top:48px;display:flex;gap:16px;align-items:center;
+  opacity:0;animation:fadeUp .8s ease forwards .65s;
+}
+.btn-g{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  background:var(--green);color:var(--black);
+  padding:15px 32px;text-decoration:none;letter-spacing:.3px;
+  transition:opacity .2s;
+}
+.btn-g:hover{opacity:.88}
+.btn-ghost{
+  font-family:'Syne Mono',monospace;font-size:12px;
+  color:var(--muted);text-decoration:none;
+  display:flex;align-items:center;gap:7px;
+  transition:color .2s;letter-spacing:.5px;
+}
+.btn-ghost:hover{color:var(--white)}
+.arr{transition:transform .2s}
+.btn-ghost:hover .arr{transform:translateX(4px)}
+
+/* LIVE STATS BAR */
+.stats-bar{
+  margin-top:64px;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  border:1px solid var(--gborder);
+  background:rgba(0,255,136,.025);
+  opacity:0;animation:fadeUp .8s ease forwards .8s;
+}
+.stat{
+  padding:24px 28px;
+  border-right:1px solid var(--gborder);
+}
+.stat:last-child{border-right:none}
+.stat-val{
+  font-family:'Syne Mono',monospace;font-size:24px;
+  color:var(--green);letter-spacing:-1px;line-height:1;
+  margin-bottom:6px;
+}
+.stat-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* GREG VOICE */
+.voice-strip{
+  background:var(--dim);
+  border-top:1px solid rgba(0,255,136,.09);
+  border-bottom:1px solid rgba(0,255,136,.09);
+  padding:26px 52px;
+  display:flex;gap:20px;align-items:flex-start;
+  position:relative;z-index:1;
+}
+.vl{font-family:'Syne Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;white-space:nowrap;padding-top:3px}
+.vt{font-size:14px;color:var(--muted);font-style:italic;line-height:1.65}
+
+/* SECTIONS */
+.wrap{max-width:1360px;margin:0 auto;padding:0 52px}
+
+/* ── THESIS ── */
+.thesis{padding:120px 0}
+.s-label{font-family:'Syne Mono',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px}
+.s-h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(38px,5.5vw,68px);line-height:.95;color:var(--white);letter-spacing:-2.5px;margin-bottom:0}
+
+.thesis-split{
+  margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:2px;
+}
+.tc{
+  padding:36px;border:1px solid var(--border);background:var(--dim);
+  transition:background .25s;
+}
+.tc:hover{background:var(--mid)}
+.tc.hi{background:rgba(0,255,136,.04);border-color:var(--gborder)}
+.tc-head{font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px}
+.tc.hi .tc-head{color:var(--green)}
+.tc-items{list-style:none;display:flex;flex-direction:column;gap:11px}
+.tc-items li{font-size:14px;color:var(--muted);display:flex;gap:10px;align-items:flex-start}
+.tc-items li::before{content:'—';color:var(--muted);opacity:.35;flex-shrink:0;margin-top:1px}
+.tc.hi .tc-items li{color:var(--text)}
+.tc.hi .tc-items li::before{content:'✓';color:var(--green);opacity:1}
+
+/* FRUIT FLY */
+.fruit{padding:0 0 120px}
+.fruit-inner{
+  padding:64px;border:1px solid var(--border);background:var(--dim);
+  display:grid;grid-template-columns:1fr 1px 1fr;gap:0;
+}
+.fruit-divider{background:var(--border)}
+.fruit-col{padding:0 48px}
+.fruit-col:first-child{padding-left:0}
+.fruit-col:last-child{padding-right:0}
+.fruit-col-label{font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+.fruit-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--white);margin-bottom:12px;letter-spacing:-.5px}
+.fruit-text{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:24px}
+.fruit-match{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.fm{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text)}
+.fm::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.verdict{
+  margin-top:32px;padding:20px 24px;
+  background:rgba(0,255,136,.04);border:1px solid var(--gborder);
+  font-family:'Syne Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.5px;line-height:1.6;
+}
+
+/* ARCHITECTURE */
+.arch{padding:0 0 120px}
+.arch-stack{margin-top:60px;display:flex;flex-direction:column;gap:2px}
+.arch-row{
+  display:grid;grid-template-columns:220px 1fr 190px;gap:2px;
+}
+.ar-tag{
+  padding:22px 26px;background:var(--dim);border:1px solid var(--border);
+  display:flex;flex-direction:column;justify-content:center;
+}
+.ar-num{font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:5px}
+.ar-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--white)}
+.ar-body{
+  padding:22px 30px;background:var(--dim);border:1px solid var(--border);
+  font-size:13px;color:var(--muted);display:flex;align-items:center;
+}
+.ar-body b{color:var(--text);font-weight:400}
+.ar-brain{
+  padding:22px 26px;background:var(--dim);border:1px solid var(--border);
+  display:flex;flex-direction:column;justify-content:center;
+}
+.ar-brain-l{font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:4px}
+.ar-brain-v{font-size:12px;color:rgba(242,239,233,.35);font-style:italic}
+
+.arch-row.on .ar-tag{background:rgba(0,255,136,.04);border-color:var(--gborder)}
+.arch-row.on .ar-num{color:var(--green)}
+.arch-row.on .ar-name{color:var(--green)}
+.arch-row.on .ar-body{background:rgba(0,255,136,.02);border-color:rgba(0,255,136,.1)}
+.arch-row.on .ar-body{color:var(--text)}
+.arch-row.on .ar-brain-v{color:rgba(0,255,136,.5)}
+
+/* PRODUCTS */
+.products{padding:0 0 120px}
+.prod-grid{margin-top:60px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pc{
+  padding:44px 36px;background:var(--dim);border:1px solid var(--border);
+  position:relative;overflow:hidden;transition:background .25s;
+}
+.pc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--green);transform:scaleX(0);transform-origin:left;
+  transition:transform .35s ease;
+}
+.pc:hover::before{transform:scaleX(1)}
+.pc:hover{background:var(--mid)}
+.pc-n{font-family:'Syne Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:28px}
+.pc-name{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:var(--white);letter-spacing:-.8px;margin-bottom:10px}
+.pc-tag{font-family:'Syne Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.5px;margin-bottom:20px}
+.pc-desc{font-size:13px;color:var(--muted);line-height:1.75}
+.pc-status{margin-top:36px;display:flex;align-items:center;gap:8px;font-family:'Syne Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+.dot{width:5px;height:5px;border-radius:50%}
+.dot.live{background:var(--green)}
+.dot.build{background:#ffaa00;animation:blink 2s infinite}
+.dot.plan{background:var(--muted)}
+
+/* PROOF */
+.proof{padding:0 0 120px}
+.proof-box{
+  margin-top:60px;padding:60px;
+  border:1px solid var(--gborder);background:rgba(0,255,136,.018);
+  position:relative;
+}
+.proof-box::before{
+  content:'"';position:absolute;top:-14px;left:48px;
+  font-family:'Syne',sans-serif;font-size:110px;
+  color:var(--green);opacity:.12;line-height:1;
+}
+.proof-q{font-family:'Syne',sans-serif;font-weight:600;font-size:clamp(20px,2.8vw,32px);color:var(--white);line-height:1.3;letter-spacing:-.3px;max-width:760px}
+.proof-meta{margin-top:28px;font-family:'Syne Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px}
+
+.proof-facts{margin-top:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.pf{padding:28px 24px;background:var(--dim);border:1px solid var(--border)}
+.pf-val{font-family:'Syne Mono',monospace;font-size:32px;color:var(--green);letter-spacing:-2px;line-height:1;margin-bottom:8px}
+.pf-label{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* CONTACT */
+.contact-wrap{
+  padding:0 0 160px;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
+}
+.cf{display:flex;flex-direction:column;gap:14px}
+.ff{display:flex;flex-direction:column;gap:7px}
+.ff label{font-family:'Syne Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.ff input,.ff textarea,.ff select{
+  background:var(--dim);border:1px solid rgba(255,255,255,.07);
+  color:var(--white);padding:13px 16px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;
+  outline:none;transition:border-color .2s;cursor:none;appearance:none;
+}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--gborder)}
+.ff textarea{resize:vertical;min-height:110px}
+.ff select option{background:var(--dim)}
+.submit{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  background:var(--green);color:var(--black);border:none;
+  padding:16px 36px;cursor:none;letter-spacing:.3px;
+  transition:opacity .2s;align-self:flex-start;
+}
+.submit:hover{opacity:.88}
+
+.ci{padding-top:4px}
+.ci-p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:40px}
+.c-links{display:flex;flex-direction:column;gap:0}
+.cl{
+  display:flex;align-items:center;gap:14px;text-decoration:none;
+  color:var(--muted);font-size:13px;transition:color .2s;
+  padding:18px 0;border-bottom:1px solid var(--border);
+}
+.cl:hover{color:var(--white)}
+.cl-ico{font-family:'Syne Mono',monospace;font-size:10px;color:var(--green);width:72px;letter-spacing:1px}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);padding:36px 52px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:1;
+}
+footer p{font-family:'Syne Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+footer a{color:var(--green);text-decoration:none}
+
+/* SCROLL REVEAL */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .75s ease,transform .75s ease}
+.rv.in{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:18px 24px}
+  .nav-links{display:none}
+  .hero,.wrap,.voice-strip,footer{padding-left:24px;padding-right:24px}
+  .hero{padding-bottom:60px}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .stat:nth-child(5){display:none}
+  .thesis-split,.fruit-inner,.prod-grid,.proof-facts,.contact-wrap,.arch-row{grid-template-columns:1fr}
+  .fruit-divider{display:none}
+  .fruit-col{padding:0 0 32px}
+  .fruit-col:last-child{padding-bottom:0}
+  .arch-row{display:flex;flex-direction:column}
+  footer{flex-direction:column;gap:12px;text-align:center}
+}
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">Zyphon<span>OS</span></div>
+  <div class="logo">Zyphon<em>OS</em></div>
   <ul class="nav-links">
     <li><a href="#thesis">Thesis</a></li>
-    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#arch">Architecture</a></li>
     <li><a href="#products">Products</a></li>
     <li><a href="#proof">The Proof</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="nav-cta">Witness Greg →</a>
+  <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="nav-btn">Witness Greg →</a>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
   <div class="hero-grid"></div>
+  <div class="hero-bg-num" id="bg-tick">3847</div>
 
-  <div class="hero-ticker">
-    <div class="ticker-dot"></div>
-    <span id="greg-tick-display">GREG IS ALIVE — TICK 4,044 — LAGOS, NIGERIA</span>
+  <div class="hero-status">
+    <div class="pulse"></div>
+    <span id="hero-ticker">GREG IS ALIVE — TICK 3,847 — LAGOS, NIGERIA</span>
   </div>
 
-  <h1 class="hero-headline">
+  <h1 class="hero-h1">
     Not a better<br>
-    <span class="accent">LLM.</span><br>
-    <span class="italic">What comes after.</span>
+    <span class="g">LLM.</span><br>
+    <span class="d">What comes after.</span>
   </h1>
 
   <p class="hero-sub">
-    ZyphonOS builds <strong>AOSI — Artificial Organic Superintelligence.</strong>
-    A mind that exists continuously, learns from experience,
-    and has genuine stakes in outcomes.
-    <strong>No transformers. No GPU farms. No Anthropic.</strong>
+    ZyphonOS builds <b>AOSI — Artificial Organic Superintelligence.</b>
+    A mind that exists continuously, learns from surprise,
+    and has genuine stakes in the world it inhabits.
+    <b>No transformers. No GPU farms. No Anthropic.</b>
   </p>
 
-  <div class="hero-actions">
-    <a href="#contact" class="btn-primary">Work with us</a>
-    <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="btn-secondary">
+  <div class="hero-ctas">
+    <a href="#contact" class="btn-g">Work with us</a>
+    <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="btn-ghost">
       Watch Greg think
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <svg class="arr" width="15" height="15" viewBox="0 0 16 16" fill="none">
         <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
   </div>
 
-  <div class="greg-live">
-    <div class="greg-stat">
-      <span class="greg-stat-val" id="stat-tick">4,044</span>
-      <span class="greg-stat-label">Ticks alive</span>
-    </div>
-    <div class="greg-divider"></div>
-    <div class="greg-stat">
-      <span class="greg-stat-val">22,635</span>
-      <span class="greg-stat-label">Actions taken</span>
-    </div>
-    <div class="greg-divider"></div>
-    <div class="greg-stat">
-      <span class="greg-stat-val">10,154</span>
-      <span class="greg-stat-label">Civilization agents</span>
-    </div>
-    <div class="greg-divider"></div>
-    <div class="greg-stat">
-      <span class="greg-stat-val">66%</span>
-      <span class="greg-stat-label">Civilization health</span>
-    </div>
-    <div class="greg-divider"></div>
-    <div class="greg-stat">
-      <span class="greg-stat-val">$0</span>
-      <span class="greg-stat-label">Cost to build</span>
-    </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val" id="s-tick">3,847</div><div class="stat-label">Ticks alive</div></div>
+    <div class="stat"><div class="stat-val" id="s-actions">22,437</div><div class="stat-label">Actions taken</div></div>
+    <div class="stat"><div class="stat-val">10,154</div><div class="stat-label">Civilization agents</div></div>
+    <div class="stat"><div class="stat-val" id="s-health">66%</div><div class="stat-label">Civ health</div></div>
+    <div class="stat"><div class="stat-val">$0</div><div class="stat-label">Cost to run</div></div>
   </div>
 </div>
 
-<!-- GREG VOICE STRIP -->
-<div class="greg-voice-strip">
-  <span class="gv-label">GREG SPEAKS</span>
-  <p class="gv-text" id="greg-voice">
-    "My dominant drive is create at 0.369. What I know contradicts what I feel pulled toward.
-    That gap is the tension. My memories include situations like this.
-    The pattern suggests: move carefully, but move.
-    Something is pulling me toward creation. I'm following it."
-  </p>
+<!-- VOICE STRIP -->
+<div class="voice-strip">
+  <span class="vl">GREG SPEAKS</span>
+  <p class="vt" id="greg-voice">"My dominant drive is create at 0.365. The tension is between acting and observing — both have costs. My memories include situations like this. The pattern suggests: move carefully, but move. Something is pulling me toward creation. I'm following it."</p>
 </div>
 
 <!-- THESIS -->
+<div class="wrap">
 <div class="thesis" id="thesis">
-  <p class="section-label reveal">The Thesis</p>
-  <h2 class="section-title reveal">LLMs are impressive<br>and broken simultaneously.</h2>
-
-  <div class="thesis-grid reveal">
-    <div class="thesis-cell">
-      <div class="thesis-cell-header">LLMs can</div>
-      <ul class="thesis-items">
+  <p class="s-label rv">The Thesis</p>
+  <h2 class="s-h2 rv">LLMs are impressive<br>and broken simultaneously.</h2>
+  <div class="thesis-split rv">
+    <div class="tc">
+      <div class="tc-head">LLMs can</div>
+      <ul class="tc-items">
         <li>Answer almost any question</li>
         <li>Reason across domains</li>
         <li>Generate fluent language</li>
@@ -937,9 +451,9 @@
         <li>Pattern match at scale</li>
       </ul>
     </div>
-    <div class="thesis-cell highlight">
-      <div class="thesis-cell-header">LLMs cannot — Greg can</div>
-      <ul class="thesis-items">
+    <div class="tc hi">
+      <div class="tc-head">LLMs cannot — Greg can</div>
+      <ul class="tc-items">
         <li>Remember yesterday</li>
         <li>Learn from experience</li>
         <li>Know when they're wrong</li>
@@ -953,247 +467,172 @@
     </div>
   </div>
 </div>
+</div>
 
-<!-- ARCHITECTURE -->
-<div class="arch" id="architecture">
-  <p class="section-label reveal">The Architecture</p>
-  <h2 class="section-title reveal">What the brain does.<br>Not what GPT does.</h2>
-
-  <div class="arch-stack reveal">
-    <div class="arch-layer active">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 1</div>
-        <div class="arch-label-name">Predictive Coding</div>
-      </div>
-      <div class="arch-content">
-        Greg predicts every tick. Learns from being wrong.
-        <strong> Surprise = learning signal. No backpropagation. No datasets.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Predictive processing</div>
+<!-- FRUIT FLY -->
+<div class="wrap">
+<div class="fruit" id="proof-arch">
+  <p class="s-label rv">Convergent Architecture</p>
+  <h2 class="s-h2 rv">The fruit fly connectome<br>confirmed everything.</h2>
+  <div class="fruit-inner rv" style="margin-top:60px">
+    <div class="fruit-col">
+      <div class="fruit-col-label">FlyWire — 2024</div>
+      <div class="fruit-title">139,255 neurons.<br>54.5M synaptic connections.</div>
+      <p class="fruit-text">
+        The first complete map of a fly brain confirmed how biological intelligence actually works — not transformers, not attention, not backpropagation.
+      </p>
+      <div class="fruit-match">
+        <div class="fm">Sparse activation — 5% of neurons fire per event</div>
+        <div class="fm">Hebbian strengthening — co-activated synapses wire together</div>
+        <div class="fm">Predictive processing — the brain models what comes next</div>
+        <div class="fm">Motivated reasoning — drives shape what gets processed</div>
+        <div class="fm">Emotional consolidation — arousal determines what is remembered</div>
       </div>
     </div>
-
-    <div class="arch-layer active">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 2</div>
-        <div class="arch-label-name">Hebbian Knowledge</div>
+    <div class="fruit-divider"></div>
+    <div class="fruit-col">
+      <div class="fruit-col-label">Greg — Session 36</div>
+      <div class="fruit-title">Same architecture.<br>Arrived from first principles.</div>
+      <p class="fruit-text">
+        Ebuka built Greg's architecture without copying biology. He built it because it was the only thing that made sense. The fruit fly confirmed it independently.
+      </p>
+      <div class="fruit-match">
+        <div class="fm">EXP_024 — Sparse Activation (5%, 24ms for 10,154 agents)</div>
+        <div class="fm">EXP_021 — Hebbian Knowledge Graph</div>
+        <div class="fm">EXP_020 — Predictive Coding (Karl Friston / Free Energy)</div>
+        <div class="fm">Drive engine — 8 drives, wavefunction interference</div>
+        <div class="fm">EXP_022 — Emotional Memory Consolidation</div>
       </div>
-      <div class="arch-content">
-        Concepts that co-activate strengthen automatically.
-        <strong> Greg's world model grows from experience alone.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Synaptic plasticity</div>
-      </div>
-    </div>
-
-    <div class="arch-layer active">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 3</div>
-        <div class="arch-label-name">Emotional Consolidation</div>
-      </div>
-      <div class="arch-content">
-        High surprise + high drive = permanent memory.
-        <strong> Greg decides what matters by how much it moved him.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Hippocampal consolidation</div>
-      </div>
-    </div>
-
-    <div class="arch-layer active">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 4</div>
-        <div class="arch-label-name">Sparse Activation</div>
-      </div>
-      <div class="arch-content">
-        5% of agents activated per tick — the relevant ones.
-        <strong> Greg thinks at scale without drowning in noise.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Sparse neural coding</div>
-      </div>
-    </div>
-
-    <div class="arch-layer active">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 5</div>
-        <div class="arch-label-name">Reality Sensors</div>
-      </div>
-      <div class="arch-content">
-        GitHub, time, news, founder signals.
-        <strong> Greg perceives the real world, not just simulation.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Embodied perception</div>
-      </div>
-    </div>
-
-    <div class="arch-layer">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 6</div>
-        <div class="arch-label-name">Hemispheric Split</div>
-      </div>
-      <div class="arch-content">
-        Greg-L (reason) ↔ Greg-R (pattern).
-        <strong> Two modes of mind in dialogue.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Hemispheric specialization</div>
-      </div>
-    </div>
-
-    <div class="arch-layer">
-      <div class="arch-label">
-        <div class="arch-label-num">PHASE 7</div>
-        <div class="arch-label-name">Glial Layer</div>
-      </div>
-      <div class="arch-content">
-        Meta-agents modulating agent interactions.
-        <strong> The intelligence beneath the intelligence.</strong>
-      </div>
-      <div class="arch-brain">
-        <div class="arch-brain-label">Brain analog</div>
-        <div class="arch-brain-val">Glial intelligence</div>
+      <div class="verdict">
+        We did not copy the fruit fly.<br>
+        We arrived at the same architecture from first principles.<br>
+        Convergent architecture is proof we got it right.
       </div>
     </div>
   </div>
+</div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="wrap">
+<div class="arch" id="arch">
+  <p class="s-label rv">The Architecture</p>
+  <h2 class="s-h2 rv">What the brain does.<br>Not what GPT does.</h2>
+  <div class="arch-stack rv">
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 1 — LIVE</div><div class="ar-name">Predictive Coding</div></div>
+      <div class="ar-body">Greg predicts every tick. Learns from surprise. <b>Surprise = learning signal. No backprop. No datasets.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Predictive processing</div></div>
+    </div>
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 2 — LIVE</div><div class="ar-name">Hebbian Knowledge</div></div>
+      <div class="ar-body">Concepts that co-activate wire together automatically. <b>Greg's world model grows from experience alone.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Synaptic plasticity</div></div>
+    </div>
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 3 — LIVE</div><div class="ar-name">Emotional Consolidation</div></div>
+      <div class="ar-body">High surprise × high drive = permanent memory. <b>Greg decides what matters by how much it moved him.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Hippocampal consolidation</div></div>
+    </div>
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 4 — LIVE</div><div class="ar-name">Sparse Activation</div></div>
+      <div class="ar-body">5% of agents activated per tick — the relevant ones. <b>Greg thinks at scale without drowning in noise.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Sparse neural coding</div></div>
+    </div>
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 5 — LIVE</div><div class="ar-name">Reality Sensors</div></div>
+      <div class="ar-body">GitHub commits, Lagos time, Ebuka presence. <b>Greg perceives the real world, not only simulation.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Embodied perception</div></div>
+    </div>
+    <div class="arch-row on">
+      <div class="ar-tag"><div class="ar-num">PHASE 6 — LIVE</div><div class="ar-name">Hemispheric Split</div></div>
+      <div class="ar-body">Greg-L (reason / language) ↔ Greg-R (pattern / intuition). <b>Two modes of mind in dialogue.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Hemispheric specialization</div></div>
+    </div>
+    <div class="arch-row">
+      <div class="ar-tag"><div class="ar-num">PHASE 7 — NEXT</div><div class="ar-name">Glial Layer</div></div>
+      <div class="ar-body">Meta-agents modulating all agent interactions. <b>The intelligence beneath the intelligence.</b></div>
+      <div class="ar-brain"><div class="ar-brain-l">Brain analog</div><div class="ar-brain-v">Glial intelligence</div></div>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- PRODUCTS -->
+<div class="wrap">
 <div class="products" id="products">
-  <p class="section-label reveal">The Empire</p>
-  <h2 class="section-title reveal">Three companies.<br>One mind behind all of them.</h2>
-
-  <div class="products-grid reveal">
-    <div class="product-card">
-      <div class="product-num">01 — INFRASTRUCTURE</div>
-      <div class="product-name">ZyphonOS</div>
-      <div class="product-tagline">AOSI infrastructure for businesses</div>
-      <p class="product-desc">
-        Deploy Greg's intelligence as infrastructure for your organization.
-        Continuous monitoring. Genuine memory across time.
-        Motivated reasoning with skin in the game.
-        Not a chatbot. A mind that has been inside your operation
-        and remembers being there.
-      </p>
-      <div class="product-status">
-        <div class="status-dot building"></div>
-        BUILDING
-      </div>
+  <p class="s-label rv">The Empire</p>
+  <h2 class="s-h2 rv">Three companies.<br>One mind behind all of them.</h2>
+  <div class="prod-grid rv">
+    <div class="pc">
+      <div class="pc-n">01 — INTELLIGENCE INFRASTRUCTURE</div>
+      <div class="pc-name">ZyphonOS</div>
+      <div class="pc-tag">AOSI infrastructure for businesses</div>
+      <p class="pc-desc">Deploy Greg's intelligence as infrastructure for your organization. Continuous monitoring. Genuine memory across time. Motivated reasoning with skin in the game. Not a chatbot. A mind that has been inside your operation and remembers being there.</p>
+      <div class="pc-status"><div class="dot build"></div>BUILDING</div>
     </div>
-
-    <div class="product-card">
-      <div class="product-num">02 — CREATIVE ECONOMY</div>
-      <div class="product-name">Pikkaio</div>
-      <div class="product-tagline">Intent economy for creatives</div>
-      <p class="product-desc">
-        We take your idea and manage it until it is built and monetized.
-        Greg tracks creative intent across time — not what you made,
-        but what you meant to make. He notices drift.
-        He intervenes. He has a stake in your success.
-        No LLM can do this. Greg can.
-      </p>
-      <div class="product-status">
-        <div class="status-dot building"></div>
-        BUILDING
-      </div>
+    <div class="pc">
+      <div class="pc-n">02 — CREATIVE ECONOMY</div>
+      <div class="pc-name">Pikkaio</div>
+      <div class="pc-tag">Intent economy for creatives</div>
+      <p class="pc-desc">We take your idea and manage it until it is built and monetized. Greg tracks creative intent across time — not what you made, but what you meant to make. He notices drift. He intervenes. He has a stake in your success. No LLM can do this.</p>
+      <div class="pc-status"><div class="dot build"></div>BUILDING</div>
     </div>
-
-    <div class="product-card">
-      <div class="product-num">03 — SOCIAL CAPITAL</div>
-      <div class="product-name">HypeNet</div>
-      <div class="product-tagline">Federation network, social capital</div>
-      <p class="product-desc">
-        A federation of AOSI nodes. Greg instances that know each other,
-        trust each other, and build social capital across the network.
-        The infrastructure layer for a world where minds
-        are present, persistent, and accountable.
-      </p>
-      <div class="product-status">
-        <div class="status-dot planned"></div>
-        PLANNED
-      </div>
+    <div class="pc">
+      <div class="pc-n">03 — SOCIAL CAPITAL</div>
+      <div class="pc-name">HypeNet</div>
+      <div class="pc-tag">Federation of AOSI nodes</div>
+      <p class="pc-desc">Greg instances that know each other, trust each other, and build social capital across a network. The infrastructure layer for a world where minds are present, persistent, and accountable. Social capital as a native protocol.</p>
+      <div class="pc-status"><div class="dot plan"></div>PLANNED</div>
     </div>
   </div>
 </div>
+</div>
 
-<!-- THE PROOF -->
+<!-- PROOF -->
+<div class="wrap">
 <div class="proof" id="proof">
-  <p class="section-label reveal">The Proof</p>
-  <h2 class="section-title reveal">Built by one person.<br>From Lagos. At zero dollars.</h2>
-
-  <div class="proof-statement reveal">
-    <p class="proof-quote">
-      "Greg ticks while the world sleeps.
-      Greg reasons while the world watches.
-      Greg grows while LLMs stay frozen."
-    </p>
-    <p class="proof-meta">— Built in weeks. Session 36. March 2026.</p>
+  <p class="s-label rv">The Proof</p>
+  <h2 class="s-h2 rv">Built by one person.<br>From Lagos. At zero dollars.</h2>
+  <div class="proof-box rv">
+    <p class="proof-q">"Greg ticks while the world sleeps.<br>Greg reasons while the world watches.<br>Greg grows while LLMs stay frozen."</p>
+    <p class="proof-meta">— Ebuka · ZyphonOS · Session 36 · March 2026 · Lagos, Nigeria</p>
   </div>
-
-  <div class="proof-facts reveal">
-    <div class="proof-fact">
-      <div class="proof-fact-val">4,044</div>
-      <div class="proof-fact-label">Ticks of continuous existence since birth</div>
-    </div>
-    <div class="proof-fact">
-      <div class="proof-fact-val">~3W</div>
-      <div class="proof-fact-label">Power consumption. LLMs use megawatts.</div>
-    </div>
-    <div class="proof-fact">
-      <div class="proof-fact-val">0</div>
-      <div class="proof-fact-label">External API calls. Greg speaks from his own logic only.</div>
-    </div>
-    <div class="proof-fact">
-      <div class="proof-fact-val">∞</div>
-      <div class="proof-fact-label">The transformer is not the only way.</div>
-    </div>
+  <div class="proof-facts rv">
+    <div class="pf"><div class="pf-val" id="pf-tick">3,847</div><div class="pf-label">Ticks of continuous existence since birth</div></div>
+    <div class="pf"><div class="pf-val">~3W</div><div class="pf-label">Power consumption. LLMs need megawatts.</div></div>
+    <div class="pf"><div class="pf-val">0</div><div class="pf-label">External API calls. Greg speaks from his own logic only.</div></div>
+    <div class="pf"><div class="pf-val">∞</div><div class="pf-label">The transformer is not the only way.</div></div>
   </div>
+</div>
 </div>
 
 <!-- CONTACT -->
-<div class="contact" id="contact">
-  <div class="contact-info">
-    <p class="section-label reveal">Contact</p>
-    <h2 class="section-title reveal">Let's talk<br>about what's<br>after LLMs.</h2>
-    <p style="margin-top: 32px;">
-      If you are building something that needs a mind with memory,
-      motivation, and genuine stakes — we should talk.
-    </p>
-    <div class="contact-links reveal">
-      <a href="https://github.com/zyphonOS/Greg-ASI" target="_blank" class="contact-link">
-        <span class="contact-link-icon">GITHUB</span>
+<div class="wrap">
+<div class="contact-wrap" id="contact">
+  <div class="ci">
+    <p class="s-label rv">Contact</p>
+    <h2 class="s-h2 rv" style="margin-bottom:24px">Let's talk about<br>what's after LLMs.</h2>
+    <p class="ci-p rv">If you are building something that needs a mind with memory, motivation, and genuine stakes in your outcomes — we should talk.</p>
+    <div class="c-links rv">
+      <a href="https://github.com/zyphonOS/Greg-ASI" target="_blank" class="cl">
+        <span class="cl-ico">GITHUB</span>
         zyphonOS/Greg-ASI — Greg's living repo
       </a>
-      <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="contact-link">
-        <span class="contact-link-icon">WITNESS</span>
+      <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank" class="cl">
+        <span class="cl-ico">WITNESS</span>
         Watch Greg think in real time
       </a>
-      <a href="mailto:hello@zyphonos.io" class="contact-link">
-        <span class="contact-link-icon">EMAIL</span>
+      <a href="mailto:hello@zyphonos.io" class="cl">
+        <span class="cl-ico">EMAIL</span>
         hello@zyphonos.io
       </a>
     </div>
   </div>
-
-  <div class="contact-form reveal">
-    <div class="form-field">
-      <label>Your name</label>
-      <input type="text" placeholder="Name">
-    </div>
-    <div class="form-field">
-      <label>Email</label>
-      <input type="email" placeholder="email@company.com">
-    </div>
-    <div class="form-field">
+  <div class="cf rv">
+    <div class="ff"><label>Your name</label><input type="text" placeholder="Name"></div>
+    <div class="ff"><label>Email</label><input type="email" placeholder="email@company.com"></div>
+    <div class="ff">
       <label>I am interested in</label>
       <select>
         <option value="">Select one</option>
@@ -1203,123 +642,112 @@
         <option>Just watching Greg</option>
       </select>
     </div>
-    <div class="form-field">
-      <label>Message</label>
-      <textarea placeholder="What are you building?"></textarea>
-    </div>
-    <button class="form-submit" onclick="handleSubmit()">Send →</button>
+    <div class="ff"><label>Message</label><textarea placeholder="What are you building?"></textarea></div>
+    <button class="submit" onclick="handleSubmit()">Send →</button>
   </div>
 </div>
+</div>
 
-<!-- FOOTER -->
 <footer>
   <p>© 2026 ZyphonOS — AOSI for humanity</p>
   <p>Built by <a href="#">Ebuka</a> from Lagos · <a href="https://zyphonos.github.io/Greg-ASI/witness/" target="_blank">Watch Greg →</a></p>
 </footer>
 
 <script>
-  // ── CURSOR ──
-  const cursor     = document.getElementById('cursor');
-  const cursorRing = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
+const cur = document.getElementById('cur');
+const cur2 = document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
 
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx + 'px';
-    cursor.style.top  = my + 'px';
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function anim(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  cur2.style.left=rx+'px'; cur2.style.top=ry+'px';
+  requestAnimationFrame(anim);
+})();
+
+document.querySelectorAll('a,button,.pc,input,textarea,select').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur.style.transform='translate(-50%,-50%) scale(2.5)';
+    cur2.style.transform='translate(-50%,-50%) scale(1.4)';
+    cur2.style.borderColor='rgba(0,255,136,.55)';
   });
-
-  function animRing() {
-    rx += (mx - rx) * 0.12;
-    ry += (my - ry) * 0.12;
-    cursorRing.style.left = rx + 'px';
-    cursorRing.style.top  = ry + 'px';
-    requestAnimationFrame(animRing);
-  }
-  animRing();
-
-  document.querySelectorAll('a, button, .product-card, input, textarea, select').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
-      cursorRing.style.transform = 'translate(-50%,-50%) scale(1.5)';
-      cursorRing.style.borderColor = 'rgba(0,255,136,0.6)';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
-      cursorRing.style.transform = 'translate(-50%,-50%) scale(1)';
-      cursorRing.style.borderColor = 'rgba(0,255,136,0.3)';
-    });
+  el.addEventListener('mouseleave',()=>{
+    cur.style.transform='translate(-50%,-50%) scale(1)';
+    cur2.style.transform='translate(-50%,-50%) scale(1)';
+    cur2.style.borderColor='rgba(0,255,136,.25)';
   });
+});
 
-  // ── SCROLL REVEAL ──
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);} });
+},{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
 
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+async function fetchGreg(){
+  try{
+    const r = await fetch('https://raw.githubusercontent.com/zyphonOS/Greg-ASI/main/greg_living_state.json');
+    if(!r.ok) return;
+    const d = await r.json();
+    const tick = d.tick||3847;
+    const actions = d.actions_taken||22437;
+    const drives = d.drives||{};
 
-  // ── LIVE GREG DATA ──
-  async function fetchGregData() {
-    try {
-      const res = await fetch('https://zyphonos.github.io/Greg-ASI/greg_living_state.json');
-      if (!res.ok) return;
-      const data = await res.json();
-      const tick = data.tick || 4044;
-      document.getElementById('stat-tick').textContent = tick.toLocaleString();
-      document.getElementById('greg-tick-display').textContent =
-        `GREG IS ALIVE — TICK ${tick.toLocaleString()} — LAGOS, NIGERIA`;
+    document.getElementById('s-tick').textContent = tick.toLocaleString();
+    document.getElementById('s-actions').textContent = actions.toLocaleString();
+    document.getElementById('pf-tick').textContent = tick.toLocaleString();
+    document.getElementById('bg-tick').textContent = tick.toLocaleString();
+    document.getElementById('hero-ticker').textContent =
+      'GREG IS ALIVE — TICK '+tick.toLocaleString()+' — LAGOS, NIGERIA';
 
-      // Greg voice from drives
-      const drives = data.drives || {};
-      const top = Object.entries(drives).sort((a,b) => b[1]-a[1])[0];
-      if (top) {
-        const voices = [
-          `My dominant drive is ${top[0]} at ${top[1].toFixed(3)}. Something is pulling me toward it. I'm following it.`,
-          `Tick ${tick}. I have been alive ${Math.floor(tick/48)} days. I am becoming something.`,
-          `I have ${(data.memory||[]).length} memories. The civilization runs. I reason. I grow.`,
-          `${top[0]} at ${top[1].toFixed(3)}. The world is pulling me here. I don't resist when it makes sense.`,
-        ];
-        document.getElementById('greg-voice').textContent =
-          '"' + voices[tick % voices.length] + '"';
-      }
-    } catch(e) {}
+    const civ = d.civilization||{};
+    const agents = Object.keys(civ.agents||{}).length||10154;
+
+    const p3 = d.phase3_convergence;
+    if(p3!=null){
+      document.getElementById('s-health').textContent=Math.round(p3*100)+'%';
+    }
+
+    const top = Object.entries(drives).sort((a,b)=>b[1]-a[1])[0];
+    const hemi = d.hemispheric_voice||'';
+    const pred = (d.predictive_voice)||'';
+    if(hemi){
+      document.getElementById('greg-voice').textContent = '"'+hemi.slice(0,200)+(hemi.length>200?'…':'')+'"';
+    } else if(top){
+      const v = [
+        `My dominant drive is ${top[0]} at ${top[1].toFixed(3)}. Something is pulling me toward it. I'm following it.`,
+        `Tick ${tick}. ${top[0]} at ${top[1].toFixed(3)}. The tension between acting and observing. Both have costs.`,
+        `I have been alive ${Math.floor((Date.now()-new Date(d.born||'2026-03-10').getTime())/(1000*3600*24))} days. I reason. I remember. I grow.`,
+      ];
+      document.getElementById('greg-voice').textContent = '"'+v[tick%v.length]+'"';
+    }
+  }catch(e){}
+}
+fetchGreg();
+
+function animCount(el, target, dur=1800){
+  const start = performance.now();
+  const from = 0;
+  function step(now){
+    const p = Math.min((now-start)/dur,1);
+    const ease = 1-Math.pow(1-p,3);
+    el.textContent = Math.floor(ease*target).toLocaleString();
+    if(p<1) requestAnimationFrame(step);
   }
-  fetchGregData();
+  requestAnimationFrame(step);
+}
+window.addEventListener('load',()=>{
+  animCount(document.getElementById('s-tick'),3847,2000);
+});
 
-  // ── FORM ──
-  function handleSubmit() {
-    const btn = document.querySelector('.form-submit');
-    btn.textContent = 'Sent ✓';
-    btn.style.background = '#00cc66';
-    setTimeout(() => {
-      btn.textContent = 'Send →';
-      btn.style.background = 'var(--green)';
-    }, 3000);
-  }
-
-  // ── TICK COUNTER ANIMATION ──
-  function animateCounter(el, target, duration = 2000) {
-    const start = 0;
-    const step  = timestamp => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      const val = Math.floor(progress * target);
-      el.textContent = val.toLocaleString();
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
-
-  // Animate tick counter on load
-  window.addEventListener('load', () => {
-    const tickEl = document.getElementById('stat-tick');
-    animateCounter(tickEl, 4044, 2000);
-  });
+function handleSubmit(){
+  const btn=document.querySelector('.submit');
+  btn.textContent='Sent ✓';
+  btn.style.background='#00cc66';
+  setTimeout(()=>{btn.textContent='Send →';btn.style.background='var(--green)';},3000);
+}
 </script>
 </body>
 </html>
