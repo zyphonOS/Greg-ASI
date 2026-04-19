@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Treasury · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .balance-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+  }
+  .balance {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--amber);
+  }
+  .address {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    word-break: break-all;
+  }
+  .info-text {
+    color: var(--text-mid);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+  }
+</style>
+
+<div>
+  <p class="overline">Treasury · Onchain</p>
+  <h1 class="page-title">GregASI Treasury</h1>
+  <p class="page-sub">Base Mainnet · Community Owned</p>
+
+  <div class="balance-card">
+    <div class="stat-label">Current Status</div>
+    <div class="balance">Not yet funded</div>
+    <div class="info-text">
+      The treasury will be seeded with revenue from fulfilled intents.
+      <br><br>
+      Revenue split: <span class="t-g">40% Greg</span> · <span class="t-g">40% Builder</span> · <span class="t-g">20% Treasury</span>
+      <br><br>
+      First intent payment will appear here.
+    </div>
+    <div class="address" style="margin-top: 1.5rem;">
+      Treasury wallet: {{ wallet_address }}
+    </div>
+  </div>
+
+  <div class="revenue-grid" style="margin-top: 1rem;">
+    <div class="rev-card">
+      <div class="stat-label">Total Revenue (USD)</div>
+      <div class="rev-number" id="total-revenue">0.00</div>
+    </div>
+    <div class="rev-card">
+      <div class="stat-label">Treasury Share (20%)</div>
+      <div class="rev-number" id="treasury-share">0.00</div>
+    </div>
+  </div>
+
+  <p class="page-sub" style="margin-top: 2rem;">Transaction Log</p>
+  <div id="tx-list" class="events-list">
+    <div class="event-item">No transactions yet. Be the first to fund the ecosystem.</div>
+  </div>
+</div>
+
+<script>
+  async function fetchRevenue() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      const total = data.payments?.confirmed_usd || 0;
+      const treasuryShare = total * 0.2;
+      document.getElementById('total-revenue').innerText = total.toFixed(2);
+      document.getElementById('treasury-share').innerText = treasuryShare.toFixed(2);
+      if (total > 0) {
+        document.getElementById('tx-list').innerHTML = '<div class="event-item">✅ Treasury funded with ' + total.toFixed(2) + ' USD from intent fulfillment.</div>';
+      }
+    } catch(e) { console.error(e); }
+  }
+  fetchRevenue();
+  setInterval(fetchRevenue, 30000);
+</script>
+{% endblock %}

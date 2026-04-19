@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarvestIQ | Sybil Score Optimiser</title>
+    <link rel="stylesheet" href="{{ url_for('harvestiq.static', filename='css/styles.css') }}">
+</head>
+<body>
+    <script>
+        window.HARVESTIQ_BOOTSTRAP = {{ {
+            "apiBase": api_base,
+            "receiverWallet": receiver_wallet,
+            "paymentAmount": payment_amount,
+            "usdtContract": usdt_contract,
+            "appUrl": app_url,
+            "savedWallets": saved_wallets,
+            "recentWallets": recent_wallets,
+            "leaderboard": leaderboard,
+            "authenticatedWallet": authenticated_wallet,
+            "premiumAccess": premium_access
+        } | tojson }};
+    </script>
+
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="brand-lockup">
+                <span class="brand-mark">HarvestIQ</span>
+                <span class="brand-sub">Sybil Score Optimiser</span>
+            </div>
+            <div class="header-actions">
+                <span id="wallet-pill" class="wallet-pill">
+                    {% if authenticated_wallet %}
+                    {{ authenticated_wallet[:8] }}...{{ authenticated_wallet[-4:] }}
+                    {% else %}
+                    No wallet connected
+                    {% endif %}
+                </span>
+                <button id="connect-wallet-button" class="ghost-button" type="button">Connect Wallet</button>
+            </div>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-card">
+                <span class="eyebrow">Private Beta Weapon</span>
+                <h1>You farmed for months. Don't let a sybil flag steal your bag.</h1>
+                <p class="hero-copy">
+                    HarvestIQ shows you exactly why your wallet looks like a bot - and gives you the fix before the snapshot.
+                </p>
+
+                <ul class="value-list">
+                    <li>See your sybil score - the same signals protocols use.</li>
+                    <li>Get the exact transaction hashes that make you look like a farm.</li>
+                    <li>Follow a personalised optimisation plan - do this, then re-scan.</li>
+                    <li>Free basic score. Full report: $9.99 USDT.</li>
+                </ul>
+
+                <div class="trust-strip">
+                    Used by 200+ hunters in private beta. No email required - just connect wallet.
+                </div>
+            </article>
+
+            <aside class="control-card">
+                <div class="panel-head">
+                    <div>
+                        <span class="eyebrow">Live Scanner</span>
+                        <h2>Check the wallet before the protocol does.</h2>
+                    </div>
+                </div>
+
+                <form id="analysis-form" class="analysis-form">
+                    <label for="chain">Chain</label>
+                    <select id="chain" name="chain">
+                        {% for key, config in chains.items() %}
+                        <option value="{{ key }}">{{ config.label }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="recent-wallets">Recent wallets</label>
+                    <select id="recent-wallets">
+                        <option value="">Pick a saved or recent wallet</option>
+                    </select>
+
+                    <label for="address">Wallet address</label>
+                    <input id="address" name="address" type="text" placeholder="0x..." autocomplete="off">
+
+                    <button id="submit-button" class="primary-button" type="submit">Check my sybil risk</button>
+                    <p id="form-status" class="form-status"></p>
+                </form>
+
+                <div class="mini-panel">
+                    <div class="mini-panel-head">
+                        <span class="eyebrow">Sticky Edge</span>
+                        <h3>Come back after every fix.</h3>
+                    </div>
+                    <p class="mini-copy">Save the wallet, patch the weak spots, re-scan, then share the score before the snapshot window closes.</p>
+                </div>
+            </aside>
+        </section>
+
+        <section class="dashboard-grid">
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <span class="eyebrow">Recent Wallets</span>
+                        <h2>Fast re-scan queue</h2>
+                    </div>
+                </div>
+                <div id="saved-wallet-list" class="wallet-list"></div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <span class="eyebrow">Leaderboard</span>
+                        <h2>Lowest sybil risk on the board</h2>
+                    </div>
+                </div>
+                <div id="leaderboard-list" class="leaderboard-list"></div>
+            </article>
+        </section>
+
+        <section id="results-shell" class="results-shell hidden">
+            <div class="panel results-panel">
+                <div class="results-topline">
+                    <div>
+                        <span class="eyebrow">Wallet Result</span>
+                        <h2 id="result-title">HarvestIQ scan</h2>
+                    </div>
+                    <div class="result-actions">
+                        <button id="save-wallet-button" class="ghost-button" type="button">Save this wallet</button>
+                        <button id="share-button" class="ghost-button" type="button">Share my score on Twitter</button>
+                        <button id="unlock-button" class="primary-button small" type="button">Unlock Premium</button>
+                    </div>
+                </div>
+
+                <div class="result-grid">
+                    <article class="score-card">
+                        <div class="score-ring">
+                            <svg viewBox="0 0 120 120" aria-hidden="true">
+                                <circle cx="60" cy="60" r="48" class="score-track"></circle>
+                                <circle cx="60" cy="60" r="48" class="score-progress" id="score-progress"></circle>
+                            </svg>
+                            <div class="score-center">
+                                <span id="score-value">0</span>
+                                <span>/100</span>
+                            </div>
+                        </div>
+                        <p id="risk-pill" class="risk-pill">Waiting</p>
+                        <p id="result-summary" class="result-summary"></p>
+                        <div class="metric-grid">
+                            <div>
+                                <span>Transactions</span>
+                                <strong id="metric-tx">0</strong>
+                            </div>
+                            <div>
+                                <span>Contract calls</span>
+                                <strong id="metric-contracts">0</strong>
+                            </div>
+                            <div>
+                                <span>Inbound transfers</span>
+                                <strong id="metric-inbound">0</strong>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="breakdown-card">
+                        <div class="panel-head">
+                            <div>
+                                <span class="eyebrow">Signals</span>
+                                <h3>What is pushing the score?</h3>
+                            </div>
+                        </div>
+                        <div id="component-list" class="component-list"></div>
+                    </article>
+                </div>
+
+                <div class="result-grid lower">
+                    <article class="panel inset-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="eyebrow">Actionable Fixes</span>
+                                <h3>Clean up the wallet before the next snapshot.</h3>
+                            </div>
+                        </div>
+                        <ul id="recommendation-list" class="check-list"></ul>
+                    </article>
+
+                    <article class="panel inset-panel premium-panel">
+                        <div class="panel-head">
+                            <div>
+                                <span class="eyebrow">Premium Upsell</span>
+                                <h3>Exact damage report</h3>
+                            </div>
+                        </div>
+                        <p id="upsell-copy" class="upsell-copy"></p>
+                        <ul id="premium-preview" class="premium-preview"></ul>
+                        <a id="open-report-link" class="ghost-link hidden" href="#">Open full premium report</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="payment-modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" data-close-modal="true"></div>
+        <div class="modal-card">
+            <button id="close-modal-button" class="modal-close" type="button" aria-label="Close">x</button>
+            <span class="eyebrow">Unlock Premium</span>
+            <h2>Send ${{ payment_amount }} USDT (ERC-20) to the address below. After 1 confirmation, your report unlocks automatically. No waiting, no email.</h2>
+
+            <div class="payment-rail">
+                <div>
+                    <span class="label">Connected wallet</span>
+                    <strong id="modal-wallet">Not connected</strong>
+                </div>
+                <div>
+                    <span class="label">Receiver address</span>
+                    <code id="receiver-wallet">{{ receiver_wallet }}</code>
+                </div>
+                <div>
+                    <span class="label">USDT contract</span>
+                    <code id="usdt-contract">{{ usdt_contract }}</code>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="pay-usdt-button" class="primary-button" type="button">Pay ${{ payment_amount }} USDT in MetaMask</button>
+                <button id="verify-payment-button" class="ghost-button" type="button">I have paid</button>
+            </div>
+
+            <label for="tx-hash-input">Transaction hash</label>
+            <input id="tx-hash-input" class="modal-input" type="text" placeholder="0x...">
+            <p id="payment-status" class="form-status"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+    <script src="{{ url_for('harvestiq.static', filename='js/web3.js') }}"></script>
+    <script src="{{ url_for('harvestiq.static', filename='js/main.js') }}"></script>
+</body>
+</html>

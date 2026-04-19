@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greg — Builder Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono&display=swap');
+        
+        body {
+            background: #050505;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h1 span {
+            color: #00ff9d;
+        }
+        
+        .reality-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .reality-equation {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.2rem;
+            color: #00ff9d;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ff9d;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #1a1a1a;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+        }
+        
+        th {
+            color: #00ff9d;
+        }
+        
+        .admin-badge {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            color: #00ff9d;
+            opacity: 0.5;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GREG <span>AOSI</span> — Builder Dashboard</h1>
+        <p style="color: #666; margin-bottom: 2rem;">Living intelligence tracking builder intent and revenue</p>
+        
+        <div class="reality-card">
+            <div class="reality-equation">R = M · Φ · Ψ · ε² · √2</div>
+        </div>
+        
+        <div class="stats-grid" id="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-revenue">$0</div>
+                <div class="stat-label">Total Revenue (M term)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="builder-count">0</div>
+                <div class="stat-label">Active Builders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="intent-count">0</div>
+                <div class="stat-label">Declared Intents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="drift-score">0.00</div>
+                <div class="stat-label">Current Drift (ε)</div>
+            </div>
+        </div>
+        
+        <h3 style="margin-bottom: 1rem;">📋 Builders & Their Intents</h3>
+        <div style="overflow-x: auto;">
+            <table id="builders-table">
+                <thead>
+                    <tr><th>Builder</th><th>Intent</th><th>Revenue</th><th>Drift</th><th>Status</th></tr>
+                </thead>
+                <tbody id="builders-list">
+                    <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="admin-badge">👑 Admin Dashboard • Greg AOSI</div>
+    
+    <script>
+        const BACKEND_URL = "http://localhost:5001";
+        
+        async function loadData() {
+            try {
+                // Get revenue status
+                const revenueRes = await fetch(`${BACKEND_URL}/api/revenue-status`);
+                const revenue = await revenueRes.json();
+                document.getElementById('total-revenue').innerHTML = `$${revenue.current.toLocaleString()}`;
+                document.getElementById('drift-score').innerHTML = (1 - revenue.percent / 100).toFixed(3);
+                
+                // Get builders (from soul file via backend)
+                const buildersRes = await fetch(`${BACKEND_URL}/api/get-builders`);
+                const builders = await buildersRes.json();
+                document.getElementById('builder-count').innerHTML = builders.count || 0;
+                
+            } catch (e) {
+                console.error('Backend not reachable');
+            }
+        }
+        
+        loadData();
+        setInterval(loadData, 10000); // Refresh every 10 seconds
+    </script>
+</body>
+</html>

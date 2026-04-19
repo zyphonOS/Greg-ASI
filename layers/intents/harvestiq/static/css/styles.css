@@ -1,0 +1,718 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+    --bg: #07090f;
+    --bg-alt: #0d1320;
+    --panel: rgba(10, 16, 27, 0.9);
+    --panel-strong: rgba(7, 11, 19, 0.96);
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.18);
+    --text: #f6f5f1;
+    --muted: #9da5ba;
+    --accent: #7cf0cf;
+    --accent-2: #89b8ff;
+    --danger: #ff6f91;
+    --warning: #ffb86a;
+    --success: #73f7a4;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Space Grotesk", sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(124, 240, 207, 0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(137, 184, 255, 0.16), transparent 22%),
+        radial-gradient(circle at bottom center, rgba(255, 111, 145, 0.12), transparent 28%),
+        linear-gradient(180deg, #060810, #0b101b 52%, #070b13 100%);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+code {
+    font-family: "IBM Plex Mono", monospace;
+    overflow-wrap: anywhere;
+}
+
+.page-shell {
+    width: min(1180px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 24px 0 48px;
+}
+
+.compact-shell {
+    width: min(1040px, calc(100% - 28px));
+}
+
+.site-header,
+.hero-card,
+.control-card,
+.panel,
+.score-card,
+.breakdown-card,
+.modal-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 22px;
+    margin-bottom: 18px;
+}
+
+.brand-lockup {
+    display: grid;
+}
+
+.brand-mark {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.brand-sub,
+.mini-copy,
+.result-summary,
+.hero-copy,
+.form-status,
+.empty-state,
+.hash-row span,
+.progress-shell small {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wallet-pill,
+.ghost-button,
+.risk-pill,
+.ghost-link {
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.wallet-pill {
+    padding: 10px 14px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem;
+}
+
+.ghost-button,
+.primary-button,
+.link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 12px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ghost-button,
+.ghost-link {
+    color: var(--text);
+}
+
+.primary-button,
+.link-button {
+    border: 0;
+    color: #071016;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), #d7fff2);
+}
+
+.primary-button.small {
+    padding-inline: 16px;
+}
+
+.ghost-button:hover,
+.primary-button:hover,
+.wallet-card:hover {
+    transform: translateY(-1px);
+}
+
+.eyebrow,
+.label {
+    display: inline-block;
+    font-size: 0.76rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.hero-grid,
+.dashboard-grid,
+.result-grid,
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.hero-card,
+.control-card,
+.panel {
+    border-radius: 28px;
+    padding: 28px;
+}
+
+.hero-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -8% -16% auto;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(124, 240, 207, 0.18), transparent 72%);
+    pointer-events: none;
+}
+
+.hero-card h1,
+.report-hero h1,
+.simple-panel h1 {
+    margin: 8px 0 14px;
+    max-width: 12ch;
+    font-size: clamp(2.6rem, 6vw, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+}
+
+.hero-copy {
+    max-width: 60ch;
+}
+
+.value-list,
+.check-list,
+.feature-list,
+.premium-preview {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 12px;
+}
+
+.value-list li,
+.check-list li,
+.feature-list li,
+.premium-preview li {
+    color: var(--text);
+}
+
+.trust-strip,
+.mini-panel,
+.component-card,
+.report-component,
+.wallet-card,
+.leader-row,
+.hash-row,
+.payment-rail,
+.score-card,
+.breakdown-card {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 22px;
+}
+
+.trust-strip {
+    margin-top: 22px;
+    padding: 16px 18px;
+    color: var(--accent);
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.panel-head h2,
+.panel-head h3 {
+    margin: 8px 0 0;
+    font-size: 1.55rem;
+    letter-spacing: -0.03em;
+}
+
+.analysis-form {
+    display: grid;
+    gap: 12px;
+}
+
+.analysis-form label {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.analysis-form input,
+.analysis-form select,
+.modal-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px 16px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.analysis-form .primary-button {
+    margin-top: 8px;
+}
+
+.mini-panel {
+    margin-top: 18px;
+    padding: 18px;
+}
+
+.dashboard-grid {
+    margin-top: 18px;
+}
+
+.wallet-list,
+.leaderboard-list,
+.component-list,
+.report-component-grid,
+.hash-list {
+    display: grid;
+    gap: 14px;
+}
+
+.wallet-card,
+.leader-row,
+.hash-row {
+    width: 100%;
+    padding: 16px 18px;
+}
+
+.wallet-card {
+    display: grid;
+    gap: 6px;
+    text-align: left;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.wallet-card span,
+.wallet-card small,
+.leader-row span {
+    color: var(--muted);
+}
+
+.leader-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.leader-rank {
+    width: 42px;
+    height: 42px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(124, 240, 207, 0.1);
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.results-shell {
+    margin-top: 18px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.results-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+.results-topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 18px;
+    padding: 24px 24px 0;
+}
+
+.result-actions,
+.report-actions,
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.result-grid {
+    padding: 24px;
+}
+
+.result-grid.lower {
+    padding-top: 0;
+}
+
+.score-card,
+.breakdown-card {
+    padding: 24px;
+}
+
+.score-card {
+    text-align: center;
+}
+
+.score-ring {
+    width: 240px;
+    height: 240px;
+    position: relative;
+    margin: 0 auto 16px;
+}
+
+.score-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.score-track,
+.score-progress {
+    fill: none;
+    stroke-width: 10;
+}
+
+.score-track {
+    stroke: rgba(255, 255, 255, 0.08);
+}
+
+.score-progress {
+    stroke-dasharray: 301.59;
+    stroke-dashoffset: 301.59;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+.score-progress.risk-low,
+.progress-fill.risk-low {
+    stroke: var(--success);
+    background: linear-gradient(90deg, var(--success), #beffd3);
+}
+
+.score-progress.risk-medium,
+.progress-fill.risk-medium {
+    stroke: var(--warning);
+    background: linear-gradient(90deg, var(--warning), #ffd7a9);
+}
+
+.score-progress.risk-high,
+.progress-fill.risk-high {
+    stroke: var(--danger);
+    background: linear-gradient(90deg, var(--danger), #ffb0c2);
+}
+
+.score-center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 4px;
+}
+
+.score-center #score-value {
+    font-size: 4rem;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.risk-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    font-weight: 700;
+}
+
+.risk-low {
+    color: var(--success);
+}
+
+.risk-medium {
+    color: var(--warning);
+}
+
+.risk-high {
+    color: var(--danger);
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.metric-grid div {
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.metric-grid span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.metric-grid strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 1.4rem;
+}
+
+.component-card,
+.report-component {
+    padding: 18px;
+}
+
+.component-title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+}
+
+.component-card h4,
+.report-component h3 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.component-card p,
+.report-component p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.progress-shell {
+    margin-top: 14px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+
+.inset-panel {
+    padding: 24px;
+}
+
+.premium-panel {
+    background:
+        radial-gradient(circle at top right, rgba(255, 111, 145, 0.14), transparent 32%),
+        rgba(255, 255, 255, 0.03);
+}
+
+.upsell-copy {
+    margin: 0 0 18px;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.ghost-link {
+    padding: 12px 18px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 5, 10, 0.76);
+}
+
+.modal-card {
+    position: relative;
+    width: min(760px, calc(100% - 24px));
+    margin: 6vh auto 0;
+    padding: 28px;
+    border-radius: 28px;
+    background: var(--panel-strong);
+}
+
+.modal-card h2 {
+    margin: 10px 0 18px;
+    font-size: 1.65rem;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.payment-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 16px;
+    margin: 18px 0;
+}
+
+.payment-rail.static {
+    margin-bottom: 22px;
+}
+
+.payment-rail strong,
+.payment-rail code {
+    display: block;
+    margin-top: 8px;
+}
+
+.report-hero,
+.simple-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 20px;
+}
+
+.report-grid {
+    margin-top: 18px;
+}
+
+.report-checklist strong {
+    color: var(--accent);
+}
+
+.hash-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.hash-list.compact .hash-row {
+    grid-template-columns: 1.1fr 0.8fr 1fr;
+}
+
+@media (max-width: 960px) {
+    .hero-grid,
+    .dashboard-grid,
+    .result-grid,
+    .report-grid,
+    .payment-rail,
+    .report-hero,
+    .simple-panel {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .results-topline,
+    .panel-head,
+    .header-actions,
+    .report-actions,
+    .modal-actions {
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .result-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 680px) {
+    .page-shell {
+        width: min(100% - 18px, 100%);
+        padding-top: 14px;
+    }
+
+    .site-header,
+    .hero-card,
+    .control-card,
+    .panel,
+    .modal-card,
+    .score-card,
+    .breakdown-card {
+        border-radius: 22px;
+        padding: 20px;
+    }
+
+    .hero-card h1,
+    .report-hero h1,
+    .simple-panel h1 {
+        font-size: 2.5rem;
+    }
+
+    .score-ring {
+        width: 210px;
+        height: 210px;
+    }
+
+    .metric-grid,
+    .payment-rail,
+    .leader-row,
+    .hash-row {
+        grid-template-columns: 1fr;
+    }
+
+    .results-topline,
+    .result-grid {
+        padding: 18px;
+    }
+}

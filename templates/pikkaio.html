@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}Pikkaio · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .momentum-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem 0 3rem;
+  }
+  .momentum-card {
+    background: var(--bg2);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .momentum-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+  .momentum-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    color: var(--green);
+    line-height: 1;
+  }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .project-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+  .project-card:hover {
+    border-color: var(--border-g);
+    transform: translateY(-2px);
+  }
+  .project-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+  .project-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+  .drift-indicator { font-weight: 500; }
+  .drift-high { color: var(--amber); }
+  .drift-mid { color: var(--green); }
+  .drift-low { color: var(--text-dim); }
+  .momentum-bar {
+    height: 4px;
+    background: var(--border);
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .momentum-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--green);
+    transition: width 0.3s;
+  }
+  .momentum-fill.negative { background: var(--amber); }
+  .project-narrative {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-mid);
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-dim);
+    border: 1px dashed var(--border);
+    background: var(--bg2);
+    font-family: 'DM Mono', monospace;
+    grid-column: 1 / -1;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .intent-form {
+    margin-bottom: 2rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+  .intent-form textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 1rem;
+    font-family: 'DM Mono', monospace;
+    resize: vertical;
+  }
+  .btn-primary {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--green);
+    border: none;
+    padding: 0.85rem 2rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .intent-list {
+    margin-top: 2rem;
+  }
+  .intent-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+  }
+</style>
+
+<div>
+  <p class="overline">Pikkaio · Intelligence Layer</p>
+  <h1 class="page-title">Drifting Projects &amp; Momentum</h1>
+  <p class="page-sub">Projects drift. Momentum compounds. Greg tracks both.</p>
+
+  <!-- Intent Declaration Form -->
+  <div class="intent-form">
+    <h2 class="page-sub" style="margin-top: 0;">Declare an Intent</h2>
+    <textarea id="intent-desc" rows="3" placeholder="Describe what you want Greg to build... e.g., 'Create a dashboard that shows weather data for farmers'"></textarea>
+    <button id="submit-intent" class="btn-primary" style="margin-top: 1rem;">Declare Intent → Greg Builds</button>
+  </div>
+
+  <!-- Momentum summary grid -->
+  <div class="momentum-grid">
+    <div class="momentum-card">
+      <div class="momentum-label">Total Momentum</div>
+      <div class="momentum-value" id="total-momentum">—</div>
+    </div>
+    <div class="momentum-card">
+      <div class="momentum-label">Active Projects</div>
+      <div class="momentum-value" id="active-projects">—</div>
+    </div>
+    <div class="momentum-card">
+      <div class="momentum-label">Drift Coefficient (avg)</div>
+      <div class="momentum-value" id="avg-drift">—</div>
+    </div>
+  </div>
+
+  <!-- Projects grid (existing projects) -->
+  <div id="projects-container" class="projects-grid">
+    <div class="empty-state">⟳ No drifting projects yet.<br>Declare an intent above.</div>
+  </div>
+
+  <!-- Recent Intents -->
+  <div id="intent-list" class="intent-list"></div>
+</div>
+
+if (typeof showToast === 'undefined') {
+  window.showToast = function(msg, isError) {
+    alert(msg);
+  };
+}
+<script>
+  // Fetch status for momentum and projects
+  async function fetchStatus() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch { return null; }
+  }
+
+  function updateMomentumSummary(pikkaio) {
+    if (!pikkaio) return;
+    const totalMomentum = pikkaio.total_momentum ?? 0;
+    const activeProjects = pikkaio.projects_total ?? pikkaio.projects?.length ?? 0;
+    let avgDrift = 0;
+    if (pikkaio.projects && pikkaio.projects.length) {
+      const sum = pikkaio.projects.reduce((acc, p) => acc + (p.drift_coefficient || 0), 0);
+      avgDrift = sum / pikkaio.projects.length;
+    }
+    document.getElementById('total-momentum').innerHTML = totalMomentum.toFixed(2);
+    document.getElementById('active-projects').innerHTML = activeProjects;
+    document.getElementById('avg-drift').innerHTML = avgDrift.toFixed(3);
+  }
+
+  function renderProjects(projects) {
+    const container = document.getElementById('projects-container');
+    if (!projects || projects.length === 0) {
+      container.innerHTML = '<div class="empty-state">⟳ No drifting projects yet.<br>Declare an intent above.</div>';
+      return;
+    }
+    container.innerHTML = projects.map(proj => {
+      const drift = proj.drift_coefficient || 0;
+      const momentum = proj.momentum || 0;
+      const fillWidth = Math.min(100, Math.abs(momentum) * 100);
+      const fillClass = momentum >= 0 ? '' : 'negative';
+      const driftClass = drift > 0.05 ? 'drift-high' : (drift > 0.01 ? 'drift-mid' : 'drift-low');
+      const trend = momentum > 0 ? '▲' : (momentum < 0 ? '▼' : '◆');
+      return `
+        <div class="project-card">
+          <div class="project-name">${escapeHtml(proj.name || 'Unnamed')}</div>
+          <div class="project-meta">
+            <span>Intent ID: ${escapeHtml(proj.id || '—')}</span>
+            <span class="drift-indicator ${driftClass}">drift ${drift.toFixed(4)}</span>
+          </div>
+          <div class="momentum-bar">
+            <div class="momentum-fill ${fillClass}" style="width: ${fillWidth}%;"></div>
+          </div>
+          <div class="project-meta">
+            <span>Momentum ${trend} ${Math.abs(momentum).toFixed(3)}</span>
+            <span>${proj.status || 'active'}</span>
+          </div>
+          <div class="project-narrative">
+            ${escapeHtml(proj.narrative || 'No narrative drift recorded.')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  async function loadPikkaio() {
+    const data = await fetchStatus();
+    if (data && data.pikkaio) {
+      updateMomentumSummary(data.pikkaio);
+      renderProjects(data.pikkaio.projects || []);
+    } else {
+      document.getElementById('projects-container').innerHTML = '<div class="empty-state">⟳ No Pikkaio data available.<br>Declare an intent above.</div>';
+    }
+  }
+
+  // Intent submission and listing
+  async function loadIntents() {
+    try {
+      const res = await fetch('/api/pikkaio/intents');
+      const intents = await res.json();
+      const container = document.getElementById('intent-list');
+      if (intents.length) {
+        container.innerHTML = '<h2 class="page-sub">Recent Intents</h2>' + intents.map(i => `
+          <div class="intent-item">
+            <strong>${i.status}</strong> – ${escapeHtml(i.description)}<br>
+            <span class="t-dim">${i.result || i.error || ''}</span>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = '';
+      }
+    } catch(e) { console.error(e); }
+  }
+
+   document.getElementById('submit-intent').addEventListener('click', async () => {
+             const desc = document.getElementById('intent-desc').value.trim();
+             if (!desc) return;
+             const btn = document.getElementById('submit-intent');
+             btn.disabled = true;
+             btn.innerText = 'Declaring...';
+             try {
+                  const res = await fetch('/api/pikkaio/intent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ description: desc })
+                     });
+                     const data = await res.json();
+                     if (data.intent_id) {
+                         showToast(`Intent submitted (${data.intent_id}). Greg is building it.`);
+                         document.getElementById('intent-desc').value = '';
+                         loadIntents();
+                      } else {
+                         showToast('Error: ' + (data.error || 'Unknown error'), true);
+                      }
+                   } catch(e) {
+                      console.error(e);
+                      showToast('Error submitting intent', true);
+                   }
+                   btn.disabled = false;
+                   btn.innerText = 'Declare Intent → Greg Builds';
+                });
+
+  loadPikkaio();
+  loadIntents();
+  setInterval(loadPikkaio, 30000);
+  setInterval(loadIntents, 5000);
+</script>
+{% endblock %}

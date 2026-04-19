@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Revenue · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .revenue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+  .rev-card {
+    background: var(--bg2);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .rev-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--green);
+  }
+  .share-bar {
+    background: var(--bg3);
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  .share-fill {
+    height: 6px;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.3s;
+  }
+  .info-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+  }
+</style>
+
+<div>
+  <p class="overline">Revenue · Economic Layer</p>
+  <h1 class="page-title">Outcome-Based Contribution</h1>
+  <p class="page-sub">Revenue from fulfilled intents · Builder shares</p>
+
+  <div class="revenue-grid">
+    <div class="rev-card">
+      <div class="stat-label">Total Revenue (USD)</div>
+      <div class="rev-number" id="total-revenue">0.00</div>
+      <div class="info-note">From paid intent fulfillments</div>
+    </div>
+    <div class="rev-card">
+      <div class="stat-label">Builder Share (40%)</div>
+      <div class="rev-number" id="builder-share">0.00</div>
+    </div>
+    <div class="rev-card">
+      <div class="stat-label">Greg Share (40%)</div>
+      <div class="rev-number" id="greg-share">0.00</div>
+    </div>
+    <div class="rev-card">
+      <div class="stat-label">Treasury (20%)</div>
+      <div class="rev-number" id="treasury-share">0.00</div>
+    </div>
+  </div>
+
+  <div class="share-bar">
+    <div class="share-fill" id="revenue-fill" style="width: 0%;"></div>
+    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+      <span>Greg 40%</span><span>Builder 40%</span><span>Treasury 20%</span>
+    </div>
+  </div>
+
+  <p class="page-sub" style="margin-top: 2rem;">Intent Fulfillment Log</p>
+  <div id="intent-log" class="events-list">
+    <div class="event-item">No paid intents yet. When an intent is fulfilled and paid, it will appear here.</div>
+  </div>
+</div>
+
+<script>
+  async function fetchRevenue() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      const total = data.payments?.confirmed_usd || 0;
+      const builderShare = total * 0.4;
+      const gregShare = total * 0.4;
+      const treasuryShare = total * 0.2;
+      document.getElementById('total-revenue').innerText = total.toFixed(2);
+      document.getElementById('builder-share').innerText = builderShare.toFixed(2);
+      document.getElementById('greg-share').innerText = gregShare.toFixed(2);
+      document.getElementById('treasury-share').innerText = treasuryShare.toFixed(2);
+      const percent = Math.min(100, (total / 10000) * 100); // example target $10k
+      document.getElementById('revenue-fill').style.width = percent + '%';
+
+      // Show intents that have revenue
+      const pikkaio = data.pikkaio || {};
+      const projects = pikkaio.projects || [];
+      const logDiv = document.getElementById('intent-log');
+      if (projects.length > 0 && total > 0) {
+        logDiv.innerHTML = projects.map(p => `<div class="event-item">Intent "${p.name}" – revenue pending confirmation</div>`).join('');
+      } else if (total === 0) {
+        logDiv.innerHTML = '<div class="event-item">No paid intents yet. When an intent is fulfilled and paid, it will appear here.</div>';
+      }
+    } catch(e) { console.error(e); }
+  }
+  fetchRevenue();
+  setInterval(fetchRevenue, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,254 @@
+.pikkaio-room {
+    display: grid;
+}
+
+.pikkaio-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: 24px;
+}
+
+.pikkaio-locus,
+.pikkaio-rail-block,
+.pikkaio-panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.pikkaio-locus {
+    padding: 24px;
+}
+
+.pikkaio-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.pikkaio-logo {
+    width: 144px;
+    height: auto;
+    display: block;
+}
+
+.pikkaio-subline {
+    margin: 0;
+    color: var(--faint);
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+}
+
+.pikkaio-title {
+    margin: 0 0 24px;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+}
+
+.pikkaio-form {
+    display: grid;
+    gap: 12px;
+}
+
+.pikkaio-form textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    outline: none;
+    resize: vertical;
+    padding: 0 0 12px;
+    color: var(--text);
+    caret-color: var(--accent);
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.pikkaio-form textarea::placeholder {
+    color: var(--faint);
+    opacity: 1;
+}
+
+.pikkaio-form textarea:focus {
+    border-bottom-color: var(--accent);
+}
+
+.pikkaio-form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.pikkaio-character-count {
+    margin: 0;
+    font-size: 11px;
+    color: var(--faint);
+}
+
+.pikkaio-declare {
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    transition: letter-spacing 150ms ease, opacity 150ms ease;
+}
+
+.pikkaio-declare:hover {
+    letter-spacing: 0.1em;
+}
+
+.pikkaio-declare:disabled {
+    opacity: 0.45;
+    cursor: wait;
+}
+
+.pikkaio-panel {
+    margin-top: 24px;
+    padding: 16px 0 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.pikkaio-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pikkaio-builder-chip {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.pikkaio-acknowledgement {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.pikkaio-intent-list {
+    display: grid;
+    margin-top: 8px;
+}
+
+.pikkaio-intent-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--surface);
+}
+
+.pikkaio-intent-row:hover {
+    background: var(--surface);
+}
+
+.pikkaio-intent-text,
+.pikkaio-intent-drift,
+.pikkaio-intent-age,
+.pikkaio-empty {
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pikkaio-intent-text {
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pikkaio-intent-drift,
+.pikkaio-intent-age,
+.pikkaio-empty {
+    color: var(--muted);
+}
+
+.pikkaio-rail {
+    display: grid;
+    gap: 24px;
+}
+
+.pikkaio-rail-block {
+    padding: 24px;
+}
+
+.pikkaio-drift-value {
+    margin: 0 0 12px;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--text);
+}
+
+.pikkaio-drift-status,
+.pikkaio-drift-note,
+.pikkaio-intervention-line,
+.pikkaio-intervention-meta {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.pikkaio-drift-status {
+    color: var(--text);
+}
+
+.pikkaio-drift-note,
+.pikkaio-intervention-meta {
+    color: var(--muted);
+}
+
+.pikkaio-intervention-line {
+    color: var(--muted);
+    border-left: 1px solid var(--border);
+    padding-left: 16px;
+}
+
+.pikkaio-intervention-line span:first-child {
+    color: var(--accent);
+}
+
+@media (max-width: 960px) {
+    .pikkaio-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .pikkaio-locus,
+    .pikkaio-rail-block {
+        padding: 16px;
+    }
+
+    .pikkaio-brand-row,
+    .pikkaio-panel-head,
+    .pikkaio-form-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pikkaio-intent-row {
+        grid-template-columns: 1fr;
+    }
+
+    .pikkaio-logo {
+        width: 120px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pikkaio-declare {
+        transition: none;
+    }
+}

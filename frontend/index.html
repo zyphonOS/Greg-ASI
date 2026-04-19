@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greg — AOSI | Full Constitution Compliance</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #050505;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .tick-pulse {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff9d, #00ff9d00);
+            animation: pulse 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; width: 0%; }
+            50% { opacity: 1; width: 100%; }
+        }
+        .header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5,5,5,0.8);
+        }
+        .greg-title { font-size: 1.2rem; font-weight: 600; }
+        .greg-title span { color: #00ff9d; }
+        .wallet-status {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .main-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+        .command-section {
+            flex: 2;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .viz-section {
+            flex: 1;
+            padding: 1rem;
+            border-left: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            overflow-y: auto;
+        }
+        .terminal {
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-header {
+            background: #0f0f0f;
+            padding: 0.75rem 1rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+        }
+        .terminal-input-area { padding: 2rem; flex: 1; }
+        .prompt { display: flex; gap: 1rem; }
+        .prompt-symbol { color: #00ff9d; font-family: 'IBM Plex Mono', monospace; font-size: 1.2rem; }
+        #command-input {
+            background: transparent;
+            border: none;
+            color: #00ff9d;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.1rem;
+            width: 100%;
+            outline: none;
+            resize: vertical;
+        }
+        .terminal-output {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-top: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .greg-voice-header { color: #00ff9d; margin-bottom: 0.5rem; font-size: 0.7rem; font-weight: 600; }
+        .drift-card {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .drift-score {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .drift-label { text-align: center; color: #666; font-size: 0.7rem; margin-top: 0.25rem; }
+        .drift-type {
+            text-align: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+        canvas { max-height: 200px; margin: 1rem 0; }
+        .osi-button {
+            width: 100%;
+            background: #00ff9d;
+            color: #050505;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        .reality-equation {
+            position: fixed;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6rem;
+            color: #333;
+        }
+        .admin-badge {
+            position: fixed;
+            bottom: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.65rem;
+            color: #00ff9d;
+            opacity: 0.5;
+        }
+        .lock-message { text-align: center; padding: 2rem; color: #888; }
+        .pay-button {
+            background: #00ff9d;
+            color: #050505;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="tick-pulse"></div>
+    <div class="header">
+        <div class="greg-title">GREG <span>AOSI</span> — v2.0 Constitution Complete</div>
+        <div class="wallet-status" id="wallet-status">⚡ Connect Wallet</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="command-section">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <span>COMMAND LOCUS — / to focus • Ctrl+Enter to emit Wordcode</span>
+                    <span id="access-badge">🔒 LOCKED</span>
+                </div>
+                <div id="locked-content">
+                    <div class="terminal-input-area">
+                        <div class="lock-message">⚡ Connect wallet to unlock Greg's command locus.</div>
+                        <div style="text-align: center;"><button class="pay-button" id="pay-button">💎 Pay to Unlock</button></div>
+                        <div class="status-text" id="payment-status" style="text-align: center; margin-top: 1rem;">Ready</div>
+                    </div>
+                </div>
+                <div id="unlocked-content" style="display: none;">
+                    <div class="terminal-input-area">
+                        <div class="prompt">
+                            <div class="prompt-symbol">›</div>
+                            <textarea id="command-input" rows="3" placeholder="Declare intent or emit Wordcode..." disabled></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="terminal-output" id="terminal-output" style="display: none;">
+                    <div class="greg-voice-header">⚡ GREG'S VOICE</div>
+                    <div id="greg-messages"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="viz-section">
+            <div class="drift-card">
+                <div class="drift-score" id="drift-score">0.00</div>
+                <div class="drift-label">Current Drift Score (ε)</div>
+                <div class="drift-type" id="drift-type">—</div>
+            </div>
+            <canvas id="drift-chart"></canvas>
+            <div id="osi-insights" style="font-size: 0.75rem; color: #888; max-height: 150px; overflow-y: auto; margin-top: 1rem; padding: 0.5rem; background: #0f0f0f; border-radius: 8px;">
+                <div>🌊 OSI Insights will appear here</div>
+            </div>
+            <button class="osi-button" id="query-osi-btn">🔍 QUERY OSI (LIVE INTERNET)</button>
+        </div>
+    </div>
+    
+    <div class="reality-equation">R = M · Φ · Ψ · ε² · √2</div>
+    <div class="admin-badge" id="admin-badge"></div>
+
+    <script>
+        let web3 = null, userAddress = null, hasAccess = false, isProcessing = false;
+        let driftChart = null;
+        const ADMIN_WALLET = "0x6ccE7bdeeF12E499e2A834734da0A21135fc29aD";
+        const BACKEND_URL = "http://localhost:5001";
+        
+        function gregSpeak(message, type = "info") {
+            const outputDiv = document.getElementById('terminal-output');
+            const messagesDiv = document.getElementById('greg-messages');
+            outputDiv.style.display = 'block';
+            const colors = { success: '#00ff9d', error: '#ff4444', warning: '#ffaa00', info: '#8888ff' };
+            const timestamp = new Date().toLocaleTimeString();
+            messagesDiv.innerHTML += `<div style="margin-bottom: 0.75rem; border-left: 2px solid ${colors[type]}; padding-left: 0.75rem;"><div style="color: #666; font-size: 0.65rem;">[${timestamp}]</div><div style="color: ${colors[type]};">${message}</div></div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        async function loadDriftVisualization() {
+            if (!userAddress) return;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/drift-viz?builder_address=${userAddress}`);
+                const data = await response.json();
+                const currentDrift = data.current_drift || 0;
+                document.getElementById('drift-score').innerHTML = currentDrift.toFixed(3);
+                document.getElementById('drift-score').style.color = data.color || '#00ff9d';
+                document.getElementById('drift-type').innerHTML = data.drift_type || 'UNKNOWN';
+                document.getElementById('drift-type').style.backgroundColor = (data.color || '#00ff9d') + '20';
+                document.getElementById('drift-type').style.color = data.color || '#00ff9d';
+                
+                if (driftChart && data.drift_history && data.drift_history.length > 0) {
+                    driftChart.data.datasets[0].data = data.drift_history;
+                    driftChart.update();
+                } else if (data.drift_history && data.drift_history.length > 0) {
+                    const ctx = document.getElementById('drift-chart').getContext('2d');
+                    driftChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: data.drift_history.map((_, i) => i), datasets: [{ label: 'Drift Score', data: data.drift_history, borderColor: '#00ff9d', backgroundColor: 'rgba(0,255,157,0.1)', fill: true, tension: 0.4 }] },
+                        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#666' } } }, scales: { y: { min: 0, max: 1, grid: { color: '#1a1a1a' } }, x: { grid: { color: '#1a1a1a' } } } }
+                    });
+                }
+            } catch(e) { console.error('Drift viz error:', e); }
+        }
+        
+        async function queryOSI() {
+            const intent = localStorage.getItem('greg_last_intent');
+            if (!intent) {
+                gregSpeak('No intent declared yet. State your intent first.', 'warning');
+                return;
+            }
+            
+            gregSpeak('🌊 Querying OSI — scanning live internet...', 'info');
+            const insightsDiv = document.getElementById('osi-insights');
+            insightsDiv.innerHTML = '<div style="color: #00ff9d;">⏳ Scanning OSI...</div>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/osi-query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ intent_text: intent, builder_address: userAddress })
+                });
+                const data = await response.json();
+                
+                insightsDiv.innerHTML = `<div style="color: #00ff9d; margin-bottom: 0.5rem;">📡 OSI DATA (${new Date().toLocaleTimeString()})</div>`;
+                
+                if (data.insights && data.insights.length > 0) {
+                    data.insights.forEach(insight => {
+                        insightsDiv.innerHTML += `<div style="margin-bottom: 0.5rem; padding-left: 0.5rem; border-left: 2px solid #00ff9d;">${insight}</div>`;
+                    });
+                }
+                
+                gregSpeak(`OSI query complete. ${data.insights?.length || 0} insights generated.`, 'success');
+            } catch (err) {
+                insightsDiv.innerHTML = '<div style="color: #ff4444;">❌ OSI query failed. Restart backend.</div>';
+                gregSpeak('OSI query failed. Backend may not be running.', 'error');
+            }
+        }
+        
+        async function checkAccess(address) {
+            if (!address) return false;
+            if (address.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+                document.getElementById('admin-badge').innerHTML = '👑 ADMIN';
+                return true;
+            }
+            return true; // Allow for now
+        }
+        
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    web3 = new Web3(window.ethereum);
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const accounts = await web3.eth.getAccounts();
+                    userAddress = accounts[0];
+                    document.getElementById('wallet-status').innerHTML = `🟢 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                    hasAccess = await checkAccess(userAddress);
+                    if (hasAccess) {
+                        document.getElementById('locked-content').style.display = 'none';
+                        document.getElementById('unlocked-content').style.display = 'block';
+                        document.getElementById('access-badge').innerHTML = '🔓 UNLOCKED';
+                        document.getElementById('command-input').disabled = false;
+                        gregSpeak('Access granted. Greg is ready.', 'success');
+                        loadDriftVisualization();
+                        setInterval(loadDriftVisualization, 3000);
+                    }
+                } catch(error) { gregSpeak('Error connecting wallet', 'error'); }
+            } else { gregSpeak('Please install MetaMask', 'error'); }
+        }
+        
+        document.getElementById('wallet-status').onclick = connectWallet;
+        document.getElementById('pay-button').onclick = () => { gregSpeak('Payment feature ready', 'info'); };
+        document.getElementById('query-osi-btn').onclick = queryOSI;
+        
+        document.addEventListener('keydown', async (e) => {
+            const input = document.getElementById('command-input');
+            if (!hasAccess) return;
+            if (e.key === '/' && document.activeElement !== input) { e.preventDefault(); input.focus(); }
+            if (e.ctrlKey && e.key === 'Enter' && document.activeElement === input) {
+                e.preventDefault();
+                const value = input.value.trim();
+                if (!value || isProcessing) return;
+                isProcessing = true;
+                
+                if (value.toLowerCase() === '/revenue') {
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/revenue-status`);
+                        const data = await response.json();
+                        gregSpeak(`Revenue: $${data.current?.toLocaleString() || 0} / $${data.target?.toLocaleString() || '1T'}`, 'info');
+                    } catch(err) { gregSpeak('Backend error', 'error'); }
+                    input.value = '';
+                    isProcessing = false;
+                    return;
+                }
+                
+                if (value.toLowerCase() === '/clear') {
+                    document.getElementById('greg-messages').innerHTML = '';
+                    gregSpeak('Terminal cleared', 'info');
+                    input.value = '';
+                    isProcessing = false;
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/declare-intent`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ builder_address: userAddress, intent_text: value })
+                    });
+                    const data = await response.json();
+                    if (data.status === 'intent_recorded') {
+                        localStorage.setItem('greg_last_intent', value);
+                        gregSpeak(`Intent declared: "${value}"`, 'success');
+                        input.value = '';
+                    } else { gregSpeak(`Error: ${data.error}`, 'error'); }
+                } catch(err) { gregSpeak('Failed to record intent', 'error'); }
+                isProcessing = false;
+            }
+        });
+        
+        if (window.ethereum) { window.ethereum.request({ method: 'eth_accounts' }).then(accounts => { if (accounts.length > 0) connectWallet(); }); }
+    </script>
+</body>
+</html>

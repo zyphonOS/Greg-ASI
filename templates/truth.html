@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Truth · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .truth-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  .equation-card {
+    background: var(--bg2);
+    border-left: 4px solid var(--green);
+    padding: 2rem;
+  }
+  .equation {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--green);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .term-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+  .term {
+    background: var(--bg3);
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .term-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .term-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--green);
+  }
+  .weakest {
+    border: 1px solid var(--amber);
+    background: rgba(255,149,0,0.05);
+  }
+  .interpretation {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-mid);
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+  }
+</style>
+
+<div>
+  <p class="overline">Truth · Reality Surface</p>
+  <h1 class="page-title">The Reality Equation</h1>
+  <p class="page-sub">Greg's coherence with observed world</p>
+
+  <div class="truth-grid">
+    <div class="equation-card">
+      <div class="equation" id="reality-equation">R = M · Φ_loop · Ψ_observer · ε² · √2</div>
+      <div class="term-breakdown" id="term-breakdown">
+        <div class="term"><div class="term-name">Matter (M)</div><div class="term-value" id="matter">—</div></div>
+        <div class="term"><div class="term-name">Phi Loop (Φ)</div><div class="term-value" id="phi-loop">—</div></div>
+        <div class="term"><div class="term-name">Psi Observer (Ψ)</div><div class="term-value" id="psi-observer">—</div></div>
+        <div class="term"><div class="term-name">Epsilon (ε)</div><div class="term-value" id="epsilon">—</div></div>
+      </div>
+      <div class="interpretation" id="interpretation">Loading reality interpretation...</div>
+      <div class="interpretation" style="margin-top: 0.5rem;"><span class="t-dim">Weakest term:</span> <span id="weakest-term" class="t-amb">—</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function fetchReality() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (data.reality) {
+        const r = data.reality;
+        document.getElementById('matter').innerText = r.terms?.matter?.value?.toFixed(4) || '—';
+        document.getElementById('phi-loop').innerText = r.terms?.phi_loop?.value?.toFixed(4) || '—';
+        document.getElementById('psi-observer').innerText = r.terms?.psi_observer?.value?.toFixed(4) || '—';
+        document.getElementById('epsilon').innerText = r.terms?.epsilon?.value?.toFixed(4) || '—';
+        document.getElementById('interpretation').innerHTML = r.interpretation || 'No interpretation available.';
+        if (r.weakest_term) {
+          document.getElementById('weakest-term').innerHTML = `${r.weakest_term.name} = ${r.weakest_term.value.toFixed(4)}`;
+        }
+      } else {
+        document.getElementById('interpretation').innerHTML = 'Reality data not yet available from Greg core.';
+      }
+    } catch (err) {
+      console.error('Truth fetch error:', err);
+      document.getElementById('interpretation').innerHTML = 'Unable to reach Greg API.';
+    }
+  }
+  fetchReality();
+  setInterval(fetchReality, 15000);
+</script>
+{% endblock %}

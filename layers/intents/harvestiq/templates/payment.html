@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarvestIQ | Premium Unlock</title>
+    <link rel="stylesheet" href="{{ url_for('harvestiq.static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="page-shell compact-shell">
+        <section class="panel simple-panel">
+            <span class="eyebrow">Premium Unlock</span>
+            <h1>Wallet signature is live. Payment unlock is automatic.</h1>
+            <p class="hero-copy">
+                Connect the wallet you want to pay from, sign the HarvestIQ login message, then send {{ payment_amount }} USDT on Ethereum.
+                Once the first confirmation lands, the premium report unlocks immediately in this browser session.
+            </p>
+
+            <div class="payment-rail static">
+                <div>
+                    <span class="label">Receiver address</span>
+                    <code>{{ receiver_wallet }}</code>
+                </div>
+                <div>
+                    <span class="label">USDT contract</span>
+                    <code>{{ usdt_contract }}</code>
+                </div>
+                <div>
+                    <span class="label">Current session</span>
+                    <strong>{{ authenticated_wallet if authenticated_wallet else "No wallet signed yet" }}</strong>
+                </div>
+            </div>
+
+            {% if report %}
+            <div class="mini-panel">
+                <span class="eyebrow">Current Report</span>
+                <h2>{{ report.address }}</h2>
+                <p class="mini-copy">{{ report.score }}/100 | {{ report.risk_level }} risk | {{ report.chain_label }}</p>
+            </div>
+            {% endif %}
+
+            {% if premium_access and report %}
+            <a class="primary-button link-button" href="{{ url_for('harvestiq.view_report', report_id=report.id) }}">Open premium report</a>
+            {% else %}
+            <a class="ghost-link" href="{{ url_for('harvestiq.index') }}">Return to the main scanner</a>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>

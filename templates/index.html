@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}GregASI{% endblock %}
+{% block body_class %}homepage-body{% endblock %}
+{% block page_name %}homepage{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="homepage-room room-shell" aria-label="Intent declaration">
+    <div class="homepage-locus">
+        <p class="homepage-headline">State what you are actually building.</p>
+        <form id="intent-form" class="intent-form" novalidate>
+            <div class="intent-field-wrap">
+                <input
+                    id="intent-input"
+                    class="intent-input"
+                    type="text"
+                    name="description"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="I am building..."
+                    aria-label="Intent declaration"
+                >
+                <button id="intent-submit" class="intent-submit" type="submit" aria-label="Submit intent" hidden>&rarr;</button>
+            </div>
+        </form>
+        <p id="intent-response" class="intent-response" aria-live="polite"></p>
+    </div>
+</section>
+
+<section id="wordcode-terminal" class="wordcode-terminal" hidden aria-hidden="true">
+    <div class="wordcode-header">
+        <span>GREG TERMINAL</span>
+        <span>ESC to close</span>
+    </div>
+    <div class="wordcode-shell">
+        <div id="wordcode-output" class="wordcode-output" aria-live="polite"></div>
+        <form id="wordcode-form" class="wordcode-form" novalidate>
+            <span class="wordcode-prompt">greg &gt;</span>
+            <input
+                id="wordcode-input"
+                class="wordcode-input"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Wordcode terminal"
+            >
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
+{% endblock %}

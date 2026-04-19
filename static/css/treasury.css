@@ -1,0 +1,336 @@
+/* ── Treasury Page ─────────────────────────────────────────── */
+
+.treasury-hero {
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--border, #1a1a1a);
+  margin-bottom: 2.5rem;
+}
+
+.treasury-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--accent, #00ff88);
+  margin-bottom: 0.6rem;
+  opacity: 0.75;
+}
+
+.treasury-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: var(--fg, #e8e8e8);
+  letter-spacing: 0.08em;
+  margin: 0 0 1.5rem;
+  line-height: 1.1;
+}
+
+.treasury-addr-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.treasury-addr-prefix {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--muted, #555);
+}
+
+.treasury-addr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.65rem, 2vw, 0.9rem);
+  color: var(--accent, #00ff88);
+  word-break: break-all;
+  letter-spacing: 0.03em;
+}
+
+.treasury-copy-btn {
+  background: none;
+  border: 1px solid var(--border, #1a1a1a);
+  color: var(--muted, #555);
+  cursor: pointer;
+  padding: 0.15rem 0.45rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: color 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.treasury-copy-btn:hover {
+  color: var(--accent, #00ff88);
+  border-color: var(--accent, #00ff88);
+}
+
+.treasury-basescan-link {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--muted, #555);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.treasury-basescan-link:hover {
+  color: var(--accent, #00ff88);
+  border-bottom-color: var(--accent, #00ff88);
+}
+
+.treasury-copy-toast {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--bg, #080808);
+  background: var(--accent, #00ff88);
+  padding: 0.15rem 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  margin-left: 0.5rem;
+}
+
+.treasury-copy-toast.visible {
+  opacity: 1;
+}
+
+/* ── Balance Cards ─── */
+
+.treasury-balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border, #1a1a1a);
+  margin-bottom: 2.5rem;
+}
+
+.treasury-balance-card {
+  padding: 1.8rem 1.5rem;
+  border: 1px solid var(--border, #1a1a1a);
+  position: relative;
+  overflow: hidden;
+}
+
+.treasury-balance-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--accent, #00ff88);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.treasury-balance-card:hover::before {
+  opacity: 1;
+}
+
+.tbc-asset {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--muted, #555);
+  margin-bottom: 0.6rem;
+}
+
+.tbc-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--fg, #e8e8e8);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  min-height: 2rem;
+}
+
+.tbc-loading {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--muted, #555);
+  animation: pulse-muted 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse-muted {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+.tbc-network {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--accent, #00ff88);
+  opacity: 0.5;
+}
+
+/* ── Policy Grid ─── */
+
+.section-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--muted, #555);
+  font-weight: 400;
+  margin: 0 0 1.2rem;
+  border-bottom: 1px solid var(--border, #1a1a1a);
+  padding-bottom: 0.6rem;
+}
+
+.treasury-policy {
+  margin-bottom: 2.5rem;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border, #1a1a1a);
+}
+
+.policy-item {
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border, #1a1a1a);
+}
+
+.policy-key {
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  color: var(--accent, #00ff88);
+  margin-bottom: 0.35rem;
+  opacity: 0.7;
+}
+
+.policy-val {
+  font-size: 0.8rem;
+  color: var(--fg, #e8e8e8);
+  line-height: 1.4;
+}
+
+/* ── Transaction Table ─── */
+
+.treasury-txns {
+  margin-bottom: 2.5rem;
+}
+
+.txn-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border, #1a1a1a);
+}
+
+.txn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.txn-table thead th {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--muted, #555);
+  font-weight: 400;
+  border-bottom: 1px solid var(--border, #1a1a1a);
+  white-space: nowrap;
+}
+
+.txn-table tbody tr {
+  border-bottom: 1px solid var(--border, #1a1a1a);
+  transition: background 0.1s;
+}
+
+.txn-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.txn-table tbody tr:hover {
+  background: rgba(0, 255, 136, 0.03);
+}
+
+.txn-table tbody td {
+  padding: 0.65rem 1rem;
+  color: var(--fg, #e8e8e8);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.txn-hash-link {
+  color: var(--accent, #00ff88);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.txn-hash-link:hover {
+  opacity: 1;
+}
+
+.txn-addr {
+  color: var(--muted, #555);
+  font-size: 0.68rem;
+}
+
+.txn-addr.self {
+  color: var(--accent, #00ff88);
+  opacity: 0.7;
+}
+
+.txn-loading-row td {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.txn-error {
+  padding: 1rem;
+  font-size: 0.7rem;
+  color: var(--muted, #555);
+  letter-spacing: 0.1em;
+  border: 1px solid var(--border, #1a1a1a);
+  border-top: none;
+}
+
+/* ── Disclaimer ─── */
+
+.treasury-disclaimer {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border, #1a1a1a);
+}
+
+.treasury-disclaimer p {
+  font-size: 0.65rem;
+  color: var(--muted, #555);
+  line-height: 1.6;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+#fetch-timestamp {
+  color: var(--accent, #00ff88);
+  opacity: 0.6;
+}
+
+/* ── Responsive ─── */
+
+@media (max-width: 600px) {
+  .treasury-addr-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .treasury-balances {
+    grid-template-columns: 1fr;
+  }
+
+  .policy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .txn-table thead th:nth-child(3),
+  .txn-table tbody td:nth-child(3),
+  .txn-table thead th:nth-child(4),
+  .txn-table tbody td:nth-child(4) {
+    display: none;
+  }
+}

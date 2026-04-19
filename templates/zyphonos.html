@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}ZyphonOS · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+  .api-card {
+    background: var(--bg2);
+    padding: 1.25rem;
+  }
+  .api-method {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+  }
+  .api-path {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 0.5rem 0;
+  }
+  .api-desc {
+    font-size: 0.75rem;
+    color: var(--text-mid);
+  }
+  .code-block {
+    background: var(--bg3);
+    padding: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+</style>
+
+<div>
+  <p class="overline">ZyphonOS · Builder Layer</p>
+  <h1 class="page-title">Extend Greg</h1>
+  <p class="page-sub">APIs, subagents, and infrastructure for builders</p>
+
+  <div class="api-grid">
+    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/ping</div><div class="api-desc">Check Greg's heartbeat (tick)</div></div>
+    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/status</div><div class="api-desc">Full Greg state: phi, drift, world, agents</div></div>
+    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/think</div><div class="api-desc">Trigger Greg to generate a thought</div></div>
+    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/command</div><div class="api-desc">Send a command to Greg</div></div>
+    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/greg/agents</div><div class="api-desc">List all subagents</div></div>
+    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/agents/spawn</div><div class="api-desc">Spawn a new subagent</div></div>
+  </div>
+
+  <h2 class="page-sub">Spawn a Subagent (cURL example)</h2>
+  <div class="code-block">
+    curl -X POST https://web-production-66fb75.up.railway.app/api/greg/agents/spawn \<br>
+    -H "Content-Type: application/json" \<br>
+    -d '{"archetype": "builder", "name": "my-agent"}'
+  </div>
+
+  <h2 class="page-sub" style="margin-top: 2rem;">Builder Docs</h2>
+  <div class="code-block">
+    // Declare an intent via Pikkaio (coming soon)<br>
+    // Or directly integrate with Greg's tick loop.
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body.homepage-body {
+    background: #0a0a0a;
+    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+}
+
+.homepage-room {
+    min-height: calc(100vh - var(--nav-height));
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.homepage-room::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='15' y='15' width='1' height='1' fill='%231a1a1a'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 32px 32px;
+    pointer-events: none;
+}
+
+.homepage-locus {
+    position: relative;
+    z-index: 1;
+    width: min(600px, 90vw);
+    display: grid;
+    gap: 24px;
+}
+
+.homepage-headline {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(16px, 2.5vw, 24px);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: #e8e8e8;
+}
+
+.intent-form {
+    margin: 0;
+}
+
+.intent-field-wrap {
+    position: relative;
+}
+
+.intent-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 34px 0 0;
+    border: 0;
+    border-bottom: 1px solid #1a1a1a;
+    outline: none;
+    color: #e8e8e8;
+    caret-color: #00ff88;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+}
+
+.intent-input::placeholder {
+    color: #333333;
+    opacity: 1;
+}
+
+.intent-input:focus {
+    border-bottom-color: #00ff88;
+}
+
+.intent-submit {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    color: #00ff88;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 80ms ease;
+}
+
+.intent-submit:hover {
+    opacity: 1;
+}
+
+.intent-submit[hidden] {
+    display: none;
+}
+
+.intent-response {
+    min-height: 1.6em;
+    margin: 0;
+    text-align: center;
+    color: #555555;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.intent-response.is-error {
+    color: #ff4444;
+}
+
+.wordcode-terminal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #080808;
+    padding: 20px 24px 24px;
+}
+
+.wordcode-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #555555;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.wordcode-header span:last-child {
+    color: #333333;
+}
+
+.wordcode-shell {
+    height: calc(100vh - 56px);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 18px;
+    padding-top: 18px;
+}
+
+.wordcode-output {
+    max-height: 100%;
+    overflow-y: auto;
+    display: grid;
+    align-content: end;
+    gap: 8px;
+    white-space: pre-wrap;
+    scrollbar-width: none;
+}
+
+.wordcode-output::-webkit-scrollbar {
+    display: none;
+}
+
+.wordcode-line {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #e8e8e8;
+    animation: wordcodeLineIn 80ms ease-out;
+}
+
+.wordcode-line-error {
+    color: #ff3333;
+}
+
+.wordcode-line-greg {
+    color: #555555;
+}
+
+.wordcode-form {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.wordcode-prompt {
+    color: #00ff88;
+    font-size: 14px;
+}
+
+.wordcode-input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    color: #e8e8e8;
+    caret-color: #00ff88;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+@keyframes wordcodeLineIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 640px) {
+    .homepage-locus {
+        width: 100%;
+    }
+
+    .wordcode-terminal {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .intent-submit,
+    .wordcode-line {
+        transition: none;
+        animation: none;
+    }
+}

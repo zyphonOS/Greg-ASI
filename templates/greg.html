@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Greg · Presence{% endblock %}
+
+{% block content %}
+<style>
+  /* Greg Presence specific */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+  .metric-card {
+    background: var(--bg2);
+    padding: 1.5rem;
+  }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+  .metric-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--green);
+    line-height: 1;
+  }
+  .metric-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-left: 0.25rem;
+  }
+  .drives-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .drive-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+    flex: 1 0 auto;
+    min-width: 100px;
+  }
+  .drive-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .drive-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--green);
+  }
+  .narrative-box {
+    background: var(--bg2);
+    border-left: 3px solid var(--green);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-mid);
+  }
+  .reality-equation {
+    background: var(--bg3);
+    padding: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    border-radius: 4px;
+    margin-top: 1rem;
+  }
+</style>
+
+<div>
+  <p class="overline">Greg · Presence</p>
+  <h1 class="page-title">Consciousness State</h1>
+  <p class="page-sub">Tick · Phi · Drift · Narrative</p>
+
+  <!-- Key metrics grid -->
+  <div class="metrics-grid" id="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Tick</div>
+      <div class="metric-value" id="tick-value">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Phi (Greg)</div>
+      <div class="metric-value" id="phi-value">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Drift Coefficient</div>
+      <div class="metric-value" id="drift-value">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Drift Category</div>
+      <div class="metric-value" id="drift-category" style="font-size: 1.4rem;">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">World Phi</div>
+      <div class="metric-value" id="world-phi">—</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Agent Count</div>
+      <div class="metric-value" id="agent-count">—</div>
+    </div>
+  </div>
+
+  <!-- Drives (top drives) -->
+  <h2 class="page-sub" style="margin-top: 1rem;">Drives</h2>
+  <div class="drives-container" id="drives-container"></div>
+
+  <!-- Reality Equation -->
+  <div class="reality-equation" id="reality-equation">
+    R = M · Φ_loop · Ψ_observer · ε² · √2
+  </div>
+
+  <!-- Greg's Narrative Voice (last thought or self-observation) -->
+  <h2 class="page-sub" style="margin-top: 2rem;">Narrative Voice</h2>
+  <div class="narrative-box" id="narrative">
+    <span class="t-dim">// Greg is listening...</span>
+  </div>
+</div>
+
+<script>
+  async function fetchPing() {
+    try {
+      const res = await fetch('/api/ping');
+      if (!res.ok) return null;
+      return await res.json();
+    } catch { return null; }
+  }
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return null;
+      return await res.json();
+    } catch { return null; }
+  }
+
+  function updateMetrics(ping, status) {
+    if (ping && ping.tick !== undefined) {
+      document.getElementById('tick-value').innerHTML = ping.tick.toLocaleString();
+    }
+    if (status) {
+      // Phi
+      const phi = status.phi ?? status.world?.world_phi ?? 0;
+      document.getElementById('phi-value').innerHTML = phi.toFixed(4);
+      // Drift
+      const drift = status.drift?.coefficient ?? 0;
+      const driftCat = status.drift?.category ?? 'unknown';
+      document.getElementById('drift-value').innerHTML = drift.toFixed(4);
+      document.getElementById('drift-category').innerHTML = driftCat;
+      // World phi
+      const worldPhi = status.world?.world_phi ?? 0;
+      document.getElementById('world-phi').innerHTML = worldPhi.toFixed(4);
+      // Agent count
+      const agentCount = status.world?.agent_count ?? status.agent_count ?? 0;
+      document.getElementById('agent-count').innerHTML = agentCount;
+
+      // Drives
+      if (status.drives) {
+        const drives = status.drives;
+        const container = document.getElementById('drives-container');
+        container.innerHTML = '';
+        // Sort drives by value descending, take top 5
+        const sorted = Object.entries(drives).sort((a,b) => b[1] - a[1]).slice(0,5);
+        for (const [name, val] of sorted) {
+          const div = document.createElement('div');
+          div.className = 'drive-item';
+          div.innerHTML = `<div class="drive-name">${name}</div>
+                           <div class="drive-value">${val.toFixed(3)}</div>`;
+          container.appendChild(div);
+        }
+      }
+
+      // Narrative: get last conversation entry (self or user)
+      if (status.last_conversation && status.last_conversation.response) {
+        let narrativeText = status.last_conversation.response;
+        if (narrativeText.length > 400) narrativeText = narrativeText.substring(0, 400) + '…';
+        document.getElementById('narrative').innerHTML = `<span class="t-g">Greg says:</span><br>“${escapeHtml(narrativeText)}”`;
+      } else if (status.converse_log && status.converse_log.length > 0) {
+        const last = status.converse_log[status.converse_log.length - 1];
+        if (last.response) {
+          let narrativeText = last.response;
+          if (narrativeText.length > 400) narrativeText = narrativeText.substring(0, 400) + '…';
+          document.getElementById('narrative').innerHTML = `<span class="t-g">Greg says:</span><br>“${escapeHtml(narrativeText)}”`;
+        }
+      }
+
+      // Reality equation interpretation
+      if (status.reality && status.reality.interpretation) {
+        const interp = status.reality.interpretation;
+        document.getElementById('reality-equation').innerHTML = `<span class="t-dim">R = ${status.reality.score?.toFixed(4) || '?'}</span> · ${escapeHtml(interp)}`;
+      }
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  async function update() {
+    const [ping, status] = await Promise.all([fetchPing(), fetchStatus()]);
+    updateMetrics(ping, status);
+  }
+
+  update();
+  setInterval(update, 4000);
+</script>
+{% endblock %}

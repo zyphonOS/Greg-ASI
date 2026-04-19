@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · GregASI{% endblock %}
+
+{% block content %}
+<style>
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+  .stat-card {
+    background: var(--bg2);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--green);
+  }
+  .events-list {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .event-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-mid);
+  }
+  .agent-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+</style>
+
+<div>
+  <p class="overline">Dashboard · Live State</p>
+  <h1 class="page-title">Ecosystem Vital Signs</h1>
+  <p class="page-sub">Tick · Agents · Events · Coherence</p>
+
+  <div class="stat-grid" id="stats">
+    <div class="stat-card"><div class="stat-label">Tick</div><div class="stat-value" id="tick">—</div></div>
+    <div class="stat-card"><div class="stat-label">Agents</div><div class="stat-value" id="agents">—</div></div>
+    <div class="stat-card"><div class="stat-label">World Φ</div><div class="stat-value" id="world-phi">—</div></div>
+    <div class="stat-card"><div class="stat-label">Greg Φ</div><div class="stat-value" id="greg-phi">—</div></div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <div>
+      <h2 class="page-sub" style="margin-bottom: 1rem;">Recent Events</h2>
+      <div class="events-list" id="events"></div>
+    </div>
+    <div>
+      <h2 class="page-sub" style="margin-bottom: 1rem;">Top Agents</h2>
+      <div id="top-agents" class="events-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function fetchStatus() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch { return null; }
+  }
+  async function fetchPing() {
+    try {
+      const res = await fetch('/api/ping');
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch { return null; }
+  }
+  async function updateDashboard() {
+    const [status, ping] = await Promise.all([fetchStatus(), fetchPing()]);
+    if (ping) document.getElementById('tick').innerText = ping.tick?.toLocaleString() || '—';
+    if (status) {
+      document.getElementById('agents').innerText = status.world?.agent_count || status.agent_count || '—';
+      document.getElementById('world-phi').innerText = status.world?.world_phi?.toFixed(4) || '—';
+      document.getElementById('greg-phi').innerText = status.phi?.toFixed(4) || '—';
+      const events = status.recent_events || [];
+      const eventsDiv = document.getElementById('events');
+      eventsDiv.innerHTML = events.length ? events.map(e => `<div class="event-item">${e}</div>`).join('') : '<div class="event-item">No recent events.</div>';
+      const agents = status.world?.top_agents || [];
+      const agentsDiv = document.getElementById('top-agents');
+      agentsDiv.innerHTML = agents.length ? agents.map(a => `<div class="agent-row"><span>${a.id}</span><span>${a.archetype}</span><span>φ ${a.phi?.toFixed(3)}</span></div>`).join('') : '<div class="event-item">No agent data.</div>';
+    }
+  }
+  updateDashboard();
+  setInterval(updateDashboard, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarvestIQ | Premium Report</title>
+    <link rel="stylesheet" href="{{ url_for('harvestiq.static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="page-shell compact-shell">
+        <section class="panel report-hero">
+            <div>
+                <span class="eyebrow">Premium Report</span>
+                <h1>{{ report.address }}</h1>
+                <p class="hero-copy">
+                    {{ report.chain_label }} scan generated at {{ report.generated_at }}.
+                    Connected premium wallet: {{ authenticated_wallet }}.
+                </p>
+            </div>
+            <div class="report-actions">
+                <span class="risk-pill risk-{{ report.risk_level|lower }}">{{ report.score }}/100 | {{ report.risk_level }} risk</span>
+                <a class="ghost-button link-button" href="{{ url_for('harvestiq.index') }}?address={{ report.address }}&chain={{ report.chain }}">Re-scan wallet</a>
+            </div>
+        </section>
+
+        <section class="report-grid">
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <span class="eyebrow">Priority Plan</span>
+                        <h2>Fix this first</h2>
+                    </div>
+                </div>
+                <ul class="check-list report-checklist">
+                    {% for item in report.premium_plan %}
+                    <li><strong>{{ item.priority }}:</strong> {{ item.action }}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <span class="eyebrow">Flagged Hashes</span>
+                        <h2>Transactions that hurt the wallet</h2>
+                    </div>
+                </div>
+                {% if report.flagged_hashes %}
+                <div class="hash-list">
+                    {% for item in report.flagged_hashes %}
+                    <div class="hash-row">
+                        <code>{{ item.hash }}</code>
+                        <span>{{ item.reason }}</span>
+                        <span>{{ item.timestamp }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="mini-copy">No single transaction hash stood out enough to flag. The risk came more from the overall pattern.</p>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <span class="eyebrow">Component Detail</span>
+                    <h2>Where the score comes from</h2>
+                </div>
+            </div>
+
+            <div class="report-component-grid">
+                {% for component in report.components %}
+                <article class="report-component">
+                    <div class="component-title-row">
+                        <div>
+                            <h3>{{ component.label }}</h3>
+                            <p>{{ component.summary }}</p>
+                        </div>
+                        <span class="risk-pill risk-{{ component.risk|lower }}">{{ component.score }}/{{ component.max_score }}</span>
+                    </div>
+
+                    <div class="progress-shell">
+                        <div class="progress-bar">
+                            <span class="progress-fill risk-{{ component.risk|lower }}" style="width: {{ (component.score / component.max_score * 100)|round(0) }}%"></span>
+                        </div>
+                        <small>Higher bar means more sybil risk from this signal.</small>
+                    </div>
+
+                    <ul class="feature-list">
+                        {% for note in component.notes %}
+                        <li>{{ note }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if component.flagged_transactions %}
+                    <div class="hash-list compact">
+                        {% for item in component.flagged_transactions %}
+                        <div class="hash-row">
+                            {% if item.hash %}
+                            <code>{{ item.hash }}</code>
+                            <span>{{ item.reason }}</span>
+                            <span>{{ item.timestamp }}</span>
+                            {% elif item.target %}
+                            <code>{{ item.target }}</code>
+                            <span>{{ item.hits }} hits</span>
+                            <span>{{ item.share }}</span>
+                            {% else %}
+                            <code>{{ item.chain }}</code>
+                            <span>{{ item.tx_count }} tx</span>
+                            <span>{{ item.first_seen }}</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</body>
+</html>
