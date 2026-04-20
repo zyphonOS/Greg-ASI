@@ -1,0 +1,18 @@
+<script>
+    // Get the button element
+    var button = document.querySelector('.button');
+
+    // Add event listener to the button
+    button.addEventListener('click', function() {
+        // Send a request to the server to add the user to the waitlist
+        fetch('/intent_intent_547b2490/waitlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error(error));
+    });
+</script>
