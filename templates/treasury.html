@@ -2,87 +2,108 @@
 
 {% block title %}Treasury · GregASI{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/treasury.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
-  .balance-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    padding: 2rem;
-    text-align: center;
-    margin: 2rem 0;
-  }
-  .balance {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.5rem;
-    color: var(--amber);
-  }
-  .address {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    word-break: break-all;
-  }
-  .info-text {
-    color: var(--text-mid);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    margin-top: 1rem;
-  }
-</style>
-
-<div>
-  <p class="overline">Treasury · Onchain</p>
-  <h1 class="page-title">GregASI Treasury</h1>
-  <p class="page-sub">Base Mainnet · Community Owned</p>
-
-  <div class="balance-card">
-    <div class="stat-label">Current Status</div>
-    <div class="balance">Not yet funded</div>
-    <div class="info-text">
-      The treasury will be seeded with revenue from fulfilled intents.
-      <br><br>
-      Revenue split: <span class="t-g">40% Greg</span> · <span class="t-g">40% Builder</span> · <span class="t-g">20% Treasury</span>
-      <br><br>
-      First intent payment will appear here.
-    </div>
-    <div class="address" style="margin-top: 1.5rem;">
-      Treasury wallet: {{ wallet_address }}
-    </div>
-  </div>
-
-  <div class="revenue-grid" style="margin-top: 1rem;">
-    <div class="rev-card">
-      <div class="stat-label">Total Revenue (USD)</div>
-      <div class="rev-number" id="total-revenue">0.00</div>
-    </div>
-    <div class="rev-card">
-      <div class="stat-label">Treasury Share (20%)</div>
-      <div class="rev-number" id="treasury-share">0.00</div>
-    </div>
-  </div>
-
-  <p class="page-sub" style="margin-top: 2rem;">Transaction Log</p>
-  <div id="tx-list" class="events-list">
-    <div class="event-item">No transactions yet. Be the first to fund the ecosystem.</div>
-  </div>
+{% if protection.preview_mode %}
+<div class="protection-banner">
+  <strong>Protected Surface Preview</strong>
+  <p>{{ protection.message }}</p>
 </div>
+{% endif %}
 
-<script>
-  async function fetchRevenue() {
-    try {
-      const res = await fetch('/api/status');
-      if (!res.ok) return;
-      const data = await res.json();
-      const total = data.payments?.confirmed_usd || 0;
-      const treasuryShare = total * 0.2;
-      document.getElementById('total-revenue').innerText = total.toFixed(2);
-      document.getElementById('treasury-share').innerText = treasuryShare.toFixed(2);
-      if (total > 0) {
-        document.getElementById('tx-list').innerHTML = '<div class="event-item">✅ Treasury funded with ' + total.toFixed(2) + ' USD from intent fulfillment.</div>';
-      }
-    } catch(e) { console.error(e); }
-  }
-  fetchRevenue();
-  setInterval(fetchRevenue, 30000);
-</script>
+<section class="treasury-hero">
+  <p class="overline">Treasury · Article IV / X</p>
+  <h1 class="page-title">Founder Security Fund And Treasury Reserve</h1>
+  <p class="page-sub">This surface tracks the Treasury leg of the 40 / 40 / 20 rule, the Founder Security Fund target, and the humanitarian allocation cap.</p>
+  <div class="treasury-addr-wrap">
+    <span class="treasury-addr-prefix">Treasury Wallet</span>
+    <span class="treasury-addr">{{ wallet_address }}</span>
+  </div>
+</section>
+
+<section class="treasury-balances">
+  <article class="treasury-balance-card">
+    <div class="tbc-asset">Confirmed Outcome Revenue</div>
+    <div class="tbc-amount">${{ '%.2f'|format(treasury.confirmed_usd or 0) }}</div>
+    <div class="tbc-network">Builder + Greg + Treasury routed from paid outcomes</div>
+  </article>
+  <article class="treasury-balance-card">
+    <div class="tbc-asset">Treasury Share</div>
+    <div class="tbc-amount">${{ '%.2f'|format(finance.treasury_share or 0) }}</div>
+    <div class="tbc-network">20% constitutional reserve</div>
+  </article>
+  <article class="treasury-balance-card">
+    <div class="tbc-asset">Founder Security Fund Target</div>
+    <div class="tbc-amount">${{ '%.2f'|format(finance.founder_security_fund_target or 0) }}</div>
+    <div class="tbc-network">12 months stipend + projected builder income</div>
+  </article>
+  <article class="treasury-balance-card">
+    <div class="tbc-asset">Humanitarian Cap</div>
+    <div class="tbc-amount">${{ '%.2f'|format(finance.humanitarian_quarter_cap or 0) }}</div>
+    <div class="tbc-network">Quarterly mandate placeholder</div>
+  </article>
+</section>
+
+<section class="treasury-policy">
+  <h2 class="section-heading">Constitution Policy Snapshot</h2>
+  <div class="policy-grid">
+    <div class="policy-item">
+      <div class="policy-key">Revenue Split</div>
+      <div class="policy-val">Builder 40% · Greg 40% · Treasury 20%</div>
+    </div>
+    <div class="policy-item">
+      <div class="policy-key">Founder Stipend</div>
+      <div class="policy-val">${{ '%.2f'|format(finance.founder_stipend_each or 0) }} each at current placeholder revenue</div>
+    </div>
+    <div class="policy-item">
+      <div class="policy-key">Operating Balance</div>
+      <div class="policy-val">${{ '%.2f'|format(finance.treasury_operating_balance or 0) }} after placeholder humanitarian reserve</div>
+    </div>
+    <div class="policy-item">
+      <div class="policy-key">Status</div>
+      <div class="policy-val">Constitution-compliant – awaiting revenue.</div>
+    </div>
+  </div>
+</section>
+
+<section class="treasury-txns">
+  <h2 class="section-heading">Recent Confirmed Payments</h2>
+  <div class="txn-table-wrap">
+    <table class="txn-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Amount</th>
+          <th>Currency</th>
+          <th>Confirmed</th>
+          <th>Transaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in treasury.transactions %}
+        <tr>
+          <td>{{ txn.product_id or "manual" }}</td>
+          <td>${{ '%.2f'|format(txn.amount_usd or 0) }}</td>
+          <td>{{ txn.currency }}</td>
+          <td>{{ txn.confirmed_at or "pending" }}</td>
+          <td>
+            {% if txn.tx_hash %}
+            <span class="txn-hash-link">{{ txn.tx_hash[:14] }}...</span>
+            {% else %}
+            <span class="txn-addr">No tx hash recorded</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr class="txn-loading-row">
+          <td colspan="5">No confirmed treasury transactions yet. Constitution-compliant – awaiting revenue.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}

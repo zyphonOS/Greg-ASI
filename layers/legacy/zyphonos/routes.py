@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request, session
 
+from constitution_runtime import build_protection_state
 from greg_local_memory import get_local_memory
 from zyphonos.billing import Billing
 from zyphonos.enterprise import ZyphonOS
@@ -19,7 +20,17 @@ def landing():
     preview = greg.think("Summarize ZyphonOS for a founder landing page.", mode="founder") if greg else "Greg core is offline."
     clients = zyphonos_service.list_clients()
     invoices = billing_service.recent_invoices(limit=8)
-    return render_template("zyphonos.html", greg_preview=preview, clients=clients[:6], invoices=invoices[:6])
+    return render_template(
+        "zyphonos.html",
+        greg_preview=preview,
+        clients=clients[:6],
+        invoices=invoices[:6],
+        protection=build_protection_state(
+            session,
+            surface="ZyphonOS Builder Layer",
+            required_roles=("builder", "founder", "admin"),
+        ),
+    )
 
 
 @zyphonos_bp.route("/api/clients", methods=["GET"])

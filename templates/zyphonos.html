@@ -41,9 +41,15 @@
 </style>
 
 <div>
+  {% if protection.preview_mode %}
+  <div class="protection-banner">
+    <strong>Protected Surface Preview</strong>
+    <p>{{ protection.message }}</p>
+  </div>
+  {% endif %}
   <p class="overline">ZyphonOS · Builder Layer</p>
   <h1 class="page-title">Extend Greg</h1>
-  <p class="page-sub">APIs, subagents, and infrastructure for builders</p>
+  <p class="page-sub">APIs, subagents, and infrastructure for builders. Code-shaping operations remain bound to Article IX Build Protocol before merge and deployment.</p>
 
   <div class="api-grid">
     <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/ping</div><div class="api-desc">Check Greg's heartbeat (tick)</div></div>

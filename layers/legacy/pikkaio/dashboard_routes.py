@@ -3,8 +3,9 @@ from __future__ import annotations
 import sqlite3
 from datetime import datetime, timezone
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, session
 
+from constitution_runtime import build_protection_state, constitutional_revenue_allocation
 from core.utils import data_path
 from layers.legacy.pikkaio.routes import _builder_id, _builder_intents
 
@@ -110,6 +111,8 @@ def dashboard():
     builder_id = _builder_id(create=True)
     intents = _builder_intents(builder_id)
     reality = _latest_reality_snapshot()
+    confirmed_revenue = round(sum(float(intent.revenue_usd or 0.0) for intent in intents), 2)
+    finance = constitutional_revenue_allocation(confirmed_revenue, treasury_balance=confirmed_revenue * 0.2)
 
     dashboard_intents = []
     drifting_count = 0
@@ -148,10 +151,17 @@ def dashboard():
         "reality_score": round(float(reality["reality_score"]), 6),
         "weakest_term": reality["weakest_term"],
         "latest_intervention": latest_intervention,
+        "confirmed_revenue": confirmed_revenue,
     }
 
     return render_template(
         "dashboard.html",
         dashboard=dashboard_state,
+        finance=finance,
         intents=dashboard_intents,
+        protection=build_protection_state(
+            session,
+            surface="Dashboard",
+            required_roles=("founder", "builder", "community", "admin"),
+        ),
     )

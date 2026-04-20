@@ -17,8 +17,13 @@ from typing import Any
 
 import requests
 from dotenv import load_dotenv
-from flask import Blueprint, Flask, Response, jsonify, render_template, request
+from flask import Blueprint, Flask, Response, jsonify, render_template, request, session
 
+from constitution_runtime import (
+    build_auth_state,
+    build_protection_state,
+    constitutional_revenue_allocation,
+)
 from core.agent_manager import manager as agent_manager
 from core.command_locus import CommandLocus
 from core.greg import Greg
@@ -861,6 +866,54 @@ def _default_base_url() -> str:
     return "http://127.0.0.1:5000"
 
 
+def _payment_activity_snapshot() -> dict[str, Any]:
+    payment_log_path = Path(data_path("greg_payments.jsonl"))
+    latest_confirmed: dict[str, dict[str, Any]] = {}
+    if payment_log_path.exists():
+        for line in payment_log_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except Exception:
+                continue
+            if str(record.get("status") or "").strip().lower() != "confirmed":
+                continue
+            payment_id = str(record.get("payment_id") or record.get("tx_hash") or uuid.uuid4().hex)
+            latest_confirmed[payment_id] = {
+                "payment_id": payment_id,
+                "product_id": record.get("product_id") or "",
+                "amount_usd": round(float(record.get("amount_usd") or 0.0), 2),
+                "currency": record.get("currency") or "usdc",
+                "tx_hash": record.get("tx_hash") or "",
+                "confirmed_at": record.get("confirmed_at") or record.get("created_at") or "",
+                "buyer_wallet": record.get("buyer_wallet") or "",
+            }
+
+    transactions = list(latest_confirmed.values())
+    transactions.sort(key=lambda item: item.get("confirmed_at", ""), reverse=True)
+    confirmed_total = round(sum(float(item.get("amount_usd") or 0.0) for item in transactions), 2)
+    finance = constitutional_revenue_allocation(
+        confirmed_total,
+        treasury_balance=confirmed_total * 0.2,
+        quarter_gross_revenue=confirmed_total,
+    )
+    return {
+        "confirmed_usd": round(confirmed_total, 2),
+        "finance": finance,
+        "transactions": transactions[:20],
+    }
+
+
+@app.context_processor
+def inject_shell_context() -> dict[str, Any]:
+    return {
+        "auth": build_auth_state(session),
+        "constitution_hash": constitution_hash,
+        "constitution_finance_policy": constitutional_revenue_allocation(0.0),
+    }
+
+
 def _dispatch_command(action: str, payload: dict | None = None):
     body, status_code = command_locus.dispatch(action, payload or {})
     return jsonify(body), status_code
@@ -1007,6 +1060,14 @@ def api_constitution_correct():
         return jsonify({"ok": False, "error": "Invalid founder_token."}), 403
 
     try:
+        validate_intent_against_constitution(
+            f"constitution correction for section {section}",
+            {
+                **payload,
+                "endpoint": "/api/constitution/correct",
+                "action": "constitution_correct",
+            },
+        )
         current_text = _read_constitution_text()
         updated_text, old_block, new_block = _replace_constitution_section(current_text, section, new_text)
         if touches_substantive_keywords(section, old_block, new_block):
@@ -1085,14 +1146,60 @@ def state():
     )
 
 
+@app.route("/greg")
+def greg_page():
+    return render_template("greg.html")
+
+
+@app.route("/treasury")
+def treasury():
+    snapshot = _payment_activity_snapshot()
+    return render_template(
+        "treasury.html",
+        wallet_address=os.getenv(
+            "GREG_WALLET_ADDRESS",
+            os.getenv("RECEIVER_WALLET_ADDRESS", "Treasury wallet not configured"),
+        ),
+        treasury=snapshot,
+        finance=snapshot["finance"],
+        protection=build_protection_state(
+            session,
+            surface="Treasury",
+            required_roles=("founder", "treasury", "admin"),
+        ),
+    )
+
+
 @app.route("/api/greg/status")
 def greg_status():
-    return jsonify(greg.status_snapshot())
+    status = dict(greg.status_snapshot())
+    payment_snapshot = _payment_activity_snapshot()
+    status["payments"] = {
+        "confirmed_usd": payment_snapshot["confirmed_usd"],
+        "allocation": payment_snapshot["finance"],
+        "recent_transactions": payment_snapshot["transactions"][:8],
+    }
+    status["constitution"] = {
+        "hash": constitution_hash,
+        "stored_hash": stored_constitution_hash,
+    }
+    return jsonify(status)
 
 
 @app.route("/api/status")
 def api_status():
-    return jsonify(greg.status_snapshot())
+    status = dict(greg.status_snapshot())
+    payment_snapshot = _payment_activity_snapshot()
+    status["payments"] = {
+        "confirmed_usd": payment_snapshot["confirmed_usd"],
+        "allocation": payment_snapshot["finance"],
+        "recent_transactions": payment_snapshot["transactions"][:8],
+    }
+    status["constitution"] = {
+        "hash": constitution_hash,
+        "stored_hash": stored_constitution_hash,
+    }
+    return jsonify(status)
 
 
 @app.route("/api/greg/image", methods=["POST"])
@@ -1182,6 +1289,17 @@ def greg_agents():
 @app.route("/api/greg/agents/spawn", methods=["POST"])
 def greg_spawn_agent():
     payload = request.get_json(silent=True) or {}
+    try:
+        validate_intent_against_constitution(
+            "spawn agent request",
+            {
+                **payload,
+                "action": "spawn_agent",
+                "endpoint": "/api/greg/agents/spawn",
+            },
+        )
+    except ConstitutionViolation as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
     return _dispatch_command("spawn_agent", payload)
 
 

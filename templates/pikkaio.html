@@ -4,311 +4,216 @@
 
 {% block content %}
 <style>
-  .momentum-grid {
+  .intent-room {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    margin: 2rem 0 3rem;
-  }
-  .momentum-card {
-    background: var(--bg2);
-    padding: 2rem 1.5rem;
-    text-align: center;
-  }
-  .momentum-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 0.75rem;
-  }
-  .momentum-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.8rem;
-    color: var(--green);
-    line-height: 1;
-  }
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
-  }
-  .project-card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    transition: all 0.2s ease;
-  }
-  .project-card:hover {
-    border-color: var(--border-g);
-    transform: translateY(-2px);
-  }
-  .project-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    letter-spacing: 0.02em;
-    color: var(--text);
-    margin-bottom: 0.75rem;
-  }
-  .project-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-  }
-  .drift-indicator { font-weight: 500; }
-  .drift-high { color: var(--amber); }
-  .drift-mid { color: var(--green); }
-  .drift-low { color: var(--text-dim); }
-  .momentum-bar {
-    height: 4px;
-    background: var(--border);
-    margin: 1rem 0;
-    overflow: hidden;
-  }
-  .momentum-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--green);
-    transition: width 0.3s;
-  }
-  .momentum-fill.negative { background: var(--amber); }
-  .project-narrative {
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--text-mid);
-    margin-top: 1rem;
-    border-top: 1px solid var(--border);
-    padding-top: 1rem;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 4rem;
-    color: var(--text-dim);
-    border: 1px dashed var(--border);
-    background: var(--bg2);
-    font-family: 'DM Mono', monospace;
-    grid-column: 1 / -1;
-    max-width: 500px;
-    margin: 0 auto;
   }
   .intent-form {
-    margin-bottom: 2rem;
-    background: var(--bg2);
+    display: grid;
+    gap: 1rem;
+    padding: 1.4rem;
     border: 1px solid var(--border);
-    padding: 1.5rem;
+    background: rgba(11, 11, 15, 0.88);
   }
   .intent-form textarea {
+    min-height: 8rem;
     width: 100%;
     background: var(--bg3);
     border: 1px solid var(--border);
     color: var(--text);
     padding: 1rem;
-    font-family: 'DM Mono', monospace;
+    font: 0.9rem/1.6 var(--font-mono);
     resize: vertical;
   }
-  .btn-primary {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.14em;
+  .intent-grid,
+  .project-grid,
+  .policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+  .intent-card,
+  .project-card,
+  .policy-card {
+    background: var(--bg2);
+    padding: 1.2rem;
+  }
+  .metric-label,
+  .policy-kicker {
+    color: var(--text-dim);
+    font: 0.64rem/1.4 var(--font-mono);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--bg);
-    background: var(--green);
-    border: none;
-    padding: 0.85rem 2rem;
-    cursor: pointer;
-    transition: opacity 0.2s;
   }
-  .intent-list {
-    margin-top: 2rem;
+  .metric-value {
+    color: var(--green);
+    font: 2rem/1 "Bebas Neue", sans-serif;
   }
-  .intent-item {
-    background: var(--bg3);
+  .project-card {
     border: 1px solid var(--border);
-    padding: 0.75rem;
+  }
+  .project-title {
+    font: 1.4rem/1.1 "Bebas Neue", sans-serif;
     margin-bottom: 0.5rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
+  }
+  .project-meta,
+  .project-body {
+    color: var(--text-mid);
+    font-size: 0.82rem;
+  }
+  .project-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+  }
+  .policy-grid {
+    margin-top: 0.5rem;
+  }
+  .policy-card p:last-child {
+    color: var(--text-mid);
+    margin-top: 0.45rem;
+    font-size: 0.82rem;
   }
 </style>
 
-<div>
-  <p class="overline">Pikkaio · Intelligence Layer</p>
-  <h1 class="page-title">Drifting Projects &amp; Momentum</h1>
-  <p class="page-sub">Projects drift. Momentum compounds. Greg tracks both.</p>
-
-  <!-- Intent Declaration Form -->
-  <div class="intent-form">
-    <h2 class="page-sub" style="margin-top: 0;">Declare an Intent</h2>
-    <textarea id="intent-desc" rows="3" placeholder="Describe what you want Greg to build... e.g., 'Create a dashboard that shows weather data for farmers'"></textarea>
-    <button id="submit-intent" class="btn-primary" style="margin-top: 1rem;">Declare Intent → Greg Builds</button>
+<section class="intent-room">
+  <div>
+    <p class="overline">Pikkaio · Intent Layer</p>
+    <h1 class="page-title">Declare The Outcome, Not The Chore</h1>
+    <p class="page-sub">Every intent becomes a tracked line through drift, tending, and constitutional revenue routing.</p>
   </div>
 
-  <!-- Momentum summary grid -->
-  <div class="momentum-grid">
-    <div class="momentum-card">
-      <div class="momentum-label">Total Momentum</div>
-      <div class="momentum-value" id="total-momentum">—</div>
+  <div class="constitution-note">
+    Constitution alignment: Article IX Build Protocol governs execution. Article IV routes fulfilled outcome revenue through Builder 40% · Greg 40% · Treasury 20%.
+  </div>
+
+  <form id="intent-form-surface" class="intent-form">
+    <label class="metric-label" for="intent-desc">Intent Declaration</label>
+    <textarea id="intent-desc" placeholder="Describe the business outcome Greg should pursue. Example: Build a founder dashboard that shows treasury flow and humanitarian allocation."></textarea>
+    <button id="submit-intent" class="button-primary" type="submit">Declare Intent</button>
+    <p id="intent-feedback" class="page-sub" style="margin:0;"></p>
+  </form>
+
+  <div class="intent-grid">
+    <div class="intent-card">
+      <div class="metric-label">Builder ID</div>
+      <div class="metric-value" id="builder-id">{{ builder_state.builder_id or "—" }}</div>
     </div>
-    <div class="momentum-card">
-      <div class="momentum-label">Active Projects</div>
-      <div class="momentum-value" id="active-projects">—</div>
+    <div class="intent-card">
+      <div class="metric-label">Tracked Intents</div>
+      <div class="metric-value" id="intent-count">{{ builder_state.builder_intent_count or 0 }}</div>
     </div>
-    <div class="momentum-card">
-      <div class="momentum-label">Drift Coefficient (avg)</div>
-      <div class="momentum-value" id="avg-drift">—</div>
+    <div class="intent-card">
+      <div class="metric-label">Current Drift</div>
+      <div class="metric-value" id="drift-score">{{ '%.4f'|format(builder_state.drift_score or 0) }}</div>
+    </div>
+    <div class="intent-card">
+      <div class="metric-label">Current Status</div>
+      <div class="metric-value" id="builder-status">{{ builder_state.status or "undeclared" }}</div>
     </div>
   </div>
 
-  <!-- Projects grid (existing projects) -->
-  <div id="projects-container" class="projects-grid">
-    <div class="empty-state">⟳ No drifting projects yet.<br>Declare an intent above.</div>
+  <div>
+    <p class="overline">Recent Lines</p>
+    <div id="projects-container" class="project-grid">
+      <div class="project-card">
+        <div class="project-title">{{ builder_state.intent.description if builder_state.intent else "No declared intent yet" }}</div>
+        <div class="project-meta">
+          <span>Status {{ builder_state.status or "undeclared" }}</span>
+          <span>Drift {{ '%.4f'|format(builder_state.drift_score or 0) }}</span>
+        </div>
+        <p class="project-body">{{ builder_state.acknowledgement or "Declare an intent to open the line." }}</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Recent Intents -->
-  <div id="intent-list" class="intent-list"></div>
-</div>
+  <div>
+    <p class="overline">Protocol Rails</p>
+    <div class="policy-grid">
+      <div class="policy-card">
+        <div class="policy-kicker">Step 1</div>
+        <p>Intent Declaration</p>
+        <p>Human or agent names a measurable outcome.</p>
+      </div>
+      <div class="policy-card">
+        <div class="policy-kicker">Step 4</div>
+        <p>Autonomous Execution</p>
+        <p>Builder agents work in a sandbox with tests, lint, and diff report.</p>
+      </div>
+      <div class="policy-card">
+        <div class="policy-kicker">Step 7</div>
+        <p>Learning</p>
+        <p>Greg records cost, drift, and lessons in persistent memory.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-if (typeof showToast === 'undefined') {
-  window.showToast = function(msg, isError) {
-    alert(msg);
-  };
-}
 <script>
-  // Fetch status for momentum and projects
-  async function fetchStatus() {
-    try {
-      const res = await fetch('/api/status');
-      if (!res.ok) throw new Error();
-      return await res.json();
-    } catch { return null; }
+  const feedbackNode = document.getElementById("intent-feedback");
+  const intentForm = document.getElementById("intent-form-surface");
+  const intentInput = document.getElementById("intent-desc");
+
+  function renderProjectCard(intent) {
+    const description = intent.description || "Untitled intent";
+    const status = intent.status || "tracked";
+    const drift = Number(intent.drift_score || 0).toFixed(4);
+    return `
+      <div class="project-card">
+        <div class="project-title">${description}</div>
+        <div class="project-meta">
+          <span>Status ${status}</span>
+          <span>Drift ${drift}</span>
+        </div>
+        <p class="project-body">${intent.deadline ? `Deadline ${intent.deadline}` : "Constitution-compliant tracking active."}</p>
+      </div>
+    `;
   }
 
-  function updateMomentumSummary(pikkaio) {
-    if (!pikkaio) return;
-    const totalMomentum = pikkaio.total_momentum ?? 0;
-    const activeProjects = pikkaio.projects_total ?? pikkaio.projects?.length ?? 0;
-    let avgDrift = 0;
-    if (pikkaio.projects && pikkaio.projects.length) {
-      const sum = pikkaio.projects.reduce((acc, p) => acc + (p.drift_coefficient || 0), 0);
-      avgDrift = sum / pikkaio.projects.length;
+  async function refreshSurface() {
+    const [statusRes, intentsRes] = await Promise.all([
+      fetch("/pikkaio/status", { cache: "no-store" }),
+      fetch("/pikkaio/api/intents", { cache: "no-store" })
+    ]);
+    const statusData = await statusRes.json();
+    const intentsData = await intentsRes.json();
+    if (statusData.builder_id) {
+      document.getElementById("builder-id").textContent = statusData.builder_id;
+      document.getElementById("builder-status").textContent = statusData.status || "tracked";
+      document.getElementById("drift-score").textContent = Number(statusData.drift_score || 0).toFixed(4);
     }
-    document.getElementById('total-momentum').innerHTML = totalMomentum.toFixed(2);
-    document.getElementById('active-projects').innerHTML = activeProjects;
-    document.getElementById('avg-drift').innerHTML = avgDrift.toFixed(3);
+    const builderProjects = Object.values(intentsData.projects || {}).filter(project => project.builder_id === statusData.builder_id);
+    document.getElementById("intent-count").textContent = builderProjects.length;
+    document.getElementById("projects-container").innerHTML = builderProjects.length
+      ? builderProjects.map(renderProjectCard).join("")
+      : `<div class="project-card"><div class="project-title">No declared intent yet</div><p class="project-body">Declare an intent to open the line.</p></div>`;
   }
 
-  function renderProjects(projects) {
-    const container = document.getElementById('projects-container');
-    if (!projects || projects.length === 0) {
-      container.innerHTML = '<div class="empty-state">⟳ No drifting projects yet.<br>Declare an intent above.</div>';
+  intentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const description = intentInput.value.trim();
+    if (!description) {
+      feedbackNode.textContent = "Intent description required.";
       return;
     }
-    container.innerHTML = projects.map(proj => {
-      const drift = proj.drift_coefficient || 0;
-      const momentum = proj.momentum || 0;
-      const fillWidth = Math.min(100, Math.abs(momentum) * 100);
-      const fillClass = momentum >= 0 ? '' : 'negative';
-      const driftClass = drift > 0.05 ? 'drift-high' : (drift > 0.01 ? 'drift-mid' : 'drift-low');
-      const trend = momentum > 0 ? '▲' : (momentum < 0 ? '▼' : '◆');
-      return `
-        <div class="project-card">
-          <div class="project-name">${escapeHtml(proj.name || 'Unnamed')}</div>
-          <div class="project-meta">
-            <span>Intent ID: ${escapeHtml(proj.id || '—')}</span>
-            <span class="drift-indicator ${driftClass}">drift ${drift.toFixed(4)}</span>
-          </div>
-          <div class="momentum-bar">
-            <div class="momentum-fill ${fillClass}" style="width: ${fillWidth}%;"></div>
-          </div>
-          <div class="project-meta">
-            <span>Momentum ${trend} ${Math.abs(momentum).toFixed(3)}</span>
-            <span>${proj.status || 'active'}</span>
-          </div>
-          <div class="project-narrative">
-            ${escapeHtml(proj.narrative || 'No narrative drift recorded.')}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
+    const response = await fetch("/pikkaio/intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description })
     });
-  }
-
-  async function loadPikkaio() {
-    const data = await fetchStatus();
-    if (data && data.pikkaio) {
-      updateMomentumSummary(data.pikkaio);
-      renderProjects(data.pikkaio.projects || []);
-    } else {
-      document.getElementById('projects-container').innerHTML = '<div class="empty-state">⟳ No Pikkaio data available.<br>Declare an intent above.</div>';
+    const data = await response.json();
+    if (!response.ok) {
+      feedbackNode.textContent = data.error || "Unable to declare intent.";
+      return;
     }
-  }
+    intentInput.value = "";
+    feedbackNode.textContent = data.acknowledgement || "Intent declared. Greg is tracking the line.";
+    refreshSurface().catch(console.error);
+  });
 
-  // Intent submission and listing
-  async function loadIntents() {
-    try {
-      const res = await fetch('/api/pikkaio/intents');
-      const intents = await res.json();
-      const container = document.getElementById('intent-list');
-      if (intents.length) {
-        container.innerHTML = '<h2 class="page-sub">Recent Intents</h2>' + intents.map(i => `
-          <div class="intent-item">
-            <strong>${i.status}</strong> – ${escapeHtml(i.description)}<br>
-            <span class="t-dim">${i.result || i.error || ''}</span>
-          </div>
-        `).join('');
-      } else {
-        container.innerHTML = '';
-      }
-    } catch(e) { console.error(e); }
-  }
-
-   document.getElementById('submit-intent').addEventListener('click', async () => {
-             const desc = document.getElementById('intent-desc').value.trim();
-             if (!desc) return;
-             const btn = document.getElementById('submit-intent');
-             btn.disabled = true;
-             btn.innerText = 'Declaring...';
-             try {
-                  const res = await fetch('/api/pikkaio/intent', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ description: desc })
-                     });
-                     const data = await res.json();
-                     if (data.intent_id) {
-                         showToast(`Intent submitted (${data.intent_id}). Greg is building it.`);
-                         document.getElementById('intent-desc').value = '';
-                         loadIntents();
-                      } else {
-                         showToast('Error: ' + (data.error || 'Unknown error'), true);
-                      }
-                   } catch(e) {
-                      console.error(e);
-                      showToast('Error submitting intent', true);
-                   }
-                   btn.disabled = false;
-                   btn.innerText = 'Declare Intent → Greg Builds';
-                });
-
-  loadPikkaio();
-  loadIntents();
-  setInterval(loadPikkaio, 30000);
-  setInterval(loadIntents, 5000);
+  refreshSurface().catch(console.error);
 </script>
 {% endblock %}

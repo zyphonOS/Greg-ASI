@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from constitution_guard import ConstitutionViolation, validate_intent_against_constitution
+
 
 class CommandLocus:
     """Authoritative command surface for Greg actions."""
@@ -86,6 +88,17 @@ class CommandLocus:
 
     def _action_spawn_agent(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
         perspective = str(payload.get("perspective") or "general").strip() or "general"
+        try:
+            validate_intent_against_constitution(
+                f"spawn agent with perspective {perspective}",
+                {
+                    **payload,
+                    "action": "spawn_agent",
+                    "description": f"spawn agent with perspective {perspective}",
+                },
+            )
+        except ConstitutionViolation as exc:
+            return {"ok": False, "error": str(exc)}, 400
         return {
             "ok": True,
             "action": "spawn_agent",

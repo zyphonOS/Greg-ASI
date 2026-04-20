@@ -94,3 +94,6 @@ python main.py
 - If the current constitution hash differs from the stored hash, Greg writes a tamper warning to `constitution_changed.log` and a structured alert to `data/constitution_alert.json`.
 - Founders can submit non-substantive corrections through `POST /api/constitution/correct` with `{"section":"XI.2","new_text":"...","founder_token":"..."}`.
 - Corrections that touch substantive governance keywords like equity, revenue split, stipend, phase, or valuation are rejected and must go through the full amendment flow.
+- The frontend shell now exposes Constitution-aware preview states for `/dashboard`, `/revenue`, `/treasury`, and `/zyphonos` until live authentication is enforced.
+- Revenue and treasury views follow Article IV with the visible Builder 40% · Greg 40% · Treasury 20% split, Founder Security Fund placeholders, and humanitarian allocation placeholders.
+- Intent revenue posting routes the 40/40/20 split through `RevenueTracker.allocate_outcome_revenue(...)`, while checkout/payment responses expose the constitutional allocation policy so settlement rules are explicit before full treasury automation is wired.

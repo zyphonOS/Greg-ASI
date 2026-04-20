@@ -4,6 +4,7 @@ import uuid
 
 from flask import Blueprint, current_app, jsonify, render_template, request, session, url_for
 
+from constitution_runtime import build_auth_state
 from greg_local_memory import get_local_memory
 from greg_pikkaio import _get_engine as get_project_engine
 from greg_tending import TendingEngine
@@ -100,6 +101,7 @@ def board():
     builder_state = _surface_status(builder_id)
     return render_template(
         "pikkaio.html",
+        auth=build_auth_state(session),
         builder_state=builder_state,
         logo_url=url_for("static", filename="images/pikkaio_logo.png"),
     )
@@ -191,13 +193,14 @@ def add_revenue(intent_id: str):
     project = get_project_engine().get_intent(intent_id)
     if not project:
         return jsonify({"error": "Intent not found."}), 404
-    revenue_tracker.add_earning(project.creator, amount, source)
+    revenue_result = revenue_tracker.allocate_outcome_revenue(project.creator, amount, source)
     updated = get_project_engine().record_revenue(intent_id, amount, source)
     return jsonify(
         {
             "ok": True,
             "project": (updated or project).to_dict(),
             "creator_total": revenue_tracker.total_earnings(project.creator),
+            "allocation": revenue_result["allocation"],
         }
     )
 

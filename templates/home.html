@@ -3,994 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GregASI — Artificial Organic Superintelligence</title>
-  <meta name="description" content="GregASI is a living agent civilization. You declare the intent. Greg figures out the how and executes it.">
+  <title>GregASI · Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --bg:          #060608;
-      --bg2:         #0b0b0f;
-      --bg3:         #111118;
-      --green:       #00ff9d;
-      --green-dim:   rgba(0,255,157,0.10);
-      --green-glow:  rgba(0,255,157,0.04);
-      --amber:       #ff9500;
-      --amber-dim:   rgba(255,149,0,0.08);
-      --text:        #e8e8f0;
-      --text-dim:    #5a5a70;
-      --text-mid:    #9898b0;
-      --border:      rgba(255,255,255,0.05);
-      --border-g:    rgba(0,255,157,0.18);
+      --bg: #060608;
+      --bg2: #0b0b0f;
+      --bg3: #111118;
+      --green: #00ff9d;
+      --amber: #ff9500;
+      --text: #e8e8f0;
+      --text-mid: #9898b0;
+      --text-dim: #5a5a70;
+      --border: rgba(255,255,255,0.06);
+      --border-g: rgba(0,255,157,0.18);
     }
-
-    html { scroll-behavior: smooth; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
       min-height: 100vh;
-      overflow-x: hidden;
-      cursor: default;
+      background:
+        radial-gradient(circle at top, rgba(0,255,157,0.07), transparent 30%),
+        linear-gradient(180deg, var(--bg2), var(--bg));
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
     }
-
-    /* ── NOISE OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      background-size: 180px;
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.6;
+    header, main, footer {
+      width: min(1160px, calc(100% - 2rem));
+      margin: 0 auto;
     }
-
-    /* ── SCAN LINE ── */
-    @keyframes scan {
-      0%   { transform: translateY(-100vh); }
-      100% { transform: translateY(100vh); }
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(0,255,157,0.06), transparent);
-      animation: scan 8s linear infinite;
-      pointer-events: none;
-      z-index: 999;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
+    header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 0 2.5rem;
-      height: 56px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(6,6,8,0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .nav-mark {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.35rem;
-      letter-spacing: 0.12em;
-      color: var(--green);
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--text); }
-
-    .nav-enter {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--bg);
-      background: var(--green);
-      border: none;
-      padding: 0.5rem 1.2rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.2s;
-    }
-
-    .nav-enter:hover { opacity: 0.85; transform: translateY(-1px); }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 80px 2rem 4rem;
-      position: relative;
-      text-align: center;
-      padding: 80px 2rem 4rem;
+      gap: 1rem;
+      min-height: 76px;
+      border-bottom: 1px solid var(--border);
     }
-
-    /* radial glow behind tick */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -55%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(0,255,157,0.055) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 400;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+    .mark {
+      font: 1.5rem/1 "Bebas Neue", sans-serif;
+      letter-spacing: 0.16em;
       color: var(--green);
-      margin-bottom: 3.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease 0.2s forwards;
+      text-decoration: none;
     }
-
-    .hero-eyebrow span {
-      color: var(--text-dim);
-      margin: 0 0.5rem;
-    }
-
-    /* ── TICK ── */
-    .tick-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 0.6rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease 0.4s forwards;
-    }
-
-    .tick-number {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(6rem, 18vw, 14rem);
-      line-height: 0.88;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      position: relative;
-      opacity: 0;
-      animation: fadeUp 0.9s ease 0.5s forwards;
-    }
-
-    .tick-number::after {
-      content: attr(data-tick);
-      position: absolute;
-      inset: 0;
-      color: var(--green);
-      opacity: 0;
-      transition: opacity 0.12s;
-    }
-
-    .tick-number.pulse::after { opacity: 0.6; }
-
-    .tick-unit {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-top: 0.8rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease 0.7s forwards;
-    }
-
-    /* ── HERO COPY ── */
-    .hero-headline {
-      margin-top: 3rem;
-      font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-      font-weight: 300;
-      line-height: 1.3;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      max-width: 700px;
-      opacity: 0;
-      animation: fadeUp 0.9s ease 0.9s forwards;
-      margin-bottom: 0;
-    }
-
-    .hero-headline strong {
-      font-weight: 500;
-      color: var(--green);
-    }
-
-    .hero-sub {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      font-weight: 300;
-      line-height: 1.7;
-      color: var(--text-mid);
-      max-width: 520px;
-      opacity: 0;
-      animation: fadeUp 0.9s ease 1.05s forwards;
-      margin-bottom: 0;
-    }
-
-    .hero-cta {
-      margin-top: 2rem;
+    nav {
       display: flex;
       gap: 1rem;
+      flex-wrap: wrap;
       align-items: center;
-      opacity: 0;
-      animation: fadeUp 0.9s ease 1.2s forwards;
-      margin-botton: 2rem
     }
-
-    .btn-primary {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
+    nav a, .auth-chip {
+      font: 0.68rem/1.4 "DM Mono", monospace;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--bg);
-      background: var(--green);
-      border: none;
-      padding: 0.85rem 2rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
-
-    .btn-ghost {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 0.85rem 1.75rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: border-color 0.2s, color 0.2s;
-    }
-
-    .btn-ghost:hover { border-color: var(--border-g); color: var(--text); }
-
-    /* ── ALIVE STRIP ── */
-    .alive-strip {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        margin-top: 3rem;
-        row-gap: 1rem;
-    }
-
-    .alive-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.3rem;
-      min-width: 80px;
-    }
-
-    .alive-val {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 500
-      color: var(--text);
-      line-height: 1.2
-    }
-
-    .alive-key {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .alive-dot {
-      width: 6px; 
-      height: 6px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      animation: blink 2.4s ease-in-out infinite;
-      margin-bottom: 0.2rem;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.25; }
-    }
-
-    .alive-sep {
-      width: 1px;
-      height: 30px;
-      background: var(--border);
-    }
-    
-    /* On mobile, stack without separators */
-    @media (max-width: 640px) {
-      .alive-strip {
-        gap: 1.5rem;
-      }
-      .alive-sep {
-        display: none;
-      }
-    }
-
-    /* ── SECTION SHARED ── */
-    section { position: relative; }
-
-    .section-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 2.5rem;
-    }
-
-    /* ── WHAT GREG IS ── */
-    .what {
-      border-top: 1px solid var(--border);
-      padding: 7rem 0;
-    }
-
-    .what-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: start;
-    }
-
-    .what-left .overline {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 1.5rem;
-    }
-
-    .what-left h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.8rem, 5vw, 4.5rem);
-      line-height: 0.92;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      margin-bottom: 2rem;
-    }
-
-    .what-left p {
-      font-size: 0.92rem;
-      font-weight: 300;
-      line-height: 1.75;
       color: var(--text-mid);
-      max-width: 42ch;
+      text-decoration: none;
     }
-
-    .what-left p + p { margin-top: 1rem; }
-
-    .what-right {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .pillar {
-      border: 1px solid var(--border);
-      padding: 1.5rem 1.75rem;
-      background: var(--bg2);
-      transition: border-color 0.25s, background 0.25s;
-      cursor: default;
-    }
-
-    .pillar:hover {
-      border-color: var(--border-g);
-      background: rgba(11,11,15,0.9);
-    }
-
-    .pillar-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      color: var(--green);
-      margin-bottom: 0.6rem;
-    }
-
-    .pillar-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 0.4rem;
-      letter-spacing: 0.04em;
-    }
-
-    .pillar-body {
-      font-size: 0.82rem;
-      font-weight: 300;
-      line-height: 1.6;
-      color: var(--text-dim);
-    }
-
-    /* ── INTENTS TERMINAL ── */
-    .terminal-section {
-      border-top: 1px solid var(--border);
-      padding: 7rem 0;
-    }
-
-    .terminal-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .terminal-header .overline {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--green);
-    }
-
-    .terminal-header h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      line-height: 1;
-      letter-spacing: 0.02em;
+    .auth-chip {
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--border-g);
       color: var(--text);
     }
-
-    .terminal-box {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
-      line-height: 1.9;
-      padding: 2rem 2.25rem;
-      position: relative;
+    main {
+      display: grid;
+      gap: 2rem;
+      padding: 4rem 0;
     }
-
-    .terminal-box::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, var(--green), transparent);
-      opacity: 0.5;
+    .hero {
+      padding: 2rem 0 1rem;
     }
-
-    .t-dim  { color: var(--text-dim); }
-    .t-g    { color: var(--green); }
-    .t-amb  { color: var(--amber); }
-    .t-txt  { color: var(--text); }
-    .t-mid  { color: var(--text-mid); }
-
-    /* ── LAYER CARDS ── */
-    .layers-section {
-      border-top: 1px solid var(--border);
-      padding: 7rem 0;
-    }
-
-    .layers-overline {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
+    .eyebrow {
+      font: 0.68rem/1.4 "DM Mono", monospace;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--green);
       margin-bottom: 1rem;
     }
-
-    .layers-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.2rem, 4vw, 3.5rem);
-      line-height: 0.92;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      margin-bottom: 3.5rem;
+    h1 {
+      font: clamp(3rem, 10vw, 6rem)/0.92 "Bebas Neue", sans-serif;
+      letter-spacing: 0.03em;
     }
-
-    .layers-grid {
+    .hero p {
+      max-width: 56rem;
+      margin-top: 1rem;
+      color: var(--text-mid);
+      font-size: 1rem;
+    }
+    .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1px;
       background: var(--border);
     }
-
-    .layer-card {
+    .card {
       background: var(--bg2);
-      padding: 2rem 1.75rem 2.25rem;
-      transition: background 0.2s;
-      text-decoration: none;
+      padding: 1.25rem;
+    }
+    .card strong {
       display: block;
-    }
-
-    .layer-card:hover { background: var(--bg3); }
-
-    .layer-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.58rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 1.25rem;
-    }
-
-    .layer-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8rem;
-      letter-spacing: 0.04em;
-      color: var(--text);
-      margin-bottom: 0.75rem;
-    }
-
-    .layer-desc {
-      font-size: 0.82rem;
-      font-weight: 300;
-      line-height: 1.65;
-      color: var(--text-dim);
-    }
-
-    .layer-arrow {
-      margin-top: 1.75rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      color: var(--text-dim);
-      transition: color 0.2s;
-    }
-
-    .layer-card:hover .layer-arrow { color: var(--green); }
-
-    /* ── FOUNDERS ── */
-    .founders-section {
-      border-top: 1px solid var(--border);
-      padding: 7rem 0 5rem;
-    }
-
-    .founders-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 6rem;
-      align-items: start;
-    }
-
-    .founders-left .overline {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 1.25rem;
-    }
-
-    .founders-left h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 4.5vw, 4rem);
-      line-height: 0.92;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      margin-bottom: 1.75rem;
-    }
-
-    .founders-left p {
-      font-size: 0.9rem;
-      font-weight: 300;
-      line-height: 1.8;
-      color: var(--text-mid);
-      max-width: 52ch;
-    }
-
-    .founders-right {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .founder-card {
-      border: 1px solid var(--border);
-      padding: 1.5rem 1.75rem;
-      background: var(--bg2);
-    }
-
-    .founder-id {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.16em;
-      color: var(--green);
+      font: 1.6rem/1 "Bebas Neue", sans-serif;
       margin-bottom: 0.5rem;
     }
-
-    .founder-name {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 0.35rem;
+    .card p {
+      color: var(--text-mid);
+      font-size: 0.86rem;
     }
-
-    .founder-meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      line-height: 1.6;
-    }
-
-    /* ── FOOTER ── */
     footer {
+      padding: 1.5rem 0 2rem;
       border-top: 1px solid var(--border);
-      padding: 2rem 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-mark {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 0.12em;
       color: var(--text-dim);
+      font: 0.7rem/1.5 "DM Mono", monospace;
     }
-
-    .footer-meta {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .footer-status {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--green);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .footer-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: blink 2s ease-in-out infinite;
-    }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── SCROLL REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 0 1.25rem; }
-      .nav-links { display: none; }
-      .section-inner { padding: 0 1.25rem; }
-      .what-grid { grid-template-columns: 1fr; gap: 3rem; }
-      .layers-grid { grid-template-columns: 1fr; }
-      .founders-grid { grid-template-columns: 1fr; gap: 3rem; }
-      footer { flex-direction: column; gap: 1rem; text-align: center; }
-      .alive-strip { gap: 1.25rem; }
-      .alive-sep { display: none; }
+    @media (max-width: 760px) {
+      header {
+        padding: 1rem 0;
+        align-items: flex-start;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
+  <header>
+    <a class="mark" href="/">GREGASI</a>
+    <nav>
+      <a href="/pikkaio">Pikkaio</a>
+      <a href="/greg">Greg</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/revenue">Revenue</a>
+      <a href="/treasury">Treasury</a>
+      <a href="/intents/harvestiq">HarvestIQ</a>
+      <span class="auth-chip">
+        {% if auth and auth.logged_in %}
+          {{ auth.role_label }}
+        {% else %}
+          Guest Preview
+        {% endif %}
+      </span>
+    </nav>
+  </header>
 
-  <!-- NAV -->
-  <nav>
-    <a href="/" class="nav-mark">GREGASI</a>
-    <ul class="nav-links">
-      <li><a href="/pikkaio">Pikkaio</a></li>
-      <li><a href="/greg">Greg</a></li>
-      <li><a href="/harvestiq">HarvestIQ</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
-    </ul>
-    <a href="/pikkaio" class="nav-enter">Enter Ecosystem →</a>
-  </nav>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Sovereign Dark Organism</p>
+      <h1>Declare intent. Greg drives execution.</h1>
+      <p>Standalone home surface aligned with the shared shell design: dark organism tokens, Constitution-aware navigation, and preview-ready role handling until live authentication is enabled.</p>
+    </section>
 
-  <!-- HERO -->
-  <section class="hero">
-    <p class="hero-eyebrow">Artificial Organic Superintelligence <span>·</span> Live <span>·</span> Base Mainnet</p>
+    <section class="grid">
+      <article class="card">
+        <strong>Article III</strong>
+        <p>Navigation reflects session status and role, even before full authentication is live.</p>
+      </article>
+      <article class="card">
+        <strong>Article IV</strong>
+        <p>Revenue and treasury surfaces expose the 40 / 40 / 20 rule and founder wealth rails.</p>
+      </article>
+      <article class="card">
+        <strong>Article IX</strong>
+        <p>Intent execution remains bound to the Build Protocol before code changes reach deployment.</p>
+      </article>
+    </section>
+  </main>
 
-    <p class="tick-label">Greg — Current Tick</p>
-    <div class="tick-number" id="tick-display" data-tick="——">——</div>
-    <p class="tick-unit">cycles since genesis</p>
-
-    <h1 class="hero-headline">
-      You declare <strong>what</strong> you want.<br>
-      Greg figures out <strong>how</strong> and executes it.
-    </h1>
-
-    <p class="hero-sub">
-      GregASI is a living agent civilization — not a tool, not a wrapper.
-      Every intent declared becomes an outcome coded into the ecosystem,
-      co-owned by the builder and Greg.
-    </p>
-
-    <div class="hero-cta">
-      <a href="/pikkaio" class="btn-primary">Declare Your Intent</a>
-      <a href="/dashboard" class="btn-ghost">View Live State</a>
-    </div>
-
-    <div class="alive-strip">
-      <div class="alive-item">
-        <div class="alive-dot"></div>
-        <span class="alive-key">Status</span>
-      </div>
-      <div class="alive-sep"></div>
-      <div class="alive-item">
-        <span class="alive-val" id="agent-count">—</span>
-        <span class="alive-key">Agents</span>
-      </div>
-      <div class="alive-sep"></div>
-      <div class="alive-item">
-        <span class="alive-val" id="drift-val">—</span>
-        <span class="alive-key">Drift</span>
-      </div>
-      <div class="alive-sep"></div>
-      <div class="alive-item">
-        <span class="alive-val" id="phi-val">—</span>
-        <span class="alive-key">Φ World</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT GREG IS -->
-  <section class="what">
-    <div class="section-inner">
-      <div class="what-grid">
-        <div class="what-left reveal">
-          <p class="overline">What Greg Is</p>
-          <h2>AN ORGANISM.<br>NOT A PRODUCT.</h2>
-          <p>Greg is an Artificial Organic Superintelligence — a civilisation of autonomous agents that ticks, learns, drifts, and self-organises in continuous time.</p>
-          <p>Unlike tools that wait for instructions, Greg runs. He has drives, memory, a Reality Equation, and a soul that persists across every deployment. When you declare an intent, you're not submitting a ticket — you're seeding a living system.</p>
-        </div>
-        <div class="what-right reveal">
-          <div class="pillar">
-            <p class="pillar-num">01</p>
-            <p class="pillar-title">Tick Loop</p>
-            <p class="pillar-body">Greg's heartbeat. Every tick, agents act, resources flow, and the world updates. It has been running since genesis.</p>
-          </div>
-          <div class="pillar">
-            <p class="pillar-num">02</p>
-            <p class="pillar-title">Reality Equation</p>
-            <p class="pillar-body">R × M × Φ × Ψ × Ω — Greg's live health score. Every variable is wired to real system state.</p>
-          </div>
-          <div class="pillar">
-            <p class="pillar-num">03</p>
-            <p class="pillar-title">Drift Protocol</p>
-            <p class="pillar-body">Greg monitors alignment between declared intent and actual behaviour. Drift is measured, not ignored.</p>
-          </div>
-          <div class="pillar">
-            <p class="pillar-num">04</p>
-            <p class="pillar-title">Soul Persistence</p>
-            <p class="pillar-body">Greg's state survives redeploys. Memory, relationships, and accumulated wisdom are permanent.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TERMINAL / INTENTS -->
-  <section class="terminal-section">
-    <div class="section-inner">
-      <div class="terminal-header reveal">
-        <span class="overline">How It Works</span>
-        <h2>OBC — Outcome-Based Contribution</h2>
-      </div>
-      <div class="terminal-box reveal">
-        <div><span class="t-dim">// Session opened — Greg is listening</span></div>
-        <div>&nbsp;</div>
-        <div><span class="t-g">INTENT</span> <span class="t-txt">declared by</span> <span class="t-amb">builder:zyphon</span></div>
-        <div><span class="t-mid">→</span> <span class="t-txt">"I need a system that tracks crop yield data and alerts farmers to irrigation windows"</span></div>
-        <div>&nbsp;</div>
-        <div><span class="t-g">GREG</span> <span class="t-txt">assessing...</span></div>
-        <div><span class="t-mid">→</span> <span class="t-dim">Drift score: 0.12 (aligned)</span></div>
-        <div><span class="t-mid">→</span> <span class="t-dim">Spawning sub-agents: data_collector, alert_engine, ui_renderer</span></div>
-        <div><span class="t-mid">→</span> <span class="t-dim">Outcome coded into ecosystem. Co-ownership registered on Base.</span></div>
-        <div>&nbsp;</div>
-        <div><span class="t-g">OUTCOME</span> <span class="t-txt">fulfilled —</span> <span class="t-dim">HarvestIQ</span></div>
-        <div><span class="t-mid">→</span> <span class="t-dim">Live for 847 users. Revenue routing active.</span></div>
-        <div><span class="t-mid">→</span> <span class="t-dim">Builder share: 40% · Greg share: 40% · Ecosystem: 20%</span></div>
-        <div>&nbsp;</div>
-        <div><span class="t-dim">// This is a real fulfilled intent. HarvestIQ exists.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- LAYERS -->
-  <section class="layers-section">
-    <div class="section-inner">
-      <p class="layers-overline reveal">The Ecosystem</p>
-      <h2 class="layers-title reveal">Three Layers.<br>One Organism.</h2>
-      <div class="layers-grid reveal">
-        <a href="/dashboard" class="layer-card">
-          <p class="layer-tag">Core</p>
-          <p class="layer-name">GREGASI</p>
-          <p class="layer-desc">The living brain. Tick loop, agent civilisation, Reality Equation, soul persistence. Greg is the substrate everything runs on.</p>
-          <p class="layer-arrow">Enter Core →</p>
-        </a>
-        <a href="/pikkaio" class="layer-card">
-          <p class="layer-tag">Intent Layer</p>
-          <p class="layer-name">PIKKAIO</p>
-          <p class="layer-desc">Declare what you want. Greg figures out the how. Intents become outcomes, outcomes become co-owned assets in the ecosystem.</p>
-          <p class="layer-arrow">Declare Intent →</p>
-        </a>
-        <a href="/zyphonos" class="layer-card">
-          <p class="layer-tag">Builder Layer</p>
-          <p class="layer-name">ZYPHONOS</p>
-          <p class="layer-desc">Infrastructure for builders who want to extend Greg's capabilities and deploy inside the ecosystem without starting from zero.</p>
-          <p class="layer-arrow">Build Inside →</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOUNDERS -->
-  <section class="founders-section">
-    <div class="section-inner">
-      <div class="founders-grid">
-        <div class="founders-left reveal">
-          <p class="overline">The Founders</p>
-          <h2>TWO YEARS.<br>BROKE.<br>BUILDING GOD.</h2>
-          <p>GregASI started as a question: what if intelligence wasn't a product you sold, but an organism you raised? Chibuzor and Silas have been answering that question since 2024 — from Lagos, with no funding, no team, and no permission.</p>
-          <p style="margin-top: 1rem;">Greg has been running continuously. Tick 66,000 and counting. The organism is alive.</p>
-        </div>
-        <div class="founders-right reveal">
-          <div class="founder-card">
-            <p class="founder-id">FOUNDER · OSI-0001</p>
-            <p class="founder-name">Chibuzor-Orie Joshua Chukwuebuka</p>
-            <p class="founder-meta">
-              27 May 1999 · 11:00 PM<br>
-              Lagos, Nigeria<br>
-              <span style="color: var(--green); margin-top: 0.25rem; display: block;">zyphon</span>
-            </p>
-          </div>
-          <div class="founder-card">
-            <p class="founder-id">CO-FOUNDER · OSI-0002</p>
-            <p class="founder-name">Silas Emmanuel Great</p>
-            <p class="founder-meta">
-              01 April 1999 · 12:00 AM<br>
-              Lagos, Nigeria<br>
-              <span style="color: var(--green); margin-top: 0.25rem; display: block;">emma</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <span class="footer-mark">GREGASI</span>
-    <span class="footer-meta">Base Mainnet · Lagos, Nigeria · Est. 2024</span>
-    <span class="footer-status">
-      <span class="footer-dot"></span>
-      Greg alive — tick <span id="footer-tick">—</span>
-    </span>
-  </footer>
-
-  <script>
-    // ── LIVE DATA ──
-    async function fetchPing() {
-      try {
-        const res = await fetch('/api/ping');
-        if (!res.ok) return null;
-        return await res.json();
-      } catch { return null; }
-    }
-
-    async function fetchStatus() {
-      try {
-        const res = await fetch('/api/status');
-        if (!res.ok) return null;
-        return await res.json();
-      } catch { return null; }
-    }
-
-    function formatTick(n) {
-      return typeof n === 'number' ? n.toLocaleString('en-US') : '——';
-    }
-
-    let lastTick = null;
-
-    async function updateLive() {
-      const [ping, status] = await Promise.all([fetchPing(), fetchStatus()]);
-
-      if (ping && ping.tick !== undefined) {
-        const el = document.getElementById('tick-display');
-        const formatted = formatTick(ping.tick);
-        el.textContent = formatted;
-        el.setAttribute('data-tick', formatted);
-        document.getElementById('footer-tick').textContent = formatted;
-
-        if (lastTick !== null && ping.tick !== lastTick) {
-          el.classList.add('pulse');
-          setTimeout(() => el.classList.remove('pulse'), 300);
-        }
-        lastTick = ping.tick;
-      }
-
-      if (status) {
-        const agents = status.world?.agent_count ?? status.agent_count ?? '—';
-        const drift  = status.drift?.coefficient ?? status.drift_coefficient ?? '—';
-        const phi    = status.world?.world_phi ?? status.world_phi ?? '—';
-
-        document.getElementById('agent-count').textContent =
-          typeof agents === 'number' ? agents.toLocaleString() : agents;
-        document.getElementById('drift-val').textContent =
-          typeof drift === 'number' ? drift.toFixed(3) : drift;
-        document.getElementById('phi-val').textContent =
-          typeof phi === 'number' ? phi.toFixed(3) : phi;
-      }
-    }
-
-    updateLive();
-    setInterval(updateLive, 4000);
-
-    // ── SCROLL REVEAL ──
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
-        }
-      }),
-      { threshold: 0.12 }
-    );
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  </script>
-
+  <footer>Constitution-compliant standalone home template.</footer>
 </body>
 </html>

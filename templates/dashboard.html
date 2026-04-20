@@ -2,102 +2,77 @@
 
 {% block title %}Dashboard · GregASI{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    margin: 2rem 0;
-  }
-  .stat-card {
-    background: var(--bg2);
-    padding: 1.5rem;
-    text-align: center;
-  }
-  .stat-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.5rem;
-    color: var(--green);
-  }
-  .events-list {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    padding: 1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  .event-item {
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-mid);
-  }
-  .agent-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-</style>
-
-<div>
-  <p class="overline">Dashboard · Live State</p>
-  <h1 class="page-title">Ecosystem Vital Signs</h1>
-  <p class="page-sub">Tick · Agents · Events · Coherence</p>
-
-  <div class="stat-grid" id="stats">
-    <div class="stat-card"><div class="stat-label">Tick</div><div class="stat-value" id="tick">—</div></div>
-    <div class="stat-card"><div class="stat-label">Agents</div><div class="stat-value" id="agents">—</div></div>
-    <div class="stat-card"><div class="stat-label">World Φ</div><div class="stat-value" id="world-phi">—</div></div>
-    <div class="stat-card"><div class="stat-label">Greg Φ</div><div class="stat-value" id="greg-phi">—</div></div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-    <div>
-      <h2 class="page-sub" style="margin-bottom: 1rem;">Recent Events</h2>
-      <div class="events-list" id="events"></div>
-    </div>
-    <div>
-      <h2 class="page-sub" style="margin-bottom: 1rem;">Top Agents</h2>
-      <div id="top-agents" class="events-list"></div>
-    </div>
-  </div>
+{% if protection.preview_mode %}
+<div class="protection-banner">
+  <strong>Protected Surface Preview</strong>
+  <p>{{ protection.message }}</p>
 </div>
+{% endif %}
 
-<script>
-  async function fetchStatus() {
-    try {
-      const res = await fetch('/api/status');
-      if (!res.ok) throw new Error();
-      return await res.json();
-    } catch { return null; }
-  }
-  async function fetchPing() {
-    try {
-      const res = await fetch('/api/ping');
-      if (!res.ok) throw new Error();
-      return await res.json();
-    } catch { return null; }
-  }
-  async function updateDashboard() {
-    const [status, ping] = await Promise.all([fetchStatus(), fetchPing()]);
-    if (ping) document.getElementById('tick').innerText = ping.tick?.toLocaleString() || '—';
-    if (status) {
-      document.getElementById('agents').innerText = status.world?.agent_count || status.agent_count || '—';
-      document.getElementById('world-phi').innerText = status.world?.world_phi?.toFixed(4) || '—';
-      document.getElementById('greg-phi').innerText = status.phi?.toFixed(4) || '—';
-      const events = status.recent_events || [];
-      const eventsDiv = document.getElementById('events');
-      eventsDiv.innerHTML = events.length ? events.map(e => `<div class="event-item">${e}</div>`).join('') : '<div class="event-item">No recent events.</div>';
-      const agents = status.world?.top_agents || [];
-      const agentsDiv = document.getElementById('top-agents');
-      agentsDiv.innerHTML = agents.length ? agents.map(a => `<div class="agent-row"><span>${a.id}</span><span>${a.archetype}</span><span>φ ${a.phi?.toFixed(3)}</span></div>`).join('') : '<div class="event-item">No agent data.</div>';
-    }
-  }
-  updateDashboard();
-  setInterval(updateDashboard, 5000);
-</script>
+<section class="dashboard-room">
+  <p class="overline">Dashboard · Executive Brain</p>
+  <h1 class="page-title">Constitution-Aligned Operating View</h1>
+  <p class="page-sub">Reality state, drift exposure, and founder-facing finance placeholders remain visible while auth is in preview mode.</p>
+
+  <div class="command-strip">
+    <div class="stat-block">
+      <span class="stat-value">{{ dashboard.reality_tick }}</span>
+      <span class="stat-label">Reality Tick</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <span class="stat-value">{{ dashboard.intent_count }}</span>
+      <span class="stat-label">Tracked Intents</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <span class="stat-value">{{ '%.4f'|format(dashboard.max_drift or 0) }}</span>
+      <span class="stat-label">Max Drift</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-block">
+      <span class="stat-value">${{ '%.2f'|format(finance.founder_security_fund_target or 0) }}</span>
+      <span class="stat-label">Founder Security Fund Target</span>
+    </div>
+  </div>
+
+  <div class="constitution-note" style="margin-bottom:2rem;">
+    Constitution-compliant – awaiting revenue. Builder and founder surfaces will enforce live role gates when authentication moves from preview to active enforcement.
+  </div>
+
+  <div class="intents-grid">
+    {% for intent in intents %}
+    <article class="intent-card" style="border-left-color: {{ 'var(--warn)' if intent.drift_score >= 0.45 else 'var(--accent)' }};">
+      <div class="intent-card-header">
+        <h2 class="intent-title">{{ intent.description }}</h2>
+        <span class="intent-drift">{{ '%.4f'|format(intent.drift_score or 0) }}</span>
+      </div>
+      <p class="intent-body">Status {{ intent.status }} · Progress {{ intent.convergence_pct }}% · Revenue ${{ '%.2f'|format(intent.revenue_usd or 0) }}</p>
+      {% if intent.last_intervention %}
+      <p class="intent-intervention">Latest intervention: {{ intent.last_intervention.message }}</p>
+      {% endif %}
+      <div class="intent-footer">
+        <span>Weakest term {{ dashboard.weakest_term }}</span>
+        <span>{{ intent.days_since_activity }} days since activity</span>
+      </div>
+    </article>
+    {% else %}
+    <article class="intent-card" style="border-left-color: var(--border-warm);">
+      <div class="intent-card-header">
+        <h2 class="intent-title">No tracked intents yet</h2>
+      </div>
+      <p class="intent-body">Declare a Pikkaio intent to populate the dashboard.</p>
+      <div class="intent-footer">
+        <span>Reality {{ '%.6f'|format(dashboard.reality_score or 0) }}</span>
+        <span>Epsilon {{ '%.4f'|format(dashboard.epsilon or 0) }}</span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

@@ -11,6 +11,7 @@ from pathlib import Path
 import requests
 from flask import Blueprint, jsonify, request
 
+from constitution_runtime import constitutional_revenue_allocation
 from core.utils import data_path, read_json, write_json
 from greg_identity import issue_access_token
 
@@ -142,6 +143,23 @@ def _access_tier_for_product(product_id: str) -> str:
     return PRODUCTS.get(product_id, {}).get("access_tier", "explorer")
 
 
+def _constitutional_payment_policy(amount_usd: float) -> dict:
+    allocation = constitutional_revenue_allocation(amount_usd)
+    return {
+        "builder_share_pct": allocation["builder_share_pct"],
+        "greg_share_pct": allocation["greg_share_pct"],
+        "treasury_share_pct": allocation["treasury_share_pct"],
+        "founder_stipend_each": allocation["founder_stipend_each"],
+        "founder_security_fund_target": allocation["founder_security_fund_target"],
+        "humanitarian_quarter_cap": allocation["humanitarian_quarter_cap"],
+        "note": (
+            "Constitution-aligned settlement preview. "
+            "Outcome revenue routes builder/greg/treasury through the 40/40/20 rule "
+            "when the fulfilled intent is recorded."
+        ),
+    }
+
+
 @payment_bp.route("/api/payment/products", methods=["GET"])
 def api_payment_products():
     products = []
@@ -156,6 +174,7 @@ def api_payment_products():
                 "treasury": TREASURY_WALLET,
                 "network": "Base Mainnet",
                 "chain_id": 8453,
+                "allocation_policy": _constitutional_payment_policy(payload["price_usd"]),
             }
         )
     return jsonify({"ok": True, "products": products, "treasury": TREASURY_WALLET, "usdc_contract": USDC_CONTRACT})
@@ -205,6 +224,7 @@ def api_payment_intent():
             },
             "usdc_contract": USDC_CONTRACT,
             "status_url": f"/api/payment/status/{payment_id}",
+            "allocation_policy": _constitutional_payment_policy(product["price_usd"]),
         }
     )
 
@@ -252,7 +272,16 @@ def api_payment_verify():
     }
     _save_payment(activation)
     _save_activation(payment_id, activation)
-    return jsonify({"ok": True, "status": "confirmed", "access_token": access_token, "verification": verification, "payment": activation})
+    return jsonify(
+        {
+            "ok": True,
+            "status": "confirmed",
+            "access_token": access_token,
+            "verification": verification,
+            "payment": activation,
+            "allocation_policy": _constitutional_payment_policy(amount_usd),
+        }
+    )
 
 
 @payment_bp.route("/api/payment/status/<payment_id>", methods=["GET"])
