@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Pay · GregASI{% endblock %}
+{% block page_name %}pay{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/commerce.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="commerce-shell">
+  <div class="commerce-hero">
+    <div>
+      <p class="overline">Live Checkout · Base Sepolia</p>
+      <h1 class="page-title">Connect, Pay, Receive</h1>
+      <p class="page-sub">Choose a service, connect a Base-compatible wallet, approve the USDC transfer, and Greg returns the result directly in this chamber.</p>
+    </div>
+    <div class="commerce-callout">
+      <span class="commerce-label">Treasury Wallet</span>
+      <strong class="mono">{{ wallet_address }}</strong>
+      <span class="commerce-note">Network: Base Sepolia · Chain {{ base_chain_id }}</span>
+    </div>
+  </div>
+
+  <div class="checkout-grid">
+    <section class="checkout-panel">
+      <form id="pay-form" class="checkout-form" novalidate>
+        <label>Service
+          <select id="pay-service" name="service">
+            {% for item in services %}
+            <option value="{{ item.service }}" {% if request.args.get('service') == item.service %}selected{% endif %}>
+              {{ item.title }} · ${{ item.price }} USDC
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Intent Description
+          <textarea id="pay-description" name="description" rows="7" placeholder="Describe the image, page, or business task Greg should complete." required></textarea>
+        </label>
+        <div class="checkout-steps">
+          <button id="connect-wallet" type="button" class="button-primary">1. Connect Wallet</button>
+          <button id="start-payment" type="submit" class="button-primary button-secondary">2. Pay With USDC</button>
+        </div>
+        <div class="checkout-status">
+          <span>Wallet</span>
+          <strong id="wallet-status">not connected</strong>
+        </div>
+        <div class="checkout-status">
+          <span>Price</span>
+          <strong id="service-price">$5 USDC</strong>
+        </div>
+      </form>
+    </section>
+
+    <aside class="checkout-panel">
+      <span class="commerce-label">Result</span>
+      <div id="checkout-result" class="result-panel">
+        <p>Your paid result will appear here after the transaction confirms.</p>
+      </div>
+      <div class="sidecar-card">
+        <span class="commerce-label">Need Help?</span>
+        <p>If your wallet cannot connect, pay manually to the treasury wallet and DM details on X.</p>
+        <a class="commerce-link" href="{{ x_url }}" target="_blank" rel="noreferrer">DM on X</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+  window.GREG_CHECKOUT = {
+    services: {{ services|tojson }},
+    chainId: {{ base_chain_id|tojson }},
+    treasuryWallet: {{ wallet_address|tojson }}
+  };
+</script>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/pay.js') }}"></script>
+{% endblock %}

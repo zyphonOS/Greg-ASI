@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Sell · GregASI{% endblock %}
+{% block page_name %}sell{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/commerce.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="commerce-shell">
+  <div class="commerce-hero">
+    <div>
+      <p class="overline">Revenue Rail · GregASI</p>
+      <h1 class="page-title">Buy Directly From The Organism</h1>
+      <p class="page-sub">USDC on Base is the primary path. Manual founder contact remains available for partnerships, larger work, and treasury-backed deals.</p>
+    </div>
+    <div class="commerce-callout">
+      <span class="commerce-label">Treasury Wallet</span>
+      <strong class="mono">{{ wallet_address }}</strong>
+      <a class="button-primary" href="/pay">Open Live Checkout</a>
+    </div>
+  </div>
+
+  <div class="commerce-grid">
+    {% for item in services %}
+    <article class="commerce-card">
+      <span class="commerce-label">{{ item.service }}</span>
+      <h2>{{ item.title }}</h2>
+      <p>{{ item.description }}</p>
+      <div class="commerce-price">${{ item.price }} USDC</div>
+      <a class="commerce-link" href="/pay?service={{ item.service }}">Pay On Base</a>
+    </article>
+    {% endfor %}
+  </div>
+
+  <section class="commerce-sidecar">
+    <div class="sidecar-card">
+      <span class="commerce-label">Manual Fallback</span>
+      <p>Send payment to the treasury wallet above, then DM proof plus your intent on X for manual fulfillment.</p>
+      <a class="commerce-link" href="{{ x_url }}" target="_blank" rel="noreferrer">DM on X</a>
+    </div>
+    <div class="sidecar-card">
+      <span class="commerce-label">Constitution</span>
+      <p>Revenue is allocated under the 40 / 40 / 20 rule. Builder, Greg, and Treasury remain visible in the organism ledger.</p>
+    </div>
+  </section>
+</section>
+{% endblock %}

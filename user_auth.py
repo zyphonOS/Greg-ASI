@@ -32,6 +32,7 @@ AUTH_DB_PATH = data_path("auth.db")
 BASE_SEPOLIA_CHAIN_ID = 84532
 BASE_SEPOLIA_CHAIN_HEX = hex(BASE_SEPOLIA_CHAIN_ID)
 BASE_SEPOLIA_RPC = os.getenv("BASE_RPC_URL", "https://sepolia.base.org")
+PUBLIC_CHECKOUT_EMAIL = os.getenv("PUBLIC_CHECKOUT_EMAIL", "public-checkout@gregasi.local")
 
 auth_bp = Blueprint("auth", __name__)
 login_manager = LoginManager()
@@ -219,6 +220,17 @@ def create_user(email: str, password: str, requested_role: str | None = None) ->
     if not user:
         raise RuntimeError("Unable to load newly created user.")
     return user
+
+
+def get_or_create_public_checkout_user() -> AuthUser:
+    existing = get_user_by_email(PUBLIC_CHECKOUT_EMAIL)
+    if existing:
+        return existing
+    return create_user(
+        PUBLIC_CHECKOUT_EMAIL,
+        password=secrets.token_urlsafe(24),
+        requested_role="builder",
+    )
 
 
 def verify_user(email: str, password: str) -> AuthUser | None:

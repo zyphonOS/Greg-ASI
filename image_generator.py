@@ -3,7 +3,9 @@ from __future__ import annotations
 import io
 import os
 import re
+import time
 import textwrap
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -16,8 +18,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 GENERATED_DIR = PROJECT_ROOT / "static" / "generated"
 DEFAULT_IMAGE_MODEL = os.getenv(
     "HUGGINGFACE_IMAGE_MODEL",
-    "stabilityai/stable-diffusion-xl-base-1.0",
+    "runwayml/stable-diffusion-v1-5",
 )
+POLLINATIONS_BASE_URL = os.getenv("POLLINATIONS_IMAGE_URL", "https://image.pollinations.ai/prompt")
 
 
 def _slugify(value: str) -> str:
@@ -78,27 +81,69 @@ def _draw_placeholder(prompt: str) -> bytes:
 
 
 def _hugging_face_image(prompt: str, api_key: str) -> bytes:
-    response = requests.post(
-        f"https://api-inference.huggingface.co/models/{DEFAULT_IMAGE_MODEL}",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Accept": "image/png",
+    endpoint = f"https://api-inference.huggingface.co/models/{DEFAULT_IMAGE_MODEL}"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Accept": "image/png",
+    }
+    payload = {
+        "inputs": prompt,
+        "options": {
+            "wait_for_model": True,
+            "use_cache": False,
         },
-        json={
-            "inputs": prompt,
-            "options": {
-                "wait_for_model": True,
-            },
+    }
+
+    last_error = None
+    for _ in range(3):
+        response = requests.post(
+            endpoint,
+            headers=headers,
+            json=payload,
+            timeout=180,
+        )
+        content_type = response.headers.get("Content-Type", "")
+        if response.ok and content_type.startswith("image/"):
+            return response.content
+        if response.status_code == 503:
+            try:
+                detail = response.json()
+            except Exception:
+                detail = {}
+            wait_seconds = float(detail.get("estimated_time") or 8.0)
+            time.sleep(max(3.0, min(wait_seconds, 20.0)))
+            last_error = f"model warming for {wait_seconds:.1f}s"
+            continue
+        if content_type.startswith("application/json"):
+            try:
+                detail = response.json()
+            except Exception:
+                detail = {"error": response.text[:300]}
+            raise RuntimeError(f"Hugging Face image generation failed: {detail}")
+        response.raise_for_status()
+        last_error = response.text[:300]
+    raise RuntimeError(f"Hugging Face image generation failed after retries: {last_error or 'unknown error'}")
+
+
+def _pollinations_image(prompt: str) -> bytes:
+    encoded_prompt = urllib.parse.quote(prompt, safe="")
+    url = f"{POLLINATIONS_BASE_URL}/{encoded_prompt}"
+    response = requests.get(
+        url,
+        params={
+            "width": 1024,
+            "height": 1024,
+            "nologo": "true",
+            "enhance": "true",
+            "seed": int(datetime.now(timezone.utc).timestamp()),
         },
         timeout=180,
     )
     response.raise_for_status()
-
     content_type = response.headers.get("Content-Type", "")
-    if content_type.startswith("image/"):
-        return response.content
-
-    raise RuntimeError(f"Unexpected Hugging Face response content type: {content_type or 'unknown'}")
+    if not content_type.startswith("image/"):
+        raise RuntimeError(f"Unexpected Pollinations response content type: {content_type or 'unknown'}")
+    return response.content
 
 
 def generate_image_asset(prompt: str, *, base_url: str | None = None) -> dict[str, Any]:
@@ -107,12 +152,19 @@ def generate_image_asset(prompt: str, *, base_url: str | None = None) -> dict[st
         raise ValueError("prompt is required")
 
     hf_key = os.getenv("HUGGINGFACE_API_KEY", "").strip() or os.getenv("HF_TOKEN", "").strip()
-    used_mock = not bool(hf_key)
-
-    if used_mock:
-        raw_image = _draw_placeholder(clean_prompt)
-    else:
-        raw_image = _hugging_face_image(clean_prompt, hf_key)
+    provider = "huggingface"
+    try:
+        if hf_key:
+            raw_image = _hugging_face_image(clean_prompt, hf_key)
+        else:
+            provider = "pollinations"
+            raw_image = _pollinations_image(clean_prompt)
+    except Exception:
+        if hf_key:
+            provider = "pollinations"
+            raw_image = _pollinations_image(clean_prompt)
+        else:
+            raise
 
     saved = _save_image_bytes(raw_image, clean_prompt)
     url = _resolve_public_url(saved["filename"], base_url=base_url)
@@ -121,6 +173,7 @@ def generate_image_asset(prompt: str, *, base_url: str | None = None) -> dict[st
         "prompt": clean_prompt,
         "image_url": url,
         "image_path": saved["path"],
-        "provider": "mock" if used_mock else "huggingface",
-        "used_mock": used_mock,
+        "provider": provider,
+        "used_mock": False,
+        "model": DEFAULT_IMAGE_MODEL if provider == "huggingface" else "pollinations",
     }
