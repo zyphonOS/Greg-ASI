@@ -28,7 +28,9 @@ class CommandLocus:
         if not resolved:
             return {"ok": False, "error": "Action required."}, 400
 
-        handler = getattr(self, f"_action_{resolved}", None)
+        handler = getattr(self, f"handle_{resolved}", None)
+        if not handler:
+            handler = getattr(self, f"_action_{resolved}", None)
         if not handler:
             return {
                 "ok": False,
@@ -43,17 +45,26 @@ class CommandLocus:
             }, 400
         return handler(payload)
 
-    def _action_think(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
-        prompt = str(payload.get("prompt") or "").strip()
-        mode = str(payload.get("mode") or "presence").strip() or "presence"
-        user_id = str(payload.get("user_id") or "public").strip() or "public"
+    def handle_think(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
+        prompt = str((payload or {}).get("prompt") or "").strip()
         if not prompt:
             return {"ok": False, "error": "Prompt required."}, 400
+
+        try:
+            import sys
+            main_mod = sys.modules.get("main") or sys.modules.get("__main__")
+            groq_caller = getattr(main_mod, "call_groq", None)
+            if groq_caller is None:
+                from main import call_groq as groq_caller
+            response = groq_caller(prompt)
+        except Exception as exc:
+            return {"ok": False, "error": f"Think failed: {exc}"}, 500
+
         return {
             "ok": True,
             "action": "think",
-            "response": self.greg.think(prompt, mode=mode, user_id=user_id),
-            "tick": self.greg.world.tick,
+            "response": response,
+            "tick": getattr(getattr(self.greg, "world", None), "tick", 0),
         }, 200
 
     def _action_speak_first(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
