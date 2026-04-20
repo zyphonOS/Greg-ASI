@@ -13,4 +13,4 @@ RUN git config --global user.email "greg@gregasi.com" && git config --global use
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4"]
+CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "4"]

@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import os
 from typing import Any
+
+from constitution_security import (
+    DEFAULT_FOUNDER_AMENDMENT_TOKEN,
+    touches_substantive_keywords,
+)
 
 
 class ConstitutionViolation(RuntimeError):
@@ -68,6 +74,26 @@ _REVENUE_CHANGE_TERMS = (
     "founder equity",
     "profit-interest",
 )
+_CONSTITUTION_CORRECT_TERMS = (
+    "/api/constitution/correct",
+    "constitution_correct",
+    "constitution correct",
+)
+_IMAGE_INTENT_TERMS = (
+    "generate image",
+    "generate an image",
+    "create image",
+    "create an image",
+    "image generation",
+    "generate logo",
+    "create logo",
+    "make logo",
+    "poster",
+    "cover art",
+    "illustration",
+    "banner art",
+    "/api/greg/image",
+)
 
 
 def _normalize_text(value: Any) -> str:
@@ -129,6 +155,10 @@ def _is_code_change_intent(intent_description: str, payload: dict[str, Any]) -> 
             _normalize_text(payload.get("write_files")),
         ]
     )
+    if _is_image_generation_intent(intent_description, payload):
+        image_only = not any(term in combined for term in ("main.py", "commit", "push", "git", "deploy"))
+        if image_only:
+            return False
     if any(term in combined for term in _CODE_CHANGE_TERMS):
         return True
     return bool(
@@ -138,6 +168,23 @@ def _is_code_change_intent(intent_description: str, payload: dict[str, Any]) -> 
         or payload.get("git_commands")
         or payload.get("target_branch")
     )
+
+
+def _is_image_generation_intent(intent_description: str, payload: dict[str, Any]) -> bool:
+    combined = " ".join(
+        [
+            _normalize_text(intent_description),
+            _normalize_text(payload.get("prompt")),
+            _normalize_text(payload.get("task")),
+            _normalize_text(payload.get("description")),
+            _normalize_text(payload.get("endpoint")),
+            _normalize_text(payload.get("action")),
+            _normalize_text(payload.get("capability")),
+        ]
+    )
+    if any(term in combined for term in _IMAGE_INTENT_TERMS):
+        return True
+    return bool(payload.get("image_generation") or payload.get("capability") == "image_generation")
 
 
 def _has_founder_approval(payload: dict[str, Any]) -> bool:
@@ -151,6 +198,15 @@ def _has_constitutional_amendment(payload: dict[str, Any]) -> bool:
     return bool(payload.get("constitutional_amendment")) or str(payload.get("type") or "").strip().lower() == "constitutional_amendment"
 
 
+def _requires_constitution_correction_review(payload: dict[str, Any], combined: str) -> bool:
+    if any(term in combined for term in _CONSTITUTION_CORRECT_TERMS):
+        return True
+    return any(
+        _normalize_text(payload.get(key)) in _CONSTITUTION_CORRECT_TERMS
+        for key in ("path", "route", "endpoint", "action")
+    )
+
+
 def validate_intent_against_constitution(intent_description: str, payload: dict[str, Any] | None) -> None:
     payload = payload or {}
     description = _normalize_text(intent_description)
@@ -162,6 +218,12 @@ def validate_intent_against_constitution(intent_description: str, payload: dict[
             _normalize_text(payload.get("description")),
             _normalize_text(payload.get("commands")),
             _normalize_text(payload.get("git_commands")),
+            _normalize_text(payload.get("path")),
+            _normalize_text(payload.get("route")),
+            _normalize_text(payload.get("endpoint")),
+            _normalize_text(payload.get("action")),
+            _normalize_text(payload.get("new_text")),
+            _normalize_text(payload.get("section")),
         ]
     )
 
@@ -174,6 +236,18 @@ def validate_intent_against_constitution(intent_description: str, payload: dict[
         raise ConstitutionViolation(
             "Constitution violation: revenue split and founder economics can only change through a constitutional amendment."
         )
+
+    if _requires_constitution_correction_review(payload, combined):
+        founder_token = str(payload.get("founder_token") or "").strip()
+        expected_token = os.getenv("FOUNDER_AMENDMENT_TOKEN", DEFAULT_FOUNDER_AMENDMENT_TOKEN).strip()
+        if founder_token != expected_token:
+            raise ConstitutionViolation(
+                "Constitution violation: /api/constitution/correct requires a valid founder_token."
+            )
+        if touches_substantive_keywords(payload.get("section"), payload.get("new_text"), combined):
+            raise ConstitutionViolation(
+                "Constitution violation: substantive constitution changes require the full amendment process."
+            )
 
     build_steps = _extract_build_steps(payload)
     target_branch = _normalize_text(payload.get("target_branch") or payload.get("branch") or payload.get("base_branch"))

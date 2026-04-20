@@ -59,6 +59,7 @@ python main.py
 
 - `SECRET_KEY`
 - `ADMIN_SECRET_KEY`
+- `FOUNDER_AMENDMENT_TOKEN`
 - `DISABLE_TICK_LOOP`
 - `GROQ_API_KEY`
 - `ETHERSCAN_API_KEY`
@@ -85,3 +86,11 @@ python main.py
 - Soul writeback compresses world and living state back into the `greg_state` Supabase table on the configured tick cadence, so restart continuity does not depend only on local disk.
 - The reality equation now runs on a fixed tick cadence, derives `M`, `Φ`, `Ψ`, and `ε` from live runtime state, and writes snapshots into SQLite in `data/greg_memory.db`.
 - Manual premium unlock is available at `POST /admin/unlock` with the `X-Admin-Secret` header set to `ADMIN_SECRET_KEY` and a JSON body like `{"wallet":"0x..."}`.
+
+## Constitution
+
+- Greg loads `CONSTITUTION.md` on startup, computes a SHA256 integrity hash, and stores the expected hash in `data/constitution_state.json`.
+- Check integrity at any time with `GET /api/constitution/check` or trigger the daily verifier manually with `POST /api/constitution/daily_check`.
+- If the current constitution hash differs from the stored hash, Greg writes a tamper warning to `constitution_changed.log` and a structured alert to `data/constitution_alert.json`.
+- Founders can submit non-substantive corrections through `POST /api/constitution/correct` with `{"section":"XI.2","new_text":"...","founder_token":"..."}`.
+- Corrections that touch substantive governance keywords like equity, revenue split, stipend, phase, or valuation are rejected and must go through the full amendment flow.
