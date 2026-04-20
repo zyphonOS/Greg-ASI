@@ -44,17 +44,32 @@ class AgentManager:
         state[agent_id] = payload
         write_json(self.state_path, state)
 
-    def spawn(self, name: str, perspective: str) -> dict[str, Any]:
+    def spawn(
+        self,
+        name: str,
+        perspective: str,
+        *,
+        archetype: str | None = None,
+        current_task: str | None = None,
+        reputation: float = 0.0,
+        resource_limit: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         agent_id = uuid.uuid4().hex[:12]
         stop_event = threading.Event()
+        clean_archetype = str(archetype or perspective or "general").strip() or "general"
+        clean_task = str(current_task or "monitor the ecosystem").strip() or "monitor the ecosystem"
         base_state = {
             "agent_id": agent_id,
             "name": name,
             "perspective": perspective,
+            "archetype": clean_archetype,
             "status": "starting",
             "started_at": utc_now(),
             "last_seen": utc_now(),
             "heartbeat": 0,
+            "reputation": round(float(reputation or 0.0), 4),
+            "resource_limit": resource_limit or {"cpu": 1, "api_tokens": 1000, "budget_usdc": 0},
+            "current_task": clean_task,
             "latest_note": f"{name} is booting with the '{perspective}' perspective.",
         }
         self._persist(agent_id, base_state)
@@ -97,7 +112,11 @@ class AgentManager:
             "agent_id": agent_id,
             "name": name,
             "perspective": perspective,
+            "archetype": clean_archetype,
             "status": "running",
+            "reputation": round(float(reputation or 0.0), 4),
+            "resource_limit": resource_limit or {"cpu": 1, "api_tokens": 1000, "budget_usdc": 0},
+            "current_task": clean_task,
         }
 
     def list_agents(self) -> list[dict[str, Any]]:

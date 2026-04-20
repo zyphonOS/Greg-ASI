@@ -18,6 +18,7 @@ from typing import Any
 import requests
 from dotenv import load_dotenv
 from flask import Blueprint, Flask, Response, jsonify, render_template, request, session
+from flask_login import current_user, login_required
 
 from constitution_runtime import (
     build_auth_state,
@@ -35,8 +36,29 @@ from constitution_security import (
     touches_substantive_keywords,
 )
 from image_generator import generate_image_asset
-from intent_store import init_db as init_intent_db, save_intent, update_intent_status
+from intent_store import get_intent, get_intents, init_db as init_intent_db, save_intent, update_intent_status
+from payment_routes import payment_api_bp
+from rl_loop import (
+    augment_prompt_with_examples,
+    init_rl_store,
+    latest_intent_outcomes,
+    predict_intent_success,
+    record_intent_outcome,
+    start_rl_background_loop,
+    update_intent_feedback,
+)
+from chat_routes import chat_bp, init_chat_db
 from constitution_guard import ConstitutionViolation, validate_intent_against_constitution
+from user_auth import (
+    all_payments_summary,
+    auth_bp,
+    auth_state_for_current_user,
+    get_user_record,
+    has_role,
+    init_auth,
+    login_or_json,
+    role_required,
+)
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -158,10 +180,17 @@ app.config.update(
     SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true",
 )
 
+init_auth(app)
+init_chat_db()
+init_rl_store()
+
 for error in _optional_import_errors:
     app.logger.warning(error)
 
 app.register_blueprint(pingme_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(chat_bp)
+app.register_blueprint(payment_api_bp)
 if zyphonos_bp is not None:
     app.register_blueprint(zyphonos_bp, url_prefix="/zyphonos")
 if pikkaio_bp is not None:
@@ -413,9 +442,15 @@ def _start_background_services() -> None:
         return
     if os.getenv("DISABLE_TICK_LOOP", "false").lower() == "true":
         app.logger.info("Greg tick loop disabled by DISABLE_TICK_LOOP=true.")
+        if not app.extensions.get("greg_rl_started"):
+            start_rl_background_loop(greg)
+            app.extensions["greg_rl_started"] = True
         return
     greg.start_background_tick()
     app.extensions["greg_tick_started"] = True
+    if not app.extensions.get("greg_rl_started"):
+        start_rl_background_loop(greg)
+        app.extensions["greg_rl_started"] = True
 
 
 if os.environ.get("WERKZEUG_RUN_MAIN") in {None, "true"}:
@@ -482,10 +517,11 @@ def call_groq(prompt: str) -> str:
     prompt = str(prompt or "").strip()
     if not prompt:
         return "Prompt required."
+    augmented_prompt = augment_prompt_with_examples(prompt)
 
     api_key = os.getenv("GROQ_API_KEY", "").strip()
     if not api_key:
-        return _mock_groq(prompt)
+        return _mock_groq(augmented_prompt)
 
     try:
         from groq import Groq
@@ -498,16 +534,16 @@ def call_groq(prompt: str) -> str:
                     "role": "system",
                     "content": "You are GregASI. Answer directly and usefully.",
                 },
-                {"role": "user", "content": prompt},
+                {"role": "user", "content": augmented_prompt},
             ],
             max_tokens=256,
             temperature=0.2,
         )
         content = (completion.choices[0].message.content or "").strip()
-        return content or _mock_groq(prompt)
+        return content or _mock_groq(augmented_prompt)
     except Exception as exc:
         app.logger.warning("Groq call failed, using mock response: %s", exc)
-        return _mock_groq(prompt)
+        return _mock_groq(augmented_prompt)
 
 
 def _run_command(command: list[str], *, step: str, cwd: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -867,32 +903,21 @@ def _default_base_url() -> str:
 
 
 def _payment_activity_snapshot() -> dict[str, Any]:
-    payment_log_path = Path(data_path("greg_payments.jsonl"))
-    latest_confirmed: dict[str, dict[str, Any]] = {}
-    if payment_log_path.exists():
-        for line in payment_log_path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            try:
-                record = json.loads(line)
-            except Exception:
-                continue
-            if str(record.get("status") or "").strip().lower() != "confirmed":
-                continue
-            payment_id = str(record.get("payment_id") or record.get("tx_hash") or uuid.uuid4().hex)
-            latest_confirmed[payment_id] = {
-                "payment_id": payment_id,
-                "product_id": record.get("product_id") or "",
-                "amount_usd": round(float(record.get("amount_usd") or 0.0), 2),
-                "currency": record.get("currency") or "usdc",
-                "tx_hash": record.get("tx_hash") or "",
-                "confirmed_at": record.get("confirmed_at") or record.get("created_at") or "",
-                "buyer_wallet": record.get("buyer_wallet") or "",
-            }
-
-    transactions = list(latest_confirmed.values())
-    transactions.sort(key=lambda item: item.get("confirmed_at", ""), reverse=True)
-    confirmed_total = round(sum(float(item.get("amount_usd") or 0.0) for item in transactions), 2)
+    payment_summary = all_payments_summary(limit=250)
+    transactions = [
+        {
+            "payment_id": row.get("payment_id"),
+            "product_id": row.get("service"),
+            "amount_usd": round(float(row.get("amount_usdc") or 0.0), 2),
+            "currency": "usdc",
+            "tx_hash": row.get("tx_hash") or "",
+            "confirmed_at": row.get("confirmed_at") or row.get("created_at") or "",
+            "buyer_wallet": row.get("wallet_address") or "",
+        }
+        for row in payment_summary.get("payments", [])
+        if row.get("status") == "confirmed"
+    ]
+    confirmed_total = round(float(payment_summary.get("confirmed_usdc") or 0.0), 2)
     finance = constitutional_revenue_allocation(
         confirmed_total,
         treasury_balance=confirmed_total * 0.2,
@@ -900,6 +925,7 @@ def _payment_activity_snapshot() -> dict[str, Any]:
     )
     return {
         "confirmed_usd": round(confirmed_total, 2),
+        "pending_usd": round(float(payment_summary.get("pending_usdc") or 0.0), 2),
         "finance": finance,
         "transactions": transactions[:20],
     }
@@ -907,8 +933,12 @@ def _payment_activity_snapshot() -> dict[str, Any]:
 
 @app.context_processor
 def inject_shell_context() -> dict[str, Any]:
+    if current_user.is_authenticated:
+        auth_payload = auth_state_for_current_user()
+    else:
+        auth_payload = build_auth_state(session)
     return {
-        "auth": build_auth_state(session),
+        "auth": auth_payload,
         "constitution_hash": constitution_hash,
         "constitution_finance_policy": constitutional_revenue_allocation(0.0),
     }
@@ -919,17 +949,107 @@ def _dispatch_command(action: str, payload: dict | None = None):
     return jsonify(body), status_code
 
 
+def _constitution_status_snapshot() -> dict[str, Any]:
+    state = read_json(data_path("constitution_state.json"), {"constitution_hash": stored_constitution_hash})
+    current_hash = _hash_constitution(_read_constitution_text())
+    expected_hash = str(state.get("constitution_hash") or stored_constitution_hash or current_hash).strip() or current_hash
+    return {
+        "last_checked_at": state.get("last_checked_at") or "",
+        "current_hash": current_hash,
+        "stored_hash": expected_hash,
+        "matches": current_hash == expected_hash,
+    }
+
+
+def _humanitarian_intent_proposals() -> list[dict[str, Any]]:
+    return [
+        {
+            "title": "Free AI Tutor For Nigerian Students",
+            "summary": "A lightweight study companion that turns uploaded WAEC/JAMB notes into quizzes and revision plans.",
+        },
+        {
+            "title": "Disaster Signal Intake Board",
+            "summary": "An emergency intake surface that converts social posts and SMS reports into ranked response queues.",
+        },
+        {
+            "title": "Founder Knowledge Fellowship",
+            "summary": "A public builder curriculum that turns Greg's own learned patterns into open startup lessons.",
+        },
+    ]
+
+
+def _founder_office_snapshot() -> dict[str, Any]:
+    status = dict(greg.status_snapshot())
+    intents = get_intents(limit=100)
+    payments = _payment_activity_snapshot()
+    finance = payments["finance"]
+    constitution_status = _constitution_status_snapshot()
+    reality = status.get("reality") or greg.latest_reality or greg.refresh_reality(force=True, persist=False)
+    return {
+        "status": status,
+        "reality": reality,
+        "intents": intents,
+        "payments": payments,
+        "finance": finance,
+        "agents": agent_manager.list_agents(),
+        "constitution": constitution_status,
+        "humanitarian_proposals": _humanitarian_intent_proposals(),
+        "intent_outcomes": latest_intent_outcomes(limit=20),
+    }
+
+
 def process_intent(intent_id: str, description: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
     payload = dict(payload or {})
     payload.setdefault("build_protocol_steps", _intent_build_protocol_steps())
+    payload.setdefault("description", description)
     save_intent(intent_id, description, status="pending")
+    start_time = time.time()
+    drift_before = float((((greg.status_snapshot().get("drift") or {}).get("coefficient")) or 0.0))
+    generated_artifact = ""
+
+    def stage_update(stage: str, **extra: Any) -> None:
+        update_intent_status(
+            intent_id,
+            "running",
+            result=json.dumps({"stage": stage, **extra}, ensure_ascii=True),
+        )
 
     try:
         validate_intent_against_constitution(description, payload)
-        update_intent_status(intent_id, "running", result=json.dumps({"stage": "validated"}))
+        stage_update("intent_declared", steps=payload["build_protocol_steps"])
+
+        feasibility_score = predict_intent_success(description)
+        feasibility = {
+            "success_probability": feasibility_score,
+            "alternative_approach": "",
+        }
+        if feasibility_score < 0.6:
+            feasibility["alternative_approach"] = call_groq(
+                f"Propose a safer, constitution-compliant implementation strategy for this intent: {description}"
+            )
+        stage_update("feasibility_analysis", **feasibility)
+
+        agent_role = "designer" if _is_image_intent(description, payload) else "builder"
+        assigned_agent = greg.spawn_agent(
+            agent_role,
+            archetype=agent_role,
+            current_task=description,
+            reputation=0.55,
+            resource_limit=payload.get("resource_limit") if isinstance(payload.get("resource_limit"), dict) else None,
+        )
+        stage_update("agent_assignment", agent=assigned_agent)
 
         if _is_image_intent(description, payload):
             image_result = generate_image_asset(description, base_url=payload.get("base_url") or _default_base_url())
+            generated_artifact = image_result["image_url"]
+            stage_update("autonomous_execution", kind="image", image_url=image_result["image_url"])
+            review_notes = {
+                "reviewer": "greg-automated",
+                "review_status": "approved",
+                "provider": image_result["provider"],
+            }
+            stage_update("validation_review", **review_notes)
+            stage_update("deployment", image_url=image_result["image_url"])
             result = {
                 "ok": True,
                 "intent_id": intent_id,
@@ -937,26 +1057,47 @@ def process_intent(intent_id: str, description: str, payload: dict[str, Any] | N
                 "kind": "image",
                 "image_url": image_result["image_url"],
                 "provider": image_result["provider"],
+                "feasibility": feasibility,
+                "assigned_agent": assigned_agent,
                 "constitution_hash": constitution_hash,
             }
-            update_intent_status(intent_id, "done", result=json.dumps(result), error=None)
+            update_intent_status(intent_id, "done", result=json.dumps(result, ensure_ascii=True), error=None)
+            drift_after = float((((greg.status_snapshot().get("drift") or {}).get("coefficient")) or 0.0))
+            record_intent_outcome(
+                intent_id=intent_id,
+                description=description,
+                generated_code=generated_artifact,
+                success=True,
+                execution_time=time.time() - start_time,
+                drift_change=drift_after - drift_before,
+                revenue_generated=float(payload.get("revenue_generated") or 0.0),
+            )
             return result
 
         spec = _generate_intent_spec(intent_id, description, payload)
         files, main_route, template_rel_path = _normalize_generated_files(spec, intent_id=intent_id)
-        _require_git_credentials()
         written_files = _write_generated_files(files)
         _ensure_main_route_in_main_py(main_route, template_rel_path)
-        update_intent_status(
-            intent_id,
-            "running",
-            result=json.dumps({"stage": "files_written", "files": written_files, "main_route": main_route}),
-        )
+        generated_artifact = "\n\n".join(f"{item['path']}\n{item['content']}" for item in files[:4])
+        stage_update("autonomous_execution", files=written_files, main_route=main_route)
+
+        review_ok = bool(files and all(str(item.get("content") or "").strip() for item in files))
+        review_notes = {
+            "reviewer": "greg-automated",
+            "review_status": "approved" if review_ok else "rejected",
+            "route": main_route,
+            "template": template_rel_path,
+            "files_count": len(written_files),
+        }
+        if not review_ok:
+            raise RuntimeError("Validation review rejected the generated files.")
+        stage_update("validation_review", **review_notes)
 
         starting_tick = int(getattr(getattr(greg, "world", None), "tick", 0))
         _git_commit_and_push(intent_id, description)
         deploy_base_url = str(payload.get("base_url") or _default_base_url()).rstrip("/")
         deploy_state = _poll_deploy(deploy_base_url, starting_tick)
+        stage_update("deployment", deploy_tick=deploy_state["tick"], main_route=main_route)
 
         result = {
             "ok": True,
@@ -968,12 +1109,34 @@ def process_intent(intent_id: str, description: str, payload: dict[str, Any] | N
             "full_url": f"{deploy_base_url}{main_route}",
             "files": written_files,
             "deploy_tick": deploy_state["tick"],
+            "feasibility": feasibility,
+            "assigned_agent": assigned_agent,
+            "review": review_notes,
             "constitution_hash": constitution_hash,
         }
-        update_intent_status(intent_id, "done", result=json.dumps(result), error=None)
+        update_intent_status(intent_id, "done", result=json.dumps(result, ensure_ascii=True), error=None)
+        drift_after = float((((greg.status_snapshot().get("drift") or {}).get("coefficient")) or 0.0))
+        record_intent_outcome(
+            intent_id=intent_id,
+            description=description,
+            generated_code=generated_artifact,
+            success=True,
+            execution_time=time.time() - start_time,
+            drift_change=drift_after - drift_before,
+            revenue_generated=float(payload.get("revenue_generated") or 0.0),
+        )
         return result
     except ConstitutionViolation as exc:
         update_intent_status(intent_id, "failed", error=str(exc))
+        record_intent_outcome(
+            intent_id=intent_id,
+            description=description,
+            generated_code=generated_artifact or str(exc),
+            success=False,
+            execution_time=time.time() - start_time,
+            drift_change=0.0,
+            revenue_generated=float(payload.get("revenue_generated") or 0.0),
+        )
         return {
             "ok": False,
             "intent_id": intent_id,
@@ -983,6 +1146,16 @@ def process_intent(intent_id: str, description: str, payload: dict[str, Any] | N
         }
     except Exception as exc:
         update_intent_status(intent_id, "failed", error=str(exc))
+        drift_after = float((((greg.status_snapshot().get("drift") or {}).get("coefficient")) or 0.0))
+        record_intent_outcome(
+            intent_id=intent_id,
+            description=description,
+            generated_code=generated_artifact or str(exc),
+            success=False,
+            execution_time=time.time() - start_time,
+            drift_change=drift_after - drift_before,
+            revenue_generated=float(payload.get("revenue_generated") or 0.0),
+        )
         return {
             "ok": False,
             "intent_id": intent_id,
@@ -1170,6 +1343,24 @@ def treasury():
     )
 
 
+@app.route("/founder-office")
+@role_required("founder")
+def founder_office():
+    office = _founder_office_snapshot()
+    return render_template("founder_office.html", office=office)
+
+
+@app.route("/greg-state")
+def greg_state_page():
+    snapshot = greg.status_snapshot()
+    return render_template(
+        "greg_state.html",
+        constitution_status=_constitution_status_snapshot(),
+        active_agents=agent_manager.list_agents(),
+        greg_snapshot=snapshot,
+    )
+
+
 @app.route("/api/greg/status")
 def greg_status():
     status = dict(greg.status_snapshot())
@@ -1183,6 +1374,7 @@ def greg_status():
         "hash": constitution_hash,
         "stored_hash": stored_constitution_hash,
     }
+    status["intent_queue"] = get_intents(limit=25)
     return jsonify(status)
 
 
@@ -1199,6 +1391,7 @@ def api_status():
         "hash": constitution_hash,
         "stored_hash": stored_constitution_hash,
     }
+    status["intent_queue"] = get_intents(limit=25)
     return jsonify(status)
 
 
@@ -1270,6 +1463,19 @@ def api_task():
     return jsonify(body), status_code
 
 
+@app.route("/api/intents/<intent_id>/feedback", methods=["POST"])
+@login_required
+def api_intent_feedback(intent_id: str):
+    payload = request.get_json(silent=True) or {}
+    feedback = str(payload.get("feedback") or "").strip().lower()
+    if feedback not in {"like", "dislike"}:
+        return jsonify({"ok": False, "error": "feedback must be 'like' or 'dislike'"}), 400
+    updated = update_intent_feedback(intent_id, feedback)
+    if not updated:
+        return jsonify({"ok": False, "error": "intent outcome not found"}), 404
+    return jsonify({"ok": True, "intent_id": intent_id, "feedback": feedback, "outcome": updated})
+
+
 @app.route("/api/greg/speak-first")
 def greg_speak_first():
     mode = (request.args.get("mode") or "presence").strip()
@@ -1301,6 +1507,59 @@ def greg_spawn_agent():
     except ConstitutionViolation as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     return _dispatch_command("spawn_agent", payload)
+
+
+@app.route("/api/founder/intents/<intent_id>/cancel", methods=["POST"])
+@role_required("founder")
+def api_founder_cancel_intent(intent_id: str):
+    intent = get_intent(intent_id)
+    if not intent:
+        return jsonify({"ok": False, "error": "Intent not found"}), 404
+    update_intent_status(intent_id, "cancelled", result=intent.get("result"), error="Cancelled by founder")
+    return jsonify({"ok": True, "intent_id": intent_id, "status": "cancelled"})
+
+
+@app.route("/api/founder/intents/<intent_id>/retry", methods=["POST"])
+@role_required("founder")
+def api_founder_retry_intent(intent_id: str):
+    intent = get_intent(intent_id)
+    if not intent:
+        return jsonify({"ok": False, "error": "Intent not found"}), 404
+    payload = request.get_json(silent=True) or {}
+    result = process_intent(intent_id, intent["description"], payload or {"build_protocol_steps": _intent_build_protocol_steps()})
+    return jsonify(result), (200 if result.get("ok") else 400)
+
+
+@app.route("/api/founder/staff-agents", methods=["POST"])
+@role_required("founder")
+def api_founder_staff_agents():
+    payload = request.get_json(silent=True) or {}
+    archetype = str(payload.get("archetype") or "builder").strip().lower() or "builder"
+    current_task = str(payload.get("current_task") or f"support the {archetype} rail").strip()
+    resource_limit = payload.get("resource_limit")
+    if resource_limit is not None and not isinstance(resource_limit, dict):
+        return jsonify({"ok": False, "error": "resource_limit must be an object"}), 400
+    try:
+        validate_intent_against_constitution(
+            f"spawn staff agent {archetype}",
+            {
+                **payload,
+                "action": "spawn_agent",
+                "endpoint": "/api/founder/staff-agents",
+                "founder_approval": True,
+                "build_protocol_steps": _intent_build_protocol_steps(),
+            },
+        )
+    except ConstitutionViolation as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    result = greg.spawn_agent(
+        archetype,
+        archetype=archetype,
+        current_task=current_task,
+        reputation=float(payload.get("reputation") or 0.9),
+        resource_limit=resource_limit or {"cpu": 1, "api_tokens": 2000, "budget_usdc": 0},
+    )
+    return jsonify({"ok": True, "agent": result}), 200
 
 
 @app.route("/api/greg/agents/<agent_id>/stop", methods=["POST"])

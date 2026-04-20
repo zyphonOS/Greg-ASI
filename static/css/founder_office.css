@@ -1,0 +1,175 @@
+.office-shell {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.office-hero {
+  display: grid;
+  gap: 1rem;
+}
+
+.office-runtime-grid,
+.office-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.office-metric,
+.summary-card {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.office-metric span,
+.summary-card span,
+.integrity-grid span {
+  color: var(--text-dim);
+}
+
+.office-metric strong,
+.summary-card strong {
+  font-size: 1.4rem;
+}
+
+.office-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.office-panel {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.panel-label {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.panel-header h2 {
+  font-size: 2rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.office-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.office-table th,
+.office-table td {
+  padding: 0.75rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.table-button {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.table-button:hover {
+  border-color: var(--border-g);
+}
+
+.agent-list,
+.proposal-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.agent-card,
+.proposal-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.office-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.office-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-mid);
+  font-size: 0.82rem;
+}
+
+.office-form input,
+.office-form select {
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+}
+
+.office-form-grid,
+.integrity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.integrity-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.integrity-grid div {
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 0.2rem;
+}
+
+.office-note {
+  min-height: 1.2rem;
+  color: var(--text-mid);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 960px) {
+  .office-grid,
+  .office-runtime-grid,
+  .office-card-grid,
+  .office-form-grid,
+  .integrity-grid {
+    grid-template-columns: 1fr;
+  }
+}

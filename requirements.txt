@@ -7,6 +7,8 @@ numpy==2.4.4
 groq==0.20.0
 Pillow==10.4.0
 flake8==7.1.0
-flask-login
-werkzeug
-email-validator
+Flask-Login==0.6.3
+Werkzeug==3.1.3
+email-validator==2.2.0
+scikit-learn==1.5.2
+chromadb==0.5.11

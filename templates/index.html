@@ -11,6 +11,24 @@
 {% block content %}
 <section class="homepage-room room-shell" aria-label="Intent declaration">
     <div class="homepage-locus">
+        <div class="homepage-status-widget" aria-label="Greg live status">
+            <div class="status-chip">
+                <span class="status-kicker">Greg</span>
+                <strong id="homepage-alive">checking...</strong>
+            </div>
+            <div class="status-chip">
+                <span class="status-kicker">Tick</span>
+                <strong id="homepage-tick">--</strong>
+            </div>
+            <div class="status-chip">
+                <span class="status-kicker">Drift</span>
+                <strong id="homepage-drift">--</strong>
+            </div>
+            <div class="status-chip">
+                <span class="status-kicker">Reality</span>
+                <strong id="homepage-reality">--</strong>
+            </div>
+        </div>
         <p class="homepage-headline">State what you are actually building.</p>
         <form id="intent-form" class="intent-form" novalidate>
             <div class="intent-field-wrap">

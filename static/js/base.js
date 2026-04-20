@@ -3,6 +3,9 @@
     const navMenu = document.getElementById("nav-menu");
     const navBackdrop = document.getElementById("nav-backdrop");
     const pulse = document.getElementById("tick-pulse");
+    const badge = document.getElementById("greg-status-badge");
+    const badgeTick = document.getElementById("greg-status-badge-tick");
+    const badgeDrift = document.getElementById("greg-status-badge-drift");
 
     let lastAliveAt = Date.now();
     let lastState = null;
@@ -36,12 +39,38 @@
     }
 
     async function fetchStateDirect() {
-        const response = await fetch("/api/state", { cache: "no-store" });
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-            throw new Error(data.error || "Unable to read /api/state.");
+        const [stateResponse, statusResponse] = await Promise.all([
+            fetch("/api/state", { cache: "no-store" }),
+            fetch("/api/status", { cache: "no-store" }),
+        ]);
+        const stateData = await stateResponse.json();
+        const statusData = await statusResponse.json();
+        if (!stateResponse.ok || !stateData.ok) {
+            throw new Error(stateData.error || "Unable to read /api/state.");
         }
-        return data;
+        if (!statusResponse.ok) {
+            throw new Error(statusData.error || "Unable to read /api/status.");
+        }
+        return {
+            ...stateData,
+            status: statusData,
+            drift: statusData.drift || {},
+            reality: statusData.reality || {},
+            tick: stateData.tick != null ? stateData.tick : statusData.tick,
+        };
+    }
+
+    function renderBadge(state) {
+        if (!badge || !badgeTick || !badgeDrift || !state) {
+            return;
+        }
+        const tick = Number(state.tick || 0);
+        const drift = Number((state.drift && state.drift.coefficient) || 0);
+        const category = (state.drift && state.drift.category) || "unknown";
+        badgeTick.textContent = `tick ${tick}`;
+        badgeDrift.textContent = `${category} ${drift.toFixed(3)}`;
+        badge.style.borderColor = driftColor(drift);
+        badge.style.boxShadow = `inset 0 0 0 1px ${driftColor(drift)}22`;
     }
 
     async function pollState() {
@@ -52,6 +81,7 @@
                 lastAliveAt = Date.now();
             }
             setPulse((Date.now() - lastAliveAt) <= 10000);
+            renderBadge(data);
             document.dispatchEvent(new CustomEvent("greg:state", { detail: data }));
             return data;
         } catch (error) {

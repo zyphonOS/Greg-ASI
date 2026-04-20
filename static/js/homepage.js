@@ -10,6 +10,10 @@
     const terminalOutput = document.getElementById("wordcode-output");
     const terminalForm = document.getElementById("wordcode-form");
     const terminalInput = document.getElementById("wordcode-input");
+    const aliveNode = document.getElementById("homepage-alive");
+    const tickNode = document.getElementById("homepage-tick");
+    const driftNode = document.getElementById("homepage-drift");
+    const realityNode = document.getElementById("homepage-reality");
 
     if (!form || !input || !submit || !responseLine || !terminal || !terminalOutput || !terminalForm || !terminalInput) {
         return;
@@ -42,6 +46,27 @@
     function setResponse(message, isError) {
         responseLine.textContent = message || "";
         responseLine.classList.toggle("is-error", Boolean(isError));
+    }
+
+    function renderHomepageState(state) {
+        if (!state) {
+            return;
+        }
+        if (aliveNode) {
+            aliveNode.textContent = state.alive === false ? "offline" : "Greg is alive";
+        }
+        if (tickNode) {
+            tickNode.textContent = String(Number(state.tick || 0));
+        }
+        if (driftNode) {
+            const drift = Number((state.drift && state.drift.coefficient) || 0);
+            const category = (state.drift && state.drift.category) || "stable";
+            driftNode.textContent = `${category} ${drift.toFixed(3)}`;
+        }
+        if (realityNode) {
+            const reality = Number(state.reality_score || (state.reality && state.reality.R) || 0);
+            realityNode.textContent = reality.toFixed(3);
+        }
     }
 
     function closeMenu() {
@@ -299,7 +324,10 @@
     });
 
     setSubmitVisibility();
-    pollState().catch(function (error) {
+    document.addEventListener("greg:state", function (event) {
+        renderHomepageState(event.detail);
+    });
+    pollState().then(renderHomepageState).catch(function (error) {
         console.error("[greg/homepage]", error);
     });
     window.setInterval(pollState, 3000);

@@ -88,6 +88,9 @@ class CommandLocus:
 
     def _action_spawn_agent(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
         perspective = str(payload.get("perspective") or "general").strip() or "general"
+        resource_limit = payload.get("resource_limit")
+        if resource_limit is not None and not isinstance(resource_limit, dict):
+            resource_limit = None
         try:
             validate_intent_against_constitution(
                 f"spawn agent with perspective {perspective}",
@@ -102,7 +105,13 @@ class CommandLocus:
         return {
             "ok": True,
             "action": "spawn_agent",
-            "agent": self.greg.spawn_agent(perspective),
+            "agent": self.greg.spawn_agent(
+                perspective,
+                archetype=str(payload.get("archetype") or perspective).strip() or perspective,
+                current_task=str(payload.get("current_task") or "monitor the ecosystem").strip(),
+                reputation=float(payload.get("reputation") or 0.0),
+                resource_limit=resource_limit,
+            ),
             "tick": self.greg.world.tick,
         }, 200
 

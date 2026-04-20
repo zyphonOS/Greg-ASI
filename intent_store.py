@@ -43,3 +43,25 @@ def get_intents(limit=50):
     rows = c.fetchall()
     conn.close()
     return [{"id": r[0], "description": r[1], "status": r[2], "created_at": r[3], "updated_at": r[4], "result": r[5], "error": r[6]} for r in rows]
+
+
+def get_intent(intent_id):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute(
+        "SELECT id, description, status, created_at, updated_at, result, error FROM intents WHERE id = ? LIMIT 1",
+        (intent_id,),
+    )
+    row = c.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        "id": row[0],
+        "description": row[1],
+        "status": row[2],
+        "created_at": row[3],
+        "updated_at": row[4],
+        "result": row[5],
+        "error": row[6],
+    }

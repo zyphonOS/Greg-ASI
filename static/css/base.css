@@ -182,6 +182,25 @@ pre,
   gap: 0.8rem;
 }
 
+.greg-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border-g);
+  background: rgba(0, 255, 157, 0.03);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+
+.greg-status-badge span:first-child {
+  color: var(--text);
+}
+
 .auth-chip {
   display: inline-flex;
   flex-direction: column;
@@ -478,6 +497,10 @@ pre,
   .nav-trigger {
     display: inline-flex;
     justify-self: end;
+  }
+
+  .greg-status-badge {
+    display: none;
   }
 }
 

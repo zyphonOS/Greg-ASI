@@ -298,9 +298,24 @@ class Greg:
     def speak_first(self, mode: str = "presence") -> str:
         return self.voice.speak_first(mode=mode, snapshot=self.status_snapshot())
 
-    def spawn_agent(self, perspective: str) -> dict[str, Any]:
+    def spawn_agent(
+        self,
+        perspective: str,
+        *,
+        archetype: str | None = None,
+        current_task: str | None = None,
+        reputation: float = 0.0,
+        resource_limit: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         perspective = (perspective or "general").strip()
-        return agent_manager.spawn(name=f"{self.name}-{perspective}", perspective=perspective)
+        return agent_manager.spawn(
+            name=f"{self.name}-{perspective}",
+            perspective=perspective,
+            archetype=archetype or perspective,
+            current_task=current_task or "monitor the ecosystem",
+            reputation=reputation,
+            resource_limit=resource_limit,
+        )
 
     def tick_once(self) -> dict[str, Any]:
         with self._tick_lock:

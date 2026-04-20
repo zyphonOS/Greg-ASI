@@ -25,33 +25,41 @@
         <a href="/truth">Truth</a>
         <a href="/pikkaio">Pikkaio</a>
         <a href="/greg">Greg</a>
+        {% if auth.logged_in %}
+        <a href="/chat">Chat</a>
+        {% endif %}
         <a href="/dashboard">Dashboard</a>
         <a href="/revenue">Revenue</a>
         <a href="/treasury">Treasury</a>
         <a href="/zyphonos">ZyphonOS</a>
+        <a href="/greg-state">Greg State</a>
+        {% if auth.logged_in and auth.role == "founder" %}
+        <a href="/founder-office">Founder Office</a>
+        {% endif %}
       </nav>
       <div class="nav-meta">
+        <div id="greg-status-badge" class="greg-status-badge">
+          <span id="greg-status-badge-tick">tick --</span>
+          <span id="greg-status-badge-drift">drift --</span>
+        </div>
         <div class="auth-chip {% if auth.logged_in %}is-authenticated{% else %}is-preview{% endif %}">
           <span class="auth-chip-label">
             {% if auth.logged_in %}{{ auth.role_label }}{% else %}Guest Preview{% endif %}
           </span>
           <span class="auth-chip-note">
             {% if auth.logged_in %}
-              Session live
+              {{ auth.email or "Session live" }}
             {% else %}
               Auth placeholder ready
             {% endif %}
           </span>
         </div>
-        <a href="/pikkaio" class="nav-enter">
-          {% if auth.logged_in and auth.role in ["founder", "admin"] %}
-            Enter Control Surface
-          {% elif auth.logged_in %}
-            Enter Builder Flow
-          {% else %}
-            Enter Ecosystem
-          {% endif %}
-        </a>
+        {% if auth.logged_in %}
+        <a href="/profile" class="nav-enter">Profile</a>
+        <a href="/logout" class="nav-enter nav-enter-secondary">Log Out</a>
+        {% else %}
+        <a href="/login" class="nav-enter">Log In</a>
+        {% endif %}
         <button id="nav-trigger" class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-menu">
           Menu
         </button>
@@ -69,10 +77,24 @@
     <a href="/truth">Truth</a>
     <a href="/pikkaio">Pikkaio</a>
     <a href="/greg">Greg Presence</a>
+    {% if auth.logged_in %}
+    <a href="/chat">Chat</a>
+    {% endif %}
     <a href="/dashboard">Dashboard {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
     <a href="/revenue">Revenue {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
     <a href="/treasury">Treasury {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
     <a href="/zyphonos">ZyphonOS {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
+    <a href="/greg-state">Greg State</a>
+    {% if auth.logged_in and auth.role == "founder" %}
+    <a href="/founder-office">Founder Office</a>
+    {% endif %}
+    {% if auth.logged_in %}
+    <a href="/profile">Profile</a>
+    <a href="/logout">Log Out</a>
+    {% else %}
+    <a href="/login">Log In</a>
+    <a href="/signup">Sign Up</a>
+    {% endif %}
   </aside>
 
   <main class="main-content">

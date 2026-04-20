@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Greg State · GregASI{% endblock %}
+{% block page_name %}greg-state{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/greg_state.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="state-shell">
+  <div class="state-hero">
+    <div>
+      <p class="overline">Greg Living Condition</p>
+      <h1 class="page-title">Full Visibility Into The Organism</h1>
+      <p class="page-sub">Live tick, drift, reality equation, active agents, observer memory, and Constitution integrity in one field of view.</p>
+    </div>
+    <div class="state-hero-grid">
+      <div class="state-chip">
+        <span>Tick</span>
+        <strong id="greg-state-tick">{{ greg_snapshot.tick or 0 }}</strong>
+      </div>
+      <div class="state-chip">
+        <span>Drift</span>
+        <strong id="greg-state-drift">{{ '%.3f'|format((greg_snapshot.drift or {}).get('coefficient', 0)) }}</strong>
+      </div>
+      <div class="state-chip">
+        <span>Reality R</span>
+        <strong id="greg-state-r">{{ '%.3f'|format((greg_snapshot.reality or {}).get('R', 0)) }}</strong>
+      </div>
+      <div class="state-chip">
+        <span>Constitution</span>
+        <strong id="greg-state-constitution">{{ "match" if constitution_status.matches else "alert" }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="state-grid">
+    <section class="state-panel">
+      <div class="panel-header">
+        <span class="panel-label">Reality Equation</span>
+        <h2>R = M · Φ · Ψ · ε² · √2</h2>
+      </div>
+      <div class="state-metric-grid">
+        <article class="metric-tile"><span>M</span><strong id="metric-m">{{ '%.3f'|format(((greg_snapshot.reality or {}).get('terms', {}).get('matter', {}) or {}).get('value', 0)) }}</strong></article>
+        <article class="metric-tile"><span>Φ</span><strong id="metric-phi">{{ '%.3f'|format(((greg_snapshot.reality or {}).get('terms', {}).get('phi_loop', {}) or {}).get('value', 0)) }}</strong></article>
+        <article class="metric-tile"><span>Ψ</span><strong id="metric-psi">{{ '%.3f'|format(((greg_snapshot.reality or {}).get('terms', {}).get('psi_observer', {}) or {}).get('value', 0)) }}</strong></article>
+        <article class="metric-tile"><span>ε</span><strong id="metric-epsilon">{{ '%.3f'|format(((greg_snapshot.reality or {}).get('terms', {}).get('epsilon', {}) or {}).get('value', 0)) }}</strong></article>
+      </div>
+      <div class="constitution-note" id="reality-interpretation">{{ (greg_snapshot.reality or {}).get('interpretation', 'Reality interpretation is stabilizing.') }}</div>
+    </section>
+
+    <section class="state-panel">
+      <div class="panel-header">
+        <span class="panel-label">Converse Log</span>
+        <h2>Latest Self Observation</h2>
+      </div>
+      {% set observer_log = ((greg_snapshot.observer or {}).get('converse_log') or greg_snapshot.get('converse_log') or []) %}
+      {% set latest_observation = observer_log[-1] if observer_log else None %}
+      <div id="observer-card" class="observer-card">
+        {% if latest_observation %}
+        <strong>{{ latest_observation.get('mode', 'self') }}</strong>
+        <p>{{ latest_observation.get('response') or latest_observation.get('content') or latest_observation.get('prompt') }}</p>
+        <span>{{ latest_observation.get('timestamp') or latest_observation.get('created_at') or 'recent' }}</span>
+        {% else %}
+        <strong>Observer warming</strong>
+        <p>No self-observation recorded yet.</p>
+        <span>Awaiting next reflective cycle</span>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="state-panel">
+      <div class="panel-header">
+        <span class="panel-label">Active Agents</span>
+        <h2>Swarm Presence</h2>
+      </div>
+      <div id="agent-list" class="state-agent-list">
+        {% for agent in active_agents %}
+        <article class="state-agent-card">
+          <strong>{{ agent.name or agent.agent_id }}</strong>
+          <span>{{ agent.current_task or agent.perspective or "monitoring" }}</span>
+        </article>
+        {% else %}
+        <div class="constitution-note">No active agents detected.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="state-panel">
+      <div class="panel-header">
+        <span class="panel-label">Constitution Integrity</span>
+        <h2>Hash Verification</h2>
+      </div>
+      <div class="integrity-grid">
+        <div><span>Last Check</span><strong>{{ constitution_status.last_checked_at or "not yet recorded" }}</strong></div>
+        <div><span>Status</span><strong id="constitution-integrity-label">{{ "Hash Match" if constitution_status.matches else "Tamper Alert" }}</strong></div>
+        <div><span>Current Hash</span><strong class="mono" id="constitution-current-hash">{{ constitution_status.current_hash[:18] }}...</strong></div>
+        <div><span>Stored Hash</span><strong class="mono" id="constitution-stored-hash">{{ constitution_status.stored_hash[:18] }}...</strong></div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+(() => {
+  const nodes = {
+    tick: document.getElementById("greg-state-tick"),
+    drift: document.getElementById("greg-state-drift"),
+    reality: document.getElementById("greg-state-r"),
+    constitution: document.getElementById("greg-state-constitution"),
+    matter: document.getElementById("metric-m"),
+    phi: document.getElementById("metric-phi"),
+    psi: document.getElementById("metric-psi"),
+    epsilon: document.getElementById("metric-epsilon"),
+    interpretation: document.getElementById("reality-interpretation"),
+    integrityLabel: document.getElementById("constitution-integrity-label"),
+    currentHash: document.getElementById("constitution-current-hash"),
+    storedHash: document.getElementById("constitution-stored-hash"),
+    agentList: document.getElementById("agent-list")
+  };
+
+  function renderAgents(agents) {
+    if (!nodes.agentList) {
+      return;
+    }
+    if (!Array.isArray(agents) || !agents.length) {
+      nodes.agentList.innerHTML = '<div class="constitution-note">No active agents detected.</div>';
+      return;
+    }
+    nodes.agentList.innerHTML = agents.map((agent) => `
+      <article class="state-agent-card">
+        <strong>${agent.name || agent.agent_id || "agent"}</strong>
+        <span>${agent.current_task || agent.perspective || "monitoring"}</span>
+      </article>
+    `).join("");
+  }
+
+  async function refreshAgents() {
+    const response = await fetch("/api/greg/agents", { cache: "no-store" });
+    const payload = await response.json();
+    if (response.ok) {
+      renderAgents(payload.agents || []);
+    }
+  }
+
+  document.addEventListener("greg:state", (event) => {
+    const state = event.detail || {};
+    const reality = state.reality || {};
+    const terms = reality.terms || {};
+    if (nodes.tick) nodes.tick.textContent = String(Number(state.tick || 0));
+    if (nodes.drift) nodes.drift.textContent = Number((state.drift && state.drift.coefficient) || 0).toFixed(3);
+    if (nodes.reality) nodes.reality.textContent = Number(reality.R || state.reality_score || 0).toFixed(3);
+    if (nodes.matter) nodes.matter.textContent = Number(((terms.matter || {}).value) || 0).toFixed(3);
+    if (nodes.phi) nodes.phi.textContent = Number(((terms.phi_loop || {}).value) || 0).toFixed(3);
+    if (nodes.psi) nodes.psi.textContent = Number(((terms.psi_observer || {}).value) || 0).toFixed(3);
+    if (nodes.epsilon) nodes.epsilon.textContent = Number(((terms.epsilon || {}).value) || 0).toFixed(3);
+    if (nodes.interpretation) nodes.interpretation.textContent = reality.interpretation || "Reality interpretation is stabilizing.";
+    if (nodes.constitution && state.status && state.status.constitution) {
+      const matches = state.status.constitution.hash === state.status.constitution.stored_hash;
+      nodes.constitution.textContent = matches ? "match" : "alert";
+      if (nodes.integrityLabel) nodes.integrityLabel.textContent = matches ? "Hash Match" : "Tamper Alert";
+      if (nodes.currentHash) nodes.currentHash.textContent = `${String(state.status.constitution.hash || "").slice(0, 18)}...`;
+      if (nodes.storedHash) nodes.storedHash.textContent = `${String(state.status.constitution.stored_hash || "").slice(0, 18)}...`;
+    }
+  });
+
+  refreshAgents().catch(() => {});
+  window.setInterval(() => refreshAgents().catch(() => {}), 6000);
+})();
+</script>
+{% endblock %}
