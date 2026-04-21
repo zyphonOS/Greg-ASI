@@ -181,17 +181,22 @@ def _founder_emails() -> set[str]:
 
 
 def _determine_role(email: str, requested_role: str | None = None) -> str:
+    """
+    Role assignment rules (order is authoritative):
+    1. If email is in FOUNDER_EMAILS env var → always founder, no exceptions.
+    2. Public signups → always builder, regardless of what they request.
+    The old founder_count == 0 bypass has been removed. It allowed any stranger
+    to claim founder on a fresh or wiped database. Never again.
+    """
     clean_email = str(email or "").strip().lower()
     clean_requested = str(requested_role or "builder").strip().lower() or "builder"
     founder_emails = _founder_emails()
-    with _conn() as conn:
-        founder_count = int(conn.execute("SELECT COUNT(*) FROM users WHERE role = 'founder'").fetchone()[0] or 0)
-    if clean_requested == "founder" and (clean_email in founder_emails or founder_count == 0):
-        return "founder"
+    # Founders are declared by env var only — not by request, not by DB state
     if clean_email in founder_emails:
         return "founder"
-    if clean_requested in {"admin", "builder", "treasury", "community"}:
-        return clean_requested
+    # Public users get builder. Admin/treasury/community only via env-declared emails in future.
+    if clean_requested in {"builder"}:
+        return "builder"
     return "builder"
 
 
@@ -592,9 +597,9 @@ def signup():
         payload = request.get_json(silent=True) or request.form
         email = str(payload.get("email") or "").strip().lower()
         password = str(payload.get("password") or "")
-        requested_role = str(payload.get("role") or "builder").strip().lower() or "builder"
+        # Role is NEVER taken from user input. _determine_role assigns based on FOUNDER_EMAILS only.
         try:
-            user = create_user(email, password, requested_role=requested_role)
+            user = create_user(email, password, requested_role="builder")
             login_user(user, remember=True)
             create_session_record(user.id)
             if _wants_json_response():
@@ -610,7 +615,6 @@ def signup():
                 <form method="post" action="/signup">
                   <div class="row"><label>Email</label><input name="email" type="email" value="{email}" required></div>
                   <div class="row"><label>Password</label><input name="password" type="password" minlength="8" required></div>
-                  <div class="row"><label>Role</label><select name="role"><option value="builder">Builder</option><option value="founder">Founder</option><option value="admin">Admin</option></select></div>
                   <button type="submit">Create Account</button>
                 </form>
                 <p class="note">Already registered? <a href="/login">Log in</a>.</p>
@@ -623,7 +627,6 @@ def signup():
         <form method="post" action="/signup">
           <div class="row"><label>Email</label><input name="email" type="email" required></div>
           <div class="row"><label>Password</label><input name="password" type="password" minlength="8" required></div>
-          <div class="row"><label>Role</label><select name="role"><option value="builder">Builder</option><option value="founder">Founder</option><option value="admin">Admin</option></select></div>
           <button type="submit">Create Account</button>
         </form>
         <p class="note">Already registered? <a href="/login">Log in</a>.</p>

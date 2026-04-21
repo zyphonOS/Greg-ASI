@@ -37,7 +37,9 @@ TREASURY_WALLET = os.getenv(
 )
 USDC_DECIMALS = 6
 TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-PUBLIC_PAYMENT_API_KEY = os.getenv("PUBLIC_PAYMENT_API_KEY", "greg-public-dev-key")
+# SECURITY: No hardcoded fallback. Set PUBLIC_PAYMENT_API_KEY in Railway env vars.
+# If unset, _api_key_valid() returns False and mock_confirm is permanently disabled.
+PUBLIC_PAYMENT_API_KEY = os.getenv("PUBLIC_PAYMENT_API_KEY", "")
 SERVICE_PRICES = {
     "image": 5.0,
     "code": 10.0,
@@ -320,24 +322,13 @@ def api_confirm_payment():
         return jsonify({"ok": False, "error": "payment not found"}), 404
 
     try:
-        if _api_key_valid() and (
-            str(payload.get("mock_confirm") or "").lower() == "true"
-            or tx_hash.startswith("mock_")
-        ):
-            verification = {
-                "ok": True,
-                "mock": True,
-                "from": str(payload.get("wallet_address") or payment.get("wallet_address") or ""),
-                "to": TREASURY_WALLET,
-                "amount_usdc": float(payment.get("amount_usdc") or 0.0),
-            }
-        else:
-            verification = _verify_usdc_transfer(
-                tx_hash,
-                expected_to=TREASURY_WALLET,
-                expected_amount_usdc=float(payment.get("amount_usdc") or 0.0),
-                expected_from=str(payload.get("wallet_address") or payment.get("wallet_address") or "").strip(),
-            )
+        # SECURITY: mock_confirm removed. Every payment requires a real on-chain tx_hash.
+        verification = _verify_usdc_transfer(
+            tx_hash,
+            expected_to=TREASURY_WALLET,
+            expected_amount_usdc=float(payment.get("amount_usdc") or 0.0),
+            expected_from=str(payload.get("wallet_address") or payment.get("wallet_address") or "").strip(),
+        )
         if not verification.get("ok"):
             return jsonify({"ok": False, "error": verification.get("error")}), 400
         confirmed = confirm_payment(payment_id, tx_hash, metadata={"verification": verification})
