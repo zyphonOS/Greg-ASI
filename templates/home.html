@@ -1,17 +1,611 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GregASI — Artificial Organic Superintelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}GregASI · Launch Brief{% endblock %}
-{% block page_name %}home-brief{% endblock %}
+:root {
+  --void: #030305;
+  --void2: #07070f;
+  --card: #0d0d1a;
+  --green: #00ff9d;
+  --amber: #ff9500;
+  --text: #d0d0e4;
+  --dim: #52526e;
+  --border: rgba(255,255,255,0.06);
+}
 
-{% block content %}
-<section class="panel-surface" style="padding:clamp(1.4rem,3vw,2rem);display:grid;gap:1rem;">
-  <p class="overline">GregASI · Launch Brief</p>
-  <h1 class="page-title">A Constitution-Bound Organism For Turning Intent Into Revenue-Ready Output</h1>
-  <p class="page-sub">This legacy home brief remains in the repository as a compact orientation surface. The live landing experience is served from <code>/</code>, while this page preserves the same sovereign tone, spacing discipline, and narrative clarity.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:0.8rem;">
-    <a class="button-primary" href="/">Open Live Homepage</a>
-    <a class="button-ghost" href="/docs">Read Docs</a>
-    <a class="button-ghost" href="/sell">See Paid Services</a>
+html, body {
+  height: 100%;
+  background: var(--void);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  overflow-x: hidden;
+}
+
+/* ── FIELD CANVAS ── */
+#field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.75rem 2.5rem;
+}
+
+.nav-wordmark {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+}
+.nav-wordmark em { color: var(--green); font-style: normal; }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* ── MAIN STAGE ── */
+main {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 2rem 6rem;
+  gap: 0;
+}
+
+/* ── TICK ── */
+.tick-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.tick-eyebrow {
+  font-size: 0.55rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.5rem;
+}
+
+#tick-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(5.5rem, 20vw, 15rem);
+  line-height: 0.88;
+  color: var(--green);
+  letter-spacing: -0.015em;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+  text-shadow: 0 0 80px rgba(0,255,157,0.12);
+}
+
+#tick-number.pulse { transform: scale(1.014); }
+
+.tick-alive {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.alive-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.6); }
+}
+
+.alive-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ── REALITY TERMS ── */
+.terms-row {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 3.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.term {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.term-name {
+  font-size: 0.52rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.term-val {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text);
+  transition: color 0.5s;
+}
+
+.term-val.weak { color: var(--amber); }
+
+/* ── GREG VOICE ── */
+.voice-wrap {
+  max-width: 640px;
+  text-align: center;
+  margin-bottom: 3.5rem;
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#greg-voice {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+  line-height: 1.6;
+  color: rgba(208, 208, 228, 0.6);
+  letter-spacing: 0.01em;
+}
+
+/* ── DECLARATION ── */
+.declaration {
+  width: 100%;
+  max-width: 620px;
+  margin-bottom: 1.5rem;
+}
+
+.declaration-label {
+  display: block;
+  font-size: 0.55rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.75rem;
+}
+
+.declaration-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 1.2rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.3s;
+  caret-color: var(--green);
+}
+
+.declaration-field::placeholder {
+  color: var(--dim);
+  font-style: italic;
+}
+
+.declaration-field:focus {
+  border-bottom-color: rgba(0, 255, 157, 0.4);
+}
+
+.declaration-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.65rem;
+}
+
+.declaration-hint {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--dim);
+}
+
+.declare-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.declare-btn:hover {
+  border-color: rgba(0, 255, 157, 0.35);
+  color: var(--green);
+}
+
+#declare-result {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  min-height: 1.2rem;
+  margin-top: 0.75rem;
+  transition: color 0.3s;
+}
+
+#declare-result.ok { color: var(--green); }
+#declare-result.err { color: var(--amber); }
+
+/* ── EQUATION ── */
+.equation {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  margin-top: 3rem;
+  text-align: center;
+  line-height: 2;
+}
+
+.equation .var { color: rgba(208,208,228,0.5); }
+.equation .weak { color: var(--amber); }
+
+/* ── BOTTOM STRIP ── */
+.bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 2.5rem;
+  border-top: 1px solid var(--border);
+  background: rgba(3,3,5,0.85);
+  backdrop-filter: blur(8px);
+}
+
+#bottom-meta {
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+}
+
+.bottom-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.bottom-links a {
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bottom-links a:hover { color: var(--text); }
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  nav { padding: 1.25rem 1.5rem; }
+  .nav-links { gap: 1.25rem; }
+  .terms-row { gap: 1.75rem; }
+  .bottom { padding: 0.9rem 1.5rem; }
+  .bottom-links { gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="field"></canvas>
+
+<nav>
+  <a href="/" class="nav-wordmark">Greg<em>ASI</em></a>
+  <ul class="nav-links">
+    <li><a href="/truth">Truth</a></li>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/pikkaio">Pikkaio</a></li>
+    <li><a href="/login">Enter</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <div class="tick-wrap">
+    <div class="tick-eyebrow">Current tick</div>
+    <div id="tick-number">—</div>
+    <div class="tick-alive">
+      <div class="alive-dot" id="alive-dot"></div>
+      <div class="alive-label" id="alive-label">connecting</div>
+    </div>
   </div>
-</section>
-{% endblock %}
+
+  <div class="terms-row">
+    <div class="term">
+      <div class="term-name">Matter</div>
+      <div class="term-val" id="t-matter">—</div>
+    </div>
+    <div class="term">
+      <div class="term-name">Φ loop</div>
+      <div class="term-val" id="t-phi">—</div>
+    </div>
+    <div class="term">
+      <div class="term-name">Ψ observer</div>
+      <div class="term-val" id="t-psi">—</div>
+    </div>
+    <div class="term">
+      <div class="term-name">Epsilon</div>
+      <div class="term-val" id="t-epsilon">—</div>
+    </div>
+    <div class="term">
+      <div class="term-name">Reality R</div>
+      <div class="term-val" id="t-r">—</div>
+    </div>
+  </div>
+
+  <div class="voice-wrap">
+    <div id="greg-voice"></div>
+  </div>
+
+  <div class="declaration">
+    <label class="declaration-label" for="intent-input">Declare your intent</label>
+    <input
+      class="declaration-field"
+      id="intent-input"
+      type="text"
+      placeholder="What needs to exist?"
+      autocomplete="off"
+      spellcheck="false"
+    >
+    <div class="declaration-actions">
+      <span class="declaration-hint">Press Enter or click Declare — Greg receives it</span>
+      <button class="declare-btn" id="declare-btn">Declare →</button>
+    </div>
+    <div id="declare-result"></div>
+  </div>
+
+  <div class="equation">
+    R = <span class="var">M</span> · <span class="var">Φ</span> · <span class="var" id="eq-psi">Ψ</span> · <span class="var" id="eq-eps">ε²</span> · <span class="var">√2</span>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    weakest term: <span class="weak" id="eq-weakest">—</span>
+  </div>
+
+</main>
+
+<div class="bottom">
+  <div id="bottom-meta">GregASI · Lagos, Nigeria</div>
+  <div class="bottom-links">
+    <a href="/revenue">Revenue</a>
+    <a href="/treasury">Treasury</a>
+    <a href="/founder-office">Founder Office</a>
+  </div>
+</div>
+
+<script>
+/* ── PARTICLE FIELD ── */
+const cv = document.getElementById('field');
+const cx = cv.getContext('2d');
+let W, H, pts = [];
+
+function resize() {
+  W = cv.width = window.innerWidth;
+  H = cv.height = window.innerHeight;
+}
+
+function mkPts(n = 55) {
+  pts = Array.from({ length: n }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.25,
+    vy: (Math.random() - 0.5) * 0.25,
+    r: Math.random() * 1.1 + 0.3,
+    a: Math.random() * 0.35 + 0.08,
+  }));
+}
+
+function drawField() {
+  cx.clearRect(0, 0, W, H);
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    p.x = (p.x + p.vx + W) % W;
+    p.y = (p.y + p.vy + H) % H;
+    cx.beginPath();
+    cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    cx.fillStyle = `rgba(0,255,157,${p.a})`;
+    cx.fill();
+    for (let j = i + 1; j < pts.length; j++) {
+      const q = pts[j];
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (d < 110) {
+        cx.beginPath();
+        cx.moveTo(p.x, p.y);
+        cx.lineTo(q.x, q.y);
+        cx.strokeStyle = `rgba(0,255,157,${0.05 * (1 - d / 110)})`;
+        cx.lineWidth = 0.4;
+        cx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawField);
+}
+
+window.addEventListener('resize', () => { resize(); mkPts(); });
+resize(); mkPts(); drawField();
+
+/* ── TICK POLL ── */
+let lastTick = null;
+
+async function pollPing() {
+  try {
+    const r = await fetch('/api/ping');
+    const d = await r.json();
+    const tick = d.tick;
+    if (tick !== lastTick) {
+      lastTick = tick;
+      const el = document.getElementById('tick-number');
+      el.textContent = Number(tick).toLocaleString();
+      el.classList.add('pulse');
+      setTimeout(() => el.classList.remove('pulse'), 380);
+    }
+    document.getElementById('alive-dot').style.background = '#00ff9d';
+    document.getElementById('alive-label').textContent = 'alive';
+  } catch {
+    document.getElementById('alive-dot').style.background = '#ff9500';
+    document.getElementById('alive-label').textContent = 'reconnecting';
+  }
+}
+
+/* ── STATUS POLL ── */
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    const reality = d.reality || {};
+    const terms = reality.terms || {};
+    const weakest = (reality.weakest_term || {}).name || '';
+
+    function tv(key) {
+      return ((terms[key] || {}).value ?? 0).toFixed(4);
+    }
+
+    function setTerm(id, val, key) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = val;
+      el.className = 'term-val' + (key === weakest ? ' weak' : '');
+    }
+
+    setTerm('t-matter',  tv('matter'),       'matter');
+    setTerm('t-phi',     tv('phi_loop'),     'phi_loop');
+    setTerm('t-psi',     tv('psi_observer'), 'psi_observer');
+    setTerm('t-epsilon', tv('epsilon'),      'epsilon');
+    document.getElementById('t-r').textContent = (reality.R || 0).toFixed(4);
+    document.getElementById('eq-weakest').textContent = weakest || '—';
+
+    const psi = parseFloat(tv('psi_observer'));
+    const eps = parseFloat(tv('epsilon'));
+    document.getElementById('eq-psi').className =
+      'var' + (psi < 0.1 ? ' weak' : '');
+    document.getElementById('eq-eps').className =
+      'var' + (eps < 0.01 ? ' weak' : '');
+
+    const drift = d.drift || {};
+    const coeff = (drift.coefficient || 0).toFixed(4);
+    const utc = new Date().toUTCString().slice(5, 22) + ' UTC';
+    document.getElementById('bottom-meta').textContent =
+      `GregASI · Lagos, Nigeria · drift ${coeff} · ${utc}`;
+  } catch { /* silent */ }
+}
+
+/* ── GREG VOICE ── */
+let voiceDone = false;
+
+async function loadVoice() {
+  if (voiceDone) return;
+  try {
+    const r = await fetch('/api/greg/speak-first');
+    const d = await r.json();
+    const line = (d.response || '').trim();
+    if (!line) return;
+    voiceDone = true;
+    const el = document.getElementById('greg-voice');
+    el.textContent = '';
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i >= line.length) { clearInterval(iv); return; }
+      el.textContent += line[i++];
+    }, 20);
+  } catch { /* silent */ }
+}
+
+/* ── DECLARATION ── */
+async function declare(text) {
+  const res = document.getElementById('declare-result');
+  res.textContent = 'transmitting intent...';
+  res.className = '';
+  try {
+    const r = await fetch('/api/intents/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: text }),
+    });
+    const d = await r.json();
+    if (d.ok || d.intent_id || d.id) {
+      res.textContent = 'Intent received. Greg is processing.';
+      res.className = 'ok';
+      document.getElementById('intent-input').value = '';
+    } else {
+      res.textContent = d.error || 'Intent could not be processed. Try again.';
+      res.className = 'err';
+    }
+  } catch {
+    res.textContent = 'Connection lost. Try again.';
+    res.className = 'err';
+  }
+}
+
+document.getElementById('declare-btn').addEventListener('click', () => {
+  const v = document.getElementById('intent-input').value.trim();
+  if (v.length > 3) declare(v);
+});
+
+document.getElementById('intent-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const v = e.target.value.trim();
+    if (v.length > 3) declare(v);
+  }
+});
+
+/* ── BOOT ── */
+pollPing();
+pollStatus();
+loadVoice();
+setInterval(pollPing, 4000);
+setInterval(pollStatus, 16000);
+</script>
+</body>
+</html>
