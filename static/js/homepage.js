@@ -35,12 +35,12 @@
     function homepageReply(score) {
         const drift = Number(score || 0);
         if (drift === 0) {
-            return "Logged. Greg is watching.";
+            return "Intent logged. Greg is tracing the line now.";
         }
         if (drift > 0.7) {
-            return "Declared. Drift measurement begins now.";
+            return "Intent declared. Greg has opened a high-energy execution line.";
         }
-        return "Recorded. The line is open.";
+        return "Intent recorded. The line is open and ready for the next move.";
     }
 
     function setResponse(message, isError) {

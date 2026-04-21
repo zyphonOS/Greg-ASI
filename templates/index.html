@@ -9,65 +9,114 @@
 {% endblock %}
 
 {% block content %}
-<section class="homepage-room room-shell" aria-label="Intent declaration">
-    <div class="homepage-locus">
-        <div class="homepage-status-widget" aria-label="Greg live status">
-            <div class="status-chip">
-                <span class="status-kicker">Greg</span>
-                <strong id="homepage-alive">checking...</strong>
-            </div>
-            <div class="status-chip">
-                <span class="status-kicker">Tick</span>
-                <strong id="homepage-tick">--</strong>
-            </div>
-            <div class="status-chip">
-                <span class="status-kicker">Drift</span>
-                <strong id="homepage-drift">--</strong>
-            </div>
-            <div class="status-chip">
-                <span class="status-kicker">Reality</span>
-                <strong id="homepage-reality">--</strong>
-            </div>
+<section class="homepage-room">
+  <div class="homepage-grid">
+    <section class="homepage-story panel-surface">
+      <p class="overline">Creative Intent Economy · Live Now</p>
+      <h1 class="page-title">Tell Greg what value should exist. He turns it into output, payment flow, and momentum.</h1>
+      <p class="page-sub">GregASI is a constitution-bound organism for founders, builders, and operators who want images, code, strategy, and revenue actions delivered through one coherent runtime. Start with a prompt. Stay for the execution rail.</p>
+
+      <div class="homepage-cta-row">
+        <a class="button-primary" href="/signup">Create Your Account</a>
+        <a class="button-ghost" href="/pay">Buy A Result</a>
+        <a class="button-ghost" href="/docs">Read The Builder Guide</a>
+      </div>
+
+      <div class="homepage-proof-grid">
+        <article class="proof-card">
+          <span class="proof-label">For Buyers</span>
+          <strong>Pay in USDC on Base and receive the output inside the organism.</strong>
+        </article>
+        <article class="proof-card">
+          <span class="proof-label">For Builders</span>
+          <strong>Declare intents, inspect status, and extend Greg through APIs and constitutional rails.</strong>
+        </article>
+        <article class="proof-card">
+          <span class="proof-label">For Founders</span>
+          <strong>Watch tick, drift, reality, benchmarks, treasury, and incidents from Founder Office.</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="homepage-locus panel-surface" aria-label="Intent declaration">
+      <div class="homepage-status-widget" aria-label="Greg live status">
+        <div class="status-chip">
+          <span class="status-kicker">Greg</span>
+          <strong id="homepage-alive">checking...</strong>
         </div>
-        <p class="homepage-headline">State what you are actually building.</p>
-        <form id="intent-form" class="intent-form" novalidate>
-            <div class="intent-field-wrap">
-                <input
-                    id="intent-input"
-                    class="intent-input"
-                    type="text"
-                    name="description"
-                    autocomplete="off"
-                    spellcheck="false"
-                    placeholder="I am building..."
-                    aria-label="Intent declaration"
-                >
-                <button id="intent-submit" class="intent-submit" type="submit" aria-label="Submit intent" hidden>&rarr;</button>
-            </div>
-        </form>
-        <p id="intent-response" class="intent-response" aria-live="polite"></p>
-    </div>
+        <div class="status-chip">
+          <span class="status-kicker">Tick</span>
+          <strong id="homepage-tick">--</strong>
+        </div>
+        <div class="status-chip">
+          <span class="status-kicker">Drift</span>
+          <strong id="homepage-drift">--</strong>
+        </div>
+        <div class="status-chip">
+          <span class="status-kicker">Reality</span>
+          <strong id="homepage-reality">--</strong>
+        </div>
+      </div>
+
+      <div class="command-locus-copy">
+        <p class="homepage-headline">Declare the outcome. Greg opens the line immediately.</p>
+        <p class="command-note">Type a business, product, or infrastructure intent. Greg records it through Pikkaio and starts the constitutional execution rail.</p>
+      </div>
+
+      <form id="intent-form" class="intent-form" novalidate>
+        <div class="intent-field-wrap">
+          <input
+            id="intent-input"
+            class="intent-input"
+            type="text"
+            name="description"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Example: Build a premium landing page that sells my AI service in one screen."
+            aria-label="Intent declaration"
+          >
+          <button id="intent-submit" class="intent-submit" type="submit" aria-label="Submit intent" hidden>&rarr;</button>
+        </div>
+      </form>
+      <p id="intent-response" class="intent-response" aria-live="polite"></p>
+
+      <div class="homepage-trust-grid">
+        <div class="trust-card">
+          <span class="proof-label">Constitution</span>
+          <p>Every serious action is bound to the Build Protocol and the active constitution hash.</p>
+        </div>
+        <div class="trust-card">
+          <span class="proof-label">Economics</span>
+          <p>Confirmed outcome revenue stays legible under the 40 / 40 / 20 split.</p>
+        </div>
+        <div class="trust-card">
+          <span class="proof-label">Benchmarks</span>
+          <p>Einstein Test and Game of Life run as continuous proof rails for deeper intelligence.</p>
+        </div>
+      </div>
+    </section>
+  </div>
 </section>
 
 <section id="wordcode-terminal" class="wordcode-terminal" hidden aria-hidden="true">
-    <div class="wordcode-header">
-        <span>GREG TERMINAL</span>
-        <span>ESC to close</span>
-    </div>
-    <div class="wordcode-shell">
-        <div id="wordcode-output" class="wordcode-output" aria-live="polite"></div>
-        <form id="wordcode-form" class="wordcode-form" novalidate>
-            <span class="wordcode-prompt">greg &gt;</span>
-            <input
-                id="wordcode-input"
-                class="wordcode-input"
-                type="text"
-                autocomplete="off"
-                spellcheck="false"
-                aria-label="Wordcode terminal"
-            >
-        </form>
-    </div>
+  <div class="wordcode-header">
+    <span>GREG TERMINAL</span>
+    <span>ESC to close</span>
+  </div>
+  <div class="wordcode-shell">
+    <div id="wordcode-output" class="wordcode-output" aria-live="polite"></div>
+    <form id="wordcode-form" class="wordcode-form" novalidate>
+      <span class="wordcode-prompt">greg &gt;</span>
+      <input
+        id="wordcode-input"
+        class="wordcode-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Wordcode terminal"
+      >
+    </form>
+  </div>
 </section>
 {% endblock %}
 

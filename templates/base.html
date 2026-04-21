@@ -22,6 +22,9 @@
       </div>
       <nav class="nav-desktop" aria-label="Primary navigation">
         <a href="/">Home</a>
+        <a href="/docs">Docs</a>
+        <a href="/status-page">Status</a>
+        <a href="/blog">Blog</a>
         <a href="/sell">Sell</a>
         <a href="/pay">Pay</a>
         <a href="/truth">Truth</a>
@@ -52,7 +55,7 @@
             {% if auth.logged_in %}
               {{ auth.email or "Session live" }}
             {% else %}
-              Auth placeholder ready
+              Secure account rail ready
             {% endif %}
           </span>
         </div>
@@ -61,6 +64,7 @@
         <a href="/logout" class="nav-enter nav-enter-secondary">Log Out</a>
         {% else %}
         <a href="/login" class="nav-enter">Log In</a>
+        <a href="/signup" class="nav-enter nav-enter-secondary">Sign Up</a>
         {% endif %}
         <button id="nav-trigger" class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-menu">
           Menu
@@ -76,6 +80,9 @@
       <span class="nav-menu-role">{{ auth.role_label }}</span>
     </div>
     <a href="/">Home</a>
+    <a href="/docs">Docs</a>
+    <a href="/status-page">Status</a>
+    <a href="/blog">Blog</a>
     <a href="/sell">Sell</a>
     <a href="/pay">Pay</a>
     <a href="/truth">Truth</a>

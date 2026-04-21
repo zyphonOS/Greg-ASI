@@ -12,8 +12,8 @@
   <div class="state-hero">
     <div>
       <p class="overline">Greg Living Condition</p>
-      <h1 class="page-title">Full Visibility Into The Organism</h1>
-      <p class="page-sub">Live tick, drift, reality equation, active agents, observer memory, and Constitution integrity in one field of view.</p>
+      <h1 class="page-title">Watch Greg As A Living System</h1>
+      <p class="page-sub">This chamber shows the organism as it is right now: tick, drift, reality, active agents, observer memory, constitutional integrity, and the benchmark rails that prove he is still thinking forward.</p>
     </div>
     <div class="state-hero-grid">
       <div class="state-chip">
@@ -98,6 +98,20 @@
         <div><span>Current Hash</span><strong class="mono" id="constitution-current-hash">{{ constitution_status.current_hash[:18] }}...</strong></div>
         <div><span>Stored Hash</span><strong class="mono" id="constitution-stored-hash">{{ constitution_status.stored_hash[:18] }}...</strong></div>
       </div>
+    </section>
+
+    <section class="state-panel">
+      <div class="panel-header">
+        <span class="panel-label">Benchmark Rails</span>
+        <h2>Einstein Test + Game Of Life</h2>
+      </div>
+      <div class="integrity-grid">
+        <div><span>Einstein Progress</span><strong>{{ '%.3f'|format(((benchmarks.einstein_test or {}).get('progress_score')) or 0) }}</strong></div>
+        <div><span>1911 Cutoff</span><strong>{{ ((benchmarks.einstein_test or {}).get('knowledge_cutoff_year')) or 1911 }}</strong></div>
+        <div><span>Life Generation</span><strong>{{ ((benchmarks.game_of_life or {}).get('generation')) or 0 }}</strong></div>
+        <div><span>Live Cells</span><strong>{{ ((benchmarks.game_of_life or {}).get('live_cells')) or 0 }}</strong></div>
+      </div>
+      <div class="constitution-note">{{ ((benchmarks.einstein_test or {}).get('checkpoint')) or "Benchmark rails are warming." }}</div>
     </section>
   </div>
 </section>

@@ -1,0 +1,144 @@
+.blog-shell,
+.blog-layout,
+.blog-post-list,
+.support-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.blog-shell {
+  gap: 1.35rem;
+}
+
+.blog-hero,
+.blog-article,
+.blog-rail,
+.blog-support {
+  padding: clamp(1.15rem, 2vw, 1.5rem);
+}
+
+.blog-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 1rem;
+}
+
+.blog-hero-card,
+.support-card,
+.post-link {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.blog-hero-card:hover,
+.support-card:hover,
+.post-link:hover,
+.blog-article:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-g);
+  background: rgba(0, 255, 157, 0.04);
+}
+
+.hero-label,
+.support-label,
+.post-status,
+.panel-label {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.blog-layout {
+  grid-template-columns: minmax(240px, 0.28fr) minmax(0, 1fr) minmax(280px, 0.32fr);
+  align-items: start;
+}
+
+.panel-heading {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.panel-heading h2,
+.blog-article-head h2 {
+  font-size: 2rem;
+}
+
+.post-link {
+  color: var(--text);
+}
+
+.post-link small,
+.blog-meta,
+.blog-note {
+  color: var(--text-mid);
+}
+
+.post-link.is-active {
+  border-color: var(--border-g);
+  background: rgba(0, 255, 157, 0.06);
+}
+
+.blog-main,
+.blog-article {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.blog-markdown {
+  color: var(--text-mid);
+}
+
+.blog-markdown > * + * {
+  margin-top: 0.9rem;
+}
+
+.blog-markdown h1,
+.blog-markdown h2,
+.blog-markdown h3 {
+  color: var(--text);
+  margin-top: 1.1rem;
+}
+
+.blog-markdown pre,
+.blog-markdown code {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.blog-markdown pre {
+  overflow-x: auto;
+  padding: 0.95rem 1rem;
+}
+
+.blog-generate-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.blog-generate-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-mid);
+}
+
+.blog-generate-form textarea {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+}
+
+@media (max-width: 1120px) {
+  .blog-layout,
+  .blog-hero {
+    grid-template-columns: 1fr;
+  }
+}

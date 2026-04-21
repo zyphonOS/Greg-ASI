@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Status · GregASI{% endblock %}
+{% block page_name %}status-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/status_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="status-shell">
+  <div class="status-hero panel-surface">
+    <div>
+      <p class="overline">System Status · Live Operations</p>
+      <h1 class="page-title">Every Pulse, Metric, And Incident In The Open</h1>
+      <p class="page-sub">GregASI exposes its heartbeat, drift, constitutional integrity, revenue motion, and incident history in one public chamber. This page refreshes continuously and is designed to feel alive, not merely “up.”</p>
+    </div>
+    <div class="status-chip-grid">
+      <article class="status-chip-card">
+        <span class="chip-label">API Pulse</span>
+        <strong id="status-ping-value">alive</strong>
+        <span id="status-ping-detail">Loading live ping…</span>
+      </article>
+      <article class="status-chip-card">
+        <span class="chip-label">Constitution</span>
+        <strong id="status-constitution-value">checking</strong>
+        <span id="status-constitution-detail">Hash verification in progress</span>
+      </article>
+      <article class="status-chip-card">
+        <span class="chip-label">Runtime</span>
+        <strong id="status-runtime-value">stabilizing</strong>
+        <span id="status-runtime-detail">Drift and reality will appear here</span>
+      </article>
+      <article class="status-chip-card">
+        <span class="chip-label">Incidents</span>
+        <strong id="status-incident-count">0</strong>
+        <span id="status-incident-detail">No active incidents</span>
+      </article>
+    </div>
+  </div>
+
+  <div class="status-grid">
+    <section class="status-panel panel-surface">
+      <div class="panel-heading">
+        <span class="panel-label">Live Metrics</span>
+        <h2>Now</h2>
+      </div>
+      <div class="metric-grid">
+        <article class="metric-card">
+          <span>Tick</span>
+          <strong id="metric-tick">--</strong>
+          <small id="metric-tick-response">Response -- ms</small>
+        </article>
+        <article class="metric-card">
+          <span>Drift</span>
+          <strong id="metric-drift">--</strong>
+          <small id="metric-drift-category">Category --</small>
+        </article>
+        <article class="metric-card">
+          <span>Reality R</span>
+          <strong id="metric-reality">--</strong>
+          <small id="metric-agents">Agents --</small>
+        </article>
+        <article class="metric-card">
+          <span>Revenue</span>
+          <strong id="metric-revenue">$0.00</strong>
+          <small id="metric-revenue-detail">Confirmed USDC</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="status-panel panel-surface">
+      <div class="panel-heading">
+        <span class="panel-label">Historical Uptime</span>
+        <h2>Confidence Windows</h2>
+      </div>
+      <div id="uptime-grid" class="uptime-grid"></div>
+      <div class="status-note">Auto-refresh cadence: 30 seconds. SSE stream keeps the chamber warm between full snapshots.</div>
+    </section>
+
+    <section class="status-panel panel-surface chart-panel">
+      <div class="panel-heading">
+        <span class="panel-label">Tick Trend</span>
+        <h2>Runtime Motion</h2>
+      </div>
+      <canvas id="tick-chart" height="220"></canvas>
+    </section>
+
+    <section class="status-panel panel-surface chart-panel">
+      <div class="panel-heading">
+        <span class="panel-label">Drift + Reality</span>
+        <h2>Organism Stability</h2>
+      </div>
+      <canvas id="drift-chart" height="220"></canvas>
+    </section>
+
+    <section class="status-panel panel-surface chart-panel">
+      <div class="panel-heading">
+        <span class="panel-label">Revenue Growth</span>
+        <h2>Economic Pulse</h2>
+      </div>
+      <canvas id="revenue-chart" height="220"></canvas>
+    </section>
+
+    <section class="status-panel panel-surface">
+      <div class="panel-heading">
+        <span class="panel-label">Constitution Benchmarks</span>
+        <h2>Einstein Test + Game Of Life</h2>
+      </div>
+      <div class="benchmark-grid">
+        <article class="benchmark-card">
+          <span>Einstein Test</span>
+          <strong id="benchmark-einstein">--</strong>
+          <p id="benchmark-einstein-detail">Derivation checkpoint loading…</p>
+        </article>
+        <article class="benchmark-card">
+          <span>Game Of Life</span>
+          <strong id="benchmark-life-generation">--</strong>
+          <p id="benchmark-life-detail">Low-priority emergence rail loading…</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="status-panel panel-surface status-incidents-panel">
+      <div class="panel-heading">
+        <span class="panel-label">Incidents</span>
+        <h2>Active + Historical</h2>
+      </div>
+      <div id="incident-list" class="incident-list">
+        <article class="incident-card">
+          <strong>No incidents yet</strong>
+          <p>The organism is operating within constitutional thresholds.</p>
+        </article>
+      </div>
+      {% if auth.logged_in and auth.role == "founder" %}
+      <form id="incident-form" class="incident-form" novalidate>
+        <label>Incident title
+          <input type="text" name="title" placeholder="Example: Elevated image latency">
+        </label>
+        <label>Severity
+          <select name="severity">
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label>Message
+          <textarea name="message" rows="4" placeholder="Describe the incident, affected services, and expected response."></textarea>
+        </label>
+        <button type="submit" class="button-primary">Post Incident</button>
+        <p id="incident-form-result" class="status-note"></p>
+      </form>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/status_page.js') }}"></script>
+{% endblock %}

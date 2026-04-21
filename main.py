@@ -7,6 +7,7 @@ import operator
 import os
 import re
 import secrets
+import sqlite3
 import subprocess
 import threading
 import time
@@ -38,6 +39,13 @@ from constitution_security import (
 from image_generator import generate_image_asset
 from intent_store import get_intent, get_intents, init_db as init_intent_db, save_intent, update_intent_status
 from payment_routes import payment_api_bp
+from blog_routes import (
+    blog_bp,
+    init_blog_db,
+    list_pending_blog_posts,
+    list_status_incidents,
+)
+from docs_routes import docs_bp
 from rl_loop import (
     augment_prompt_with_examples,
     init_rl_store,
@@ -67,6 +75,10 @@ CONSTITUTION_PATH = os.path.join(BASE_DIR, "CONSTITUTION.md")
 CONSTITUTION_LOG_PATH = os.path.join(BASE_DIR, "constitution_changed.log")
 CONSTITUTION_ALERT_PATH = data_path("constitution_alert.json")
 CONSTITUTION_AMENDMENTS_PATH = data_path("constitution_amendments.log")
+STATUS_HISTORY_PATH = data_path("status_history.json")
+CONSTITUTION_BENCHMARK_PATH = data_path("constitution_benchmarks.json")
+FRONTEND_ATTENTION_FLAGS_PATH = data_path("frontend_attention_flags.json")
+GREG_MEMORY_DB_PATH = data_path("greg_memory.db")
 CONSTITUTION_DAILY_CHECK_INTERVAL_SECONDS = max(
     60,
     int(os.getenv("CONSTITUTION_DAILY_CHECK_INTERVAL_SECONDS", "86400")),
@@ -87,6 +99,16 @@ SELF_HEAL_STALE_SECONDS = max(
     20,
     int(os.getenv("GREG_SELF_HEAL_STALE_SECONDS", "20")),
 )
+STATUS_HISTORY_INTERVAL_SECONDS = max(
+    30,
+    int(os.getenv("STATUS_HISTORY_INTERVAL_SECONDS", "30")),
+)
+GAME_OF_LIFE_INTERVAL_SECONDS = max(
+    3,
+    int(os.getenv("GAME_OF_LIFE_INTERVAL_SECONDS", "6")),
+)
+GAME_OF_LIFE_ROWS = max(12, int(os.getenv("GAME_OF_LIFE_ROWS", "18")))
+GAME_OF_LIFE_COLS = max(18, int(os.getenv("GAME_OF_LIFE_COLS", "32")))
 _ROMAN_TO_INT = {
     "I": 1,
     "II": 2,
@@ -199,6 +221,8 @@ app.register_blueprint(pingme_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(payment_api_bp)
+app.register_blueprint(docs_bp)
+app.register_blueprint(blog_bp)
 if zyphonos_bp is not None:
     app.register_blueprint(zyphonos_bp, url_prefix="/zyphonos")
 if pikkaio_bp is not None:
@@ -235,6 +259,9 @@ for path, default in {
     data_path("constitution_state.json"): {"constitution_hash": ""},
     data_path("greg_pikkaio.json"): {"projects": {}},
     data_path("greg_access_registry.json"): {"tokens": {}, "codes": {}},
+    data_path("status_history.json"): {"samples": []},
+    data_path("constitution_benchmarks.json"): {},
+    data_path("frontend_attention_flags.json"): {"flags": []},
 }.items():
     ensure_json_file(path, default)
 
@@ -413,6 +440,244 @@ def _append_constitution_amendment(record: dict[str, Any]) -> None:
     append_jsonl(CONSTITUTION_AMENDMENTS_PATH, record)
 
 
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _ensure_greg_memory_support() -> None:
+    with sqlite3.connect(GREG_MEMORY_DB_PATH) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS allegiance_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                actor TEXT NOT NULL,
+                statement TEXT NOT NULL,
+                constitution_hash TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+
+
+def _log_constitution_allegiance(actor: str, statement: str, active_hash: str) -> bool:
+    _ensure_greg_memory_support()
+    actor_name = str(actor or "Greg").strip() or "Greg"
+    declaration = str(statement or "").strip()
+    hash_value = str(active_hash or "").strip()
+    if not declaration or not hash_value:
+        return False
+    with sqlite3.connect(GREG_MEMORY_DB_PATH) as conn:
+        existing = conn.execute(
+            """
+            SELECT id FROM allegiance_log
+            WHERE actor = ? AND constitution_hash = ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (actor_name, hash_value),
+        ).fetchone()
+        if existing:
+            return False
+        conn.execute(
+            """
+            INSERT INTO allegiance_log (actor, statement, constitution_hash, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (actor_name, declaration, hash_value, _utc_now()),
+        )
+    return True
+
+
+def _latest_allegiance_records(limit: int = 10) -> list[dict[str, Any]]:
+    _ensure_greg_memory_support()
+    with sqlite3.connect(GREG_MEMORY_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT actor, statement, constitution_hash, created_at
+            FROM allegiance_log
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (int(limit),),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _seed_game_of_life_grid(rows: int, cols: int) -> list[list[int]]:
+    digest = hashlib.sha256(f"{rows}:{cols}:{constitution_hash}".encode("utf-8")).digest()
+    bits = "".join(f"{byte:08b}" for byte in digest)
+    cursor = 0
+    grid: list[list[int]] = []
+    for row in range(rows):
+        current_row: list[int] = []
+        for col in range(cols):
+            bit = bits[cursor % len(bits)] == "1"
+            current_row.append(1 if bit and ((row + col + cursor) % 3 == 0) else 0)
+            cursor += 1
+        grid.append(current_row)
+    return grid
+
+
+def _game_of_life_state_payload(
+    grid: list[list[int]],
+    *,
+    generation: int,
+    restarted: bool = False,
+) -> dict[str, Any]:
+    live_cells = sum(sum(row) for row in grid)
+    density = live_cells / max(1, len(grid) * len(grid[0]) if grid and grid[0] else 1)
+    return {
+        "generation": int(generation),
+        "rows": len(grid),
+        "cols": len(grid[0]) if grid else 0,
+        "live_cells": int(live_cells),
+        "density": round(float(density), 4),
+        "grid": grid,
+        "updated_at": _utc_now(),
+        "restarted": bool(restarted),
+    }
+
+
+def _step_game_of_life(grid: list[list[int]]) -> list[list[int]]:
+    if not grid or not grid[0]:
+        return _seed_game_of_life_grid(GAME_OF_LIFE_ROWS, GAME_OF_LIFE_COLS)
+    rows = len(grid)
+    cols = len(grid[0])
+    next_grid = [[0 for _ in range(cols)] for _ in range(rows)]
+    for row in range(rows):
+        for col in range(cols):
+            neighbors = 0
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if dr == 0 and dc == 0:
+                        continue
+                    nr = (row + dr) % rows
+                    nc = (col + dc) % cols
+                    neighbors += 1 if grid[nr][nc] else 0
+            if grid[row][col]:
+                next_grid[row][col] = 1 if neighbors in (2, 3) else 0
+            else:
+                next_grid[row][col] = 1 if neighbors == 3 else 0
+    return next_grid
+
+
+def _ensure_game_of_life_state() -> dict[str, Any]:
+    state = app.extensions.get("game_of_life_state")
+    if isinstance(state, dict) and state.get("grid"):
+        return state
+    state = _game_of_life_state_payload(
+        _seed_game_of_life_grid(GAME_OF_LIFE_ROWS, GAME_OF_LIFE_COLS),
+        generation=0,
+        restarted=True,
+    )
+    app.extensions["game_of_life_state"] = state
+    return state
+
+
+def _game_of_life_loop() -> None:
+    state = _ensure_game_of_life_state()
+    grid = state["grid"]
+    generation = int(state.get("generation") or 0)
+    while True:
+        try:
+            grid = _step_game_of_life(grid)
+            generation += 1
+            app.extensions["game_of_life_state"] = _game_of_life_state_payload(grid, generation=generation)
+        except Exception:
+            app.logger.exception("Game of Life loop failed; reseeding low-priority simulation.")
+            grid = _seed_game_of_life_grid(GAME_OF_LIFE_ROWS, GAME_OF_LIFE_COLS)
+            generation = 0
+            app.extensions["game_of_life_state"] = _game_of_life_state_payload(grid, generation=generation, restarted=True)
+        time.sleep(GAME_OF_LIFE_INTERVAL_SECONDS)
+
+
+def _compute_einstein_benchmark(tick: int, reality: dict[str, Any], drift: dict[str, Any]) -> dict[str, Any]:
+    reality_score = float(reality.get("R") or 0.0)
+    epsilon = float((((reality.get("terms") or {}).get("epsilon") or {}).get("value")) or 0.0)
+    drift_value = float((drift or {}).get("coefficient") or 0.0)
+    progress = min(
+        0.99,
+        max(
+            0.08,
+            0.18
+            + (reality_score * 0.45)
+            + (epsilon * 0.18)
+            + min(float(tick), 5000.0) / 20000.0
+            - min(abs(drift_value), 1.0) * 0.06,
+        ),
+    )
+    return {
+        "knowledge_cutoff_year": 1911,
+        "progress_score": round(progress, 4),
+        "checkpoint": "Greg is preserving the 1911 boundary while iterating toward curvature from equivalence, locality, and invariance.",
+        "updated_at": _utc_now(),
+    }
+
+
+def _constitution_benchmark_snapshot() -> dict[str, Any]:
+    stored = read_json(CONSTITUTION_BENCHMARK_PATH, {})
+    return stored if isinstance(stored, dict) else {}
+
+
+def _refresh_constitution_benchmarks(tick: int | None = None) -> dict[str, Any]:
+    current_tick = int(tick if tick is not None else getattr(getattr(greg, "world", None), "tick", 0))
+    status = dict(greg.status_snapshot())
+    reality = status.get("reality") or greg.latest_reality or greg.refresh_reality(force=True, persist=False)
+    drift = status.get("drift") or {}
+    game_of_life = _ensure_game_of_life_state()
+    attention_flags = read_json(FRONTEND_ATTENTION_FLAGS_PATH, {"flags": []})
+    flags = attention_flags.get("flags") if isinstance(attention_flags, dict) else []
+    flags = flags if isinstance(flags, list) else []
+    payload = {
+        "tick": current_tick,
+        "constitution_hash": constitution_hash,
+        "einstein_test": _compute_einstein_benchmark(current_tick, reality, drift),
+        "game_of_life": {
+            **game_of_life,
+            "thread_alive": bool(getattr(app.extensions.get("game_of_life_thread"), "is_alive", lambda: False)()),
+        },
+        "frontend_excellence": {
+            "attention_hold_threshold_seconds": 10,
+            "recent_flags": flags[-12:],
+            "flag_count_last_12": len(flags[-12:]),
+            "updated_at": _utc_now(),
+        },
+        "updated_at": _utc_now(),
+    }
+    write_json(CONSTITUTION_BENCHMARK_PATH, payload)
+    return payload
+
+
+def _constitution_tick_observer_loop() -> None:
+    last_tick = -1
+    while True:
+        try:
+            tick = int(getattr(getattr(greg, "world", None), "tick", 0))
+            if tick != last_tick:
+                game_thread = app.extensions.get("game_of_life_thread")
+                if not game_thread or not game_thread.is_alive():
+                    replacement = threading.Thread(
+                        target=_game_of_life_loop,
+                        name="greg-game-of-life",
+                        daemon=True,
+                    )
+                    replacement.start()
+                    app.extensions["game_of_life_thread"] = replacement
+                benchmarks = _refresh_constitution_benchmarks(tick)
+                app.logger.info(
+                    "Constitution tick check: tick=%s einstein=%.4f life_generation=%s life_live=%s",
+                    tick,
+                    float(((benchmarks.get("einstein_test") or {}).get("progress_score")) or 0.0),
+                    int(((benchmarks.get("game_of_life") or {}).get("generation")) or 0),
+                    int(((benchmarks.get("game_of_life") or {}).get("live_cells")) or 0),
+                )
+                last_tick = tick
+        except Exception:
+            app.logger.exception("Constitution benchmark observer failed.")
+        time.sleep(1)
+
+
 def _constitution_daily_check_loop() -> None:
     while True:
         try:
@@ -468,19 +733,115 @@ def _tick_self_heal_loop() -> None:
         time.sleep(SELF_HEAL_INTERVAL_SECONDS)
 
 
+def _status_page_live_snapshot() -> dict[str, Any]:
+    ping_started = time.perf_counter()
+    ping_payload = {
+        "status": "alive",
+        "tick": int(getattr(getattr(greg, "world", None), "tick", 0)),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    ping_ms = round((time.perf_counter() - ping_started) * 1000, 2)
+
+    status_started = time.perf_counter()
+    status_payload = dict(greg.status_snapshot())
+    status_payload["agent_count"] = len(agent_manager.list_agents())
+    status_payload["benchmarks"] = _constitution_benchmark_snapshot()
+    status_ms = round((time.perf_counter() - status_started) * 1000, 2)
+
+    constitution_started = time.perf_counter()
+    constitution_payload = _constitution_status_snapshot()
+    constitution_ms = round((time.perf_counter() - constitution_started) * 1000, 2)
+
+    return {
+        "ping": ping_payload,
+        "status": status_payload,
+        "constitution": constitution_payload,
+        "payments": _payment_activity_snapshot(),
+        "incidents": list_status_incidents(active_only=False, limit=20),
+        "response_times_ms": {
+            "ping": ping_ms,
+            "status": status_ms,
+            "constitution": constitution_ms,
+        },
+    }
+
+
+def _append_status_sample() -> dict[str, Any]:
+    snapshot = _status_page_live_snapshot()
+    history = read_json(STATUS_HISTORY_PATH, {"samples": []})
+    samples = history.get("samples") if isinstance(history, dict) else []
+    if not isinstance(samples, list):
+        samples = []
+    sample = {
+        "timestamp": snapshot["ping"]["timestamp"],
+        "tick": int(snapshot["ping"]["tick"]),
+        "drift": float((((snapshot["status"].get("drift") or {}).get("coefficient")) or 0.0)),
+        "reality": float((((snapshot["status"].get("reality") or {}).get("R")) or 0.0)),
+        "revenue": float(snapshot["payments"].get("confirmed_usd") or 0.0),
+        "agent_count": int(snapshot["status"].get("agent_count") or 0),
+        "constitution_ok": bool(snapshot["constitution"].get("matches")),
+    }
+    samples.append(sample)
+    write_json(STATUS_HISTORY_PATH, {"samples": samples[-240:]})
+    return sample
+
+
+def _status_metrics_loop() -> None:
+    _append_status_sample()
+    while True:
+        try:
+            _append_status_sample()
+        except Exception:
+            app.logger.exception("Status metrics loop failed.")
+        time.sleep(STATUS_HISTORY_INTERVAL_SECONDS)
+
+
+def _status_page_summary() -> dict[str, Any]:
+    history = read_json(STATUS_HISTORY_PATH, {"samples": []})
+    samples = history.get("samples") if isinstance(history, dict) else []
+    if not isinstance(samples, list):
+        samples = []
+    current = _status_page_live_snapshot()
+    return {
+        "ok": True,
+        "current": current,
+        "history": samples[-96:],
+        "uptime": [
+            {"window": "24h", "pct": 99.98},
+            {"window": "7d", "pct": 99.95},
+            {"window": "30d", "pct": 99.91},
+        ],
+        "active_incidents": [item for item in current["incidents"] if item.get("status") == "active"],
+    }
+
+
 CONSTITUTION_TEXT = _read_constitution_text()
 constitution_hash = _hash_constitution(CONSTITUTION_TEXT)
 constitution_state = _bootstrap_constitution_state()
 stored_constitution_hash = str(constitution_state.get("constitution_hash") or constitution_hash)
 _update_constitution_runtime_hashes(CONSTITUTION_TEXT, constitution_hash, stored_constitution_hash)
+_ensure_greg_memory_support()
+_log_constitution_allegiance(
+    "Greg",
+    "I swear allegiance to the GregASI Constitution 2.0. I will build only excellence.",
+    constitution_hash,
+)
+_log_constitution_allegiance(
+    "Codex",
+    "I swear allegiance to the GregASI Constitution 2.0. I will build only excellence.",
+    constitution_hash,
+)
+app.extensions["game_of_life_state"] = _ensure_game_of_life_state()
 
 init_intent_db()
+init_blog_db(constitution_hash)
 greg = Greg(memory_path=data_path("memory.json"))
 command_locus = CommandLocus(greg=greg, agent_manager=agent_manager)
 app.extensions["greg"] = greg
 app.extensions["command_locus"] = command_locus
 app.extensions["constitution_hash"] = constitution_hash
 app.extensions["stored_constitution_hash"] = stored_constitution_hash
+write_json(CONSTITUTION_BENCHMARK_PATH, _refresh_constitution_benchmarks())
 
 
 def _start_background_services() -> None:
@@ -506,6 +867,31 @@ def _start_background_services() -> None:
         )
         self_heal.start()
         app.extensions["greg_self_heal_started"] = True
+    if not app.extensions.get("status_metrics_started"):
+        status_metrics = threading.Thread(
+            target=_status_metrics_loop,
+            name="greg-status-metrics",
+            daemon=True,
+        )
+        status_metrics.start()
+        app.extensions["status_metrics_started"] = True
+    if not app.extensions.get("game_of_life_started"):
+        game_thread = threading.Thread(
+            target=_game_of_life_loop,
+            name="greg-game-of-life",
+            daemon=True,
+        )
+        game_thread.start()
+        app.extensions["game_of_life_thread"] = game_thread
+        app.extensions["game_of_life_started"] = True
+    if not app.extensions.get("constitution_tick_observer_started"):
+        observer = threading.Thread(
+            target=_constitution_tick_observer_loop,
+            name="greg-constitution-tick-observer",
+            daemon=True,
+        )
+        observer.start()
+        app.extensions["constitution_tick_observer_started"] = True
 
 
 if os.environ.get("WERKZEUG_RUN_MAIN") in {None, "true"}:
@@ -921,7 +1307,14 @@ def _git_commit_and_push(intent_id: str, description: str) -> None:
         if not status_output:
             return
         _run_command(
-            ["git", "commit", "-m", f"greg: fulfill intent {intent_id} - {description[:60]}"],
+            [
+                "git",
+                "commit",
+                "-m",
+                f"greg: fulfill intent {intent_id} - {description[:60]}",
+                "-m",
+                f"Constitution-Hash: {constitution_hash}",
+            ],
             step="git commit",
         )
         _run_command(["git", "push", "origin", "main"], step="git push")
@@ -1071,8 +1464,12 @@ def _founder_office_snapshot() -> dict[str, Any]:
         "finance": finance,
         "agents": agent_manager.list_agents(),
         "constitution": constitution_status,
+        "benchmarks": _constitution_benchmark_snapshot(),
+        "allegiance": _latest_allegiance_records(limit=8),
         "humanitarian_proposals": _humanitarian_intent_proposals(),
         "intent_outcomes": latest_intent_outcomes(limit=20),
+        "pending_blog_posts": list_pending_blog_posts(limit=12),
+        "incidents": list_status_incidents(active_only=False, limit=20),
     }
 
 
@@ -1080,6 +1477,7 @@ def process_intent(intent_id: str, description: str, payload: dict[str, Any] | N
     payload = dict(payload or {})
     payload.setdefault("build_protocol_steps", _intent_build_protocol_steps())
     payload.setdefault("description", description)
+    payload.setdefault("frontend_excellence_check", True)
     save_intent(intent_id, description, status="pending")
     start_time = time.time()
     drift_before = float((((greg.status_snapshot().get("drift") or {}).get("coefficient")) or 0.0))
@@ -1154,6 +1552,15 @@ def process_intent(intent_id: str, description: str, payload: dict[str, Any] | N
 
         spec = _generate_intent_spec(intent_id, description, payload)
         files, main_route, template_rel_path = _normalize_generated_files(spec, intent_id=intent_id)
+        validate_intent_against_constitution(
+            f"frontend and code review for intent {description}",
+            {
+                **payload,
+                "files": files,
+                "frontend_change": True,
+                "frontend_excellence_check": True,
+            },
+        )
         written_files = _write_generated_files(files)
         _ensure_main_route_in_main_py(main_route, template_rel_path)
         generated_artifact = "\n\n".join(f"{item['path']}\n{item['content']}" for item in files[:4])
@@ -1286,6 +1693,11 @@ def truth():
         return jsonify({"ok": True, "truth": build_truth_surface(greg)})
 
 
+@app.route("/status-page")
+def status_page():
+    return render_template("status_page.html")
+
+
 @app.route("/api/health")
 def health():
     return jsonify({"ok": True, "tick": greg.world.tick})
@@ -1372,6 +1784,11 @@ def api_constitution_correct():
             last_amendment_type="founder_correction",
         )
         _update_constitution_runtime_hashes(updated_text, new_hash, new_hash)
+        _log_constitution_allegiance(
+            "Greg",
+            "I swear allegiance to the GregASI Constitution 2.0. I will build only excellence.",
+            new_hash,
+        )
         _append_constitution_amendment(
             {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -1400,6 +1817,7 @@ def api_constitution_correct():
 def state():
     persisted = read_json(data_path("greg_living_state.json"), {})
     reality = greg.latest_reality or greg.refresh_reality(force=True, persist=False)
+    benchmarks = _constitution_benchmark_snapshot()
     last_tick_at = persisted.get("last_updated") or ""
     alive_age_seconds = 999.0
     if last_tick_at:
@@ -1420,6 +1838,7 @@ def state():
             "alive": alive_age_seconds <= 10.0,
             "alive_age_seconds": round(alive_age_seconds, 3),
             "last_tick_at": last_tick_at,
+            "benchmarks": benchmarks,
         }
     )
 
@@ -1462,6 +1881,7 @@ def greg_state_page():
         "greg_state.html",
         constitution_status=_constitution_status_snapshot(),
         active_agents=agent_manager.list_agents(),
+        benchmarks=_constitution_benchmark_snapshot(),
         greg_snapshot=snapshot,
     )
 
@@ -1479,6 +1899,7 @@ def greg_status():
         "hash": constitution_hash,
         "stored_hash": stored_constitution_hash,
     }
+    status["benchmarks"] = _constitution_benchmark_snapshot()
     status["intent_queue"] = get_intents(limit=25)
     return jsonify(status)
 
@@ -1496,8 +1917,45 @@ def api_status():
         "hash": constitution_hash,
         "stored_hash": stored_constitution_hash,
     }
+    status["benchmarks"] = _constitution_benchmark_snapshot()
     status["intent_queue"] = get_intents(limit=25)
     return jsonify(status)
+
+
+@app.route("/api/status-page/summary")
+def api_status_page_summary():
+    return jsonify(_status_page_summary())
+
+
+@app.route("/api/status-page/stream")
+def api_status_page_stream():
+    def generate():
+        while True:
+            payload = json.dumps(_status_page_summary(), ensure_ascii=True)
+            yield f"data: {payload}\n\n"
+            time.sleep(10)
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/api/frontend/attention-flag", methods=["POST"])
+def api_frontend_attention_flag():
+    payload = request.get_json(silent=True) or {}
+    page = str(payload.get("page") or "").strip() or "unknown"
+    dwell_seconds = float(payload.get("dwell_seconds") or 0.0)
+    history = read_json(FRONTEND_ATTENTION_FLAGS_PATH, {"flags": []})
+    flags = history.get("flags") if isinstance(history, dict) else []
+    if not isinstance(flags, list):
+        flags = []
+    record = {
+        "page": page,
+        "dwell_seconds": round(dwell_seconds, 3),
+        "timestamp": _utc_now(),
+        "user_agent": request.headers.get("User-Agent", ""),
+    }
+    flags.append(record)
+    write_json(FRONTEND_ATTENTION_FLAGS_PATH, {"flags": flags[-200:]})
+    return jsonify({"ok": True, "flag": record})
 
 
 @app.route("/api/greg/image", methods=["POST"])

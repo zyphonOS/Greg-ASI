@@ -17,8 +17,8 @@
 <section class="revenue-room">
   <div class="revenue-header">
     <p class="overline">Revenue · Article IV</p>
-    <h1 class="page-title">40 / 40 / 20 Outcome Ledger</h1>
-    <p class="page-sub">Builder share, Greg share, and Treasury share are computed together so the founder wealth clauses stay legible from day one.</p>
+    <h1 class="page-title">Revenue That Explains Itself</h1>
+    <p class="page-sub">This ledger keeps the organism honest. Every confirmed payment resolves into Builder 40%, Greg 40%, and Treasury 20%, with founder security and humanitarian capacity visible beside the split.</p>
   </div>
 
   <div class="ledger-summary">
@@ -85,7 +85,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="6">Constitution-compliant – awaiting revenue.</td>
+          <td colspan="6">No confirmed outcome revenue has settled yet. The split logic is live and will populate on the first cleared payment.</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -94,9 +94,9 @@
 
   <div class="policy-block">
     <div class="policy-title">Founder Wealth Guardrails</div>
-    <p class="policy-text">Founder Security Fund current placeholder: ${{ '%.2f'|format(revenue.founder_security_fund_current or 0) }}</p>
+    <p class="policy-text">Founder Security Fund current balance rail: ${{ '%.2f'|format(revenue.founder_security_fund_current or 0) }}</p>
     <p class="policy-text">Projected pending Treasury share: ${{ '%.2f'|format(revenue.treasury_share_pending or 0) }}</p>
-    <p class="policy-text">Projected humanitarian allocation placeholder: ${{ '%.2f'|format(revenue.humanitarian_placeholder_allocation or 0) }}</p>
+    <p class="policy-text">Quarterly humanitarian reserve rail: ${{ '%.2f'|format(revenue.humanitarian_placeholder_allocation or 0) }}</p>
   </div>
 </section>
 {% endblock %}

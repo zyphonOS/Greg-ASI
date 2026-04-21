@@ -234,7 +234,8 @@ pre,
 
 .nav-enter,
 .nav-trigger,
-.button-primary {
+.button-primary,
+.button-ghost {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
@@ -251,11 +252,41 @@ pre,
   background: var(--green);
   color: var(--bg);
   border: 1px solid transparent;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.nav-enter-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-g);
+}
+
+.button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-g);
+  color: var(--text);
+  background: rgba(0, 255, 157, 0.03);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .nav-enter:hover,
 .button-primary:hover {
-  opacity: 0.9;
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 255, 157, 0.14);
+}
+
+.nav-enter-secondary:hover {
+  background: rgba(0, 255, 157, 0.08);
+}
+
+.button-ghost:hover {
+  transform: translateY(-1px);
+  border-color: var(--green);
+  background: rgba(0, 255, 157, 0.08);
 }
 
 .nav-trigger {
@@ -353,7 +384,8 @@ pre,
 .room-panel,
 .metric-card,
 .ledger-card,
-.panel {
+.panel,
+.panel-surface {
   background: var(--surface);
   border: 1px solid var(--border);
 }

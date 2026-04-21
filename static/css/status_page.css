@@ -1,0 +1,159 @@
+.status-shell,
+.status-grid,
+.status-chip-grid,
+.metric-grid,
+.benchmark-grid,
+.incident-list,
+.uptime-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.status-shell {
+  gap: 1.35rem;
+}
+
+.status-hero,
+.status-panel {
+  padding: clamp(1.2rem, 2vw, 1.5rem);
+}
+
+.status-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 1rem;
+}
+
+.status-chip-grid,
+.metric-grid,
+.benchmark-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.status-chip-card,
+.metric-card,
+.benchmark-card,
+.incident-card,
+.uptime-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.status-chip-card:hover,
+.metric-card:hover,
+.benchmark-card:hover,
+.incident-card:hover,
+.uptime-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-g);
+  background: rgba(0, 255, 157, 0.04);
+}
+
+.chip-label,
+.panel-label,
+.metric-card span,
+.benchmark-card span,
+.uptime-card span {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.status-chip-card strong,
+.metric-card strong,
+.benchmark-card strong,
+.uptime-card strong {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.status-chip-card span:last-child,
+.metric-card small,
+.benchmark-card p,
+.incident-card p,
+.status-note {
+  color: var(--text-mid);
+}
+
+.panel-heading {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.9rem;
+}
+
+.panel-heading h2 {
+  font-size: 2rem;
+}
+
+.chart-panel canvas {
+  width: 100%;
+}
+
+.uptime-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.uptime-card strong {
+  color: var(--green);
+}
+
+.incident-card[data-severity="critical"] {
+  border-color: rgba(255, 95, 95, 0.35);
+}
+
+.incident-card[data-severity="warning"] {
+  border-color: rgba(255, 149, 0, 0.3);
+}
+
+.incident-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.incident-form {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.incident-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-mid);
+}
+
+.incident-form input,
+.incident-form select,
+.incident-form textarea {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+}
+
+@media (max-width: 1120px) {
+  .status-grid,
+  .status-hero,
+  .uptime-grid,
+  .status-chip-grid,
+  .metric-grid,
+  .benchmark-grid {
+    grid-template-columns: 1fr;
+  }
+}

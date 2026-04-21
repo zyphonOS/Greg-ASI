@@ -16,8 +16,8 @@
 
 <section class="treasury-hero">
   <p class="overline">Treasury · Article IV / X</p>
-  <h1 class="page-title">Founder Security Fund And Treasury Reserve</h1>
-  <p class="page-sub">This surface tracks the Treasury leg of the 40 / 40 / 20 rule, the Founder Security Fund target, and the humanitarian allocation cap.</p>
+  <h1 class="page-title">Treasury Continuity, Security, And Strategic Reserve</h1>
+  <p class="page-sub">This chamber tracks the treasury leg of the 40 / 40 / 20 split, the Founder Security Fund target, and the humanitarian reserve so continuity never depends on guesswork.</p>
   <div class="treasury-addr-wrap">
     <span class="treasury-addr-prefix">Treasury Wallet</span>
     <span class="treasury-addr">{{ wallet_address }}</span>
@@ -43,7 +43,7 @@
   <article class="treasury-balance-card">
     <div class="tbc-asset">Humanitarian Cap</div>
     <div class="tbc-amount">${{ '%.2f'|format(finance.humanitarian_quarter_cap or 0) }}</div>
-    <div class="tbc-network">Quarterly mandate placeholder</div>
+    <div class="tbc-network">Quarterly constitutional mandate</div>
   </article>
 </section>
 
@@ -56,15 +56,15 @@
     </div>
     <div class="policy-item">
       <div class="policy-key">Founder Stipend</div>
-      <div class="policy-val">${{ '%.2f'|format(finance.founder_stipend_each or 0) }} each at current placeholder revenue</div>
+      <div class="policy-val">${{ '%.2f'|format(finance.founder_stipend_each or 0) }} each at the current live revenue level</div>
     </div>
     <div class="policy-item">
       <div class="policy-key">Operating Balance</div>
-      <div class="policy-val">${{ '%.2f'|format(finance.treasury_operating_balance or 0) }} after placeholder humanitarian reserve</div>
+      <div class="policy-val">${{ '%.2f'|format(finance.treasury_operating_balance or 0) }} after the current humanitarian reserve</div>
     </div>
     <div class="policy-item">
       <div class="policy-key">Status</div>
-      <div class="policy-val">Constitution-compliant – awaiting revenue.</div>
+      <div class="policy-val">Live treasury rail. A zero balance simply means confirmed payments have not cleared yet.</div>
     </div>
   </div>
 </section>
@@ -99,7 +99,7 @@
         </tr>
         {% else %}
         <tr class="txn-loading-row">
-          <td colspan="5">No confirmed treasury transactions yet. Constitution-compliant – awaiting revenue.</td>
+          <td colspan="5">No confirmed treasury transactions yet. The wallet rail is live and waiting for the first cleared payment.</td>
         </tr>
         {% endfor %}
       </tbody>

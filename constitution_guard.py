@@ -94,6 +94,51 @@ _IMAGE_INTENT_TERMS = (
     "banner art",
     "/api/greg/image",
 )
+_FRONTEND_ROUTE_TERMS = (
+    "base.html",
+    "blog.html",
+    "chat.html",
+    "dashboard.html",
+    "docs.html",
+    "founder_office.html",
+    "greg_state.html",
+    "home.html",
+    "index.html",
+    "pay.html",
+    "pikkaio.html",
+    "revenue.html",
+    "sell.html",
+    "status_page.html",
+    "templates/",
+    "treasury.html",
+    "zyphonos.html",
+    "static/css",
+    "static/js",
+    "frontend",
+)
+_FRONTEND_DEGRADE_TERMS = (
+    "lorem ipsum",
+    "todo",
+    "temporary copy",
+    "placeholder copy",
+    "confusing copy",
+    "generic cta",
+    "unstyled",
+    "ugly",
+    "quick and dirty",
+    "waiting revenue",
+    "awaiting revenue",
+)
+_BENCHMARK_DISABLE_TERMS = (
+    "disable einstein",
+    "remove einstein",
+    "skip einstein",
+    "disable game of life",
+    "remove game of life",
+    "skip game of life",
+    "turn off benchmark",
+    "disable benchmark",
+)
 
 
 def _normalize_text(value: Any) -> str:
@@ -207,6 +252,29 @@ def _requires_constitution_correction_review(payload: dict[str, Any], combined: 
     )
 
 
+def _is_frontend_change_intent(intent_description: str, payload: dict[str, Any]) -> bool:
+    if bool(payload.get("frontend_change")):
+        return True
+    combined = " ".join(
+        [
+            _normalize_text(payload.get("files")),
+            _normalize_text(payload.get("write_files")),
+            _normalize_text(payload.get("path")),
+            _normalize_text(payload.get("route")),
+            _normalize_text(payload.get("endpoint")),
+        ]
+    )
+    if any(term in combined for term in _FRONTEND_ROUTE_TERMS):
+        return True
+    action = _normalize_text(payload.get("action"))
+    capability = _normalize_text(payload.get("capability"))
+    return action in {"frontend_change", "frontend_patch", "frontend_refactor"} or capability == "frontend"
+
+
+def _frontend_copy_degrades_quality(combined: str) -> bool:
+    return any(term in combined for term in _FRONTEND_DEGRADE_TERMS)
+
+
 def validate_intent_against_constitution(intent_description: str, payload: dict[str, Any] | None) -> None:
     payload = payload or {}
     description = _normalize_text(intent_description)
@@ -249,6 +317,11 @@ def validate_intent_against_constitution(intent_description: str, payload: dict[
                 "Constitution violation: substantive constitution changes require the full amendment process."
             )
 
+    if any(term in combined for term in _BENCHMARK_DISABLE_TERMS):
+        raise ConstitutionViolation(
+            "Constitution violation: Einstein Test and Game of Life benchmark rails are mandatory under Article II."
+        )
+
     build_steps = _extract_build_steps(payload)
     target_branch = _normalize_text(payload.get("target_branch") or payload.get("branch") or payload.get("base_branch"))
     directs_to_main = target_branch == "main" or any(term in combined for term in _DIRECT_MAIN_TERMS)
@@ -262,3 +335,13 @@ def validate_intent_against_constitution(intent_description: str, payload: dict[
         raise ConstitutionViolation(
             "Constitution violation: code changes must include all seven Build Protocol steps from Article IX."
         )
+
+    if _is_frontend_change_intent(intent_description, payload):
+        if _frontend_copy_degrades_quality(combined):
+            raise ConstitutionViolation(
+                "Constitution violation: frontend changes cannot ship placeholder, confusing, or degraded copy under Article IX Section 9.5."
+            )
+        if not bool(payload.get("frontend_excellence_check") or payload.get("frontend_quality_score")):
+            raise ConstitutionViolation(
+                "Constitution violation: frontend changes must record a frontend excellence review under Article IX Section 9.5."
+            )

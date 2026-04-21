@@ -12,11 +12,11 @@
   <div class="commerce-hero">
     <div>
       <p class="overline">Live Checkout · Base Sepolia</p>
-      <h1 class="page-title">Connect, Pay, Receive</h1>
-      <p class="page-sub">Choose a service, connect a Base-compatible wallet, approve the USDC transfer, and Greg returns the result directly in this chamber.</p>
+      <h1 class="page-title">One Wallet Flow From Prompt To Result</h1>
+      <p class="page-sub">Choose the outcome, connect a Base-compatible wallet, approve the USDC transfer, and let Greg deliver the result into this chamber without leaving the organism.</p>
     </div>
     <div class="commerce-callout">
-      <span class="commerce-label">Treasury Wallet</span>
+      <span class="commerce-label">Receiving Wallet</span>
       <strong class="mono">{{ wallet_address }}</strong>
       <span class="commerce-note">Network: Base Sepolia · Chain {{ base_chain_id }}</span>
     </div>
@@ -35,11 +35,11 @@
           </select>
         </label>
         <label>Intent Description
-          <textarea id="pay-description" name="description" rows="7" placeholder="Describe the image, page, or business task Greg should complete." required></textarea>
+          <textarea id="pay-description" name="description" rows="7" placeholder="Describe the image, page, or business task Greg should complete. Be specific about audience, outcome, and tone." required></textarea>
         </label>
         <div class="checkout-steps">
           <button id="connect-wallet" type="button" class="button-primary">1. Connect Wallet</button>
-          <button id="start-payment" type="submit" class="button-primary button-secondary">2. Pay With USDC</button>
+          <button id="start-payment" type="submit" class="button-primary button-secondary">2. Pay And Trigger Greg</button>
         </div>
         <div class="checkout-status">
           <span>Wallet</span>
@@ -55,11 +55,11 @@
     <aside class="checkout-panel">
       <span class="commerce-label">Result</span>
       <div id="checkout-result" class="result-panel">
-        <p>Your paid result will appear here after the transaction confirms.</p>
+        <p>Your paid result appears here the moment the transaction confirms and Greg finishes the run.</p>
       </div>
       <div class="sidecar-card">
-        <span class="commerce-label">Need Help?</span>
-        <p>If your wallet cannot connect, pay manually to the treasury wallet and DM details on X.</p>
+        <span class="commerce-label">Need White-Glove Help?</span>
+        <p>If your wallet cannot connect or your request is larger than the standard rail, pay manually to the treasury wallet and DM details on X.</p>
         <a class="commerce-link" href="{{ x_url }}" target="_blank" rel="noreferrer">DM on X</a>
       </div>
     </aside>

@@ -48,8 +48,8 @@
   </div>
   {% endif %}
   <p class="overline">ZyphonOS · Builder Layer</p>
-  <h1 class="page-title">Extend Greg</h1>
-  <p class="page-sub">APIs, subagents, and infrastructure for builders. Code-shaping operations remain bound to Article IX Build Protocol before merge and deployment.</p>
+  <h1 class="page-title">Build On The Organism Without Breaking The Law</h1>
+  <p class="page-sub">ZyphonOS is the builder layer for APIs, agents, infrastructure, and code execution. Everything powerful lives here, and everything powerful stays bound to the Build Protocol before merge or deployment.</p>
 
   <div class="api-grid">
     <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/ping</div><div class="api-desc">Check Greg's heartbeat (tick)</div></div>
@@ -60,17 +60,17 @@
     <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/agents/spawn</div><div class="api-desc">Spawn a new subagent</div></div>
   </div>
 
-  <h2 class="page-sub">Spawn a Subagent (cURL example)</h2>
+  <h2 class="page-sub">Spawn a Subagent</h2>
   <div class="code-block">
     curl -X POST https://web-production-66fb75.up.railway.app/api/greg/agents/spawn \<br>
     -H "Content-Type: application/json" \<br>
     -d '{"archetype": "builder", "name": "my-agent"}'
   </div>
 
-  <h2 class="page-sub" style="margin-top: 2rem;">Builder Docs</h2>
+  <h2 class="page-sub" style="margin-top: 2rem;">Builder Next Step</h2>
   <div class="code-block">
-    // Declare an intent via Pikkaio (coming soon)<br>
-    // Or directly integrate with Greg's tick loop.
+    // Open /docs for full endpoint examples and Build Protocol guidance.<br>
+    // Use /api/intents/process when you want Greg to generate and ship a route.
   </div>
 </div>
 {% endblock %}

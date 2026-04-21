@@ -16,7 +16,17 @@
 .sidecar-card,
 .checkout-panel {
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(11, 11, 15, 0.98), rgba(11, 11, 15, 0.9));
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.commerce-callout:hover,
+.commerce-card:hover,
+.sidecar-card:hover,
+.checkout-panel:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-g);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
 }
 
 .commerce-callout {
@@ -53,6 +63,7 @@
 
 .commerce-card h2 {
   font-size: 2rem;
+  line-height: 0.98;
 }
 
 .commerce-price {
@@ -68,6 +79,12 @@
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  transition: letter-spacing 0.18s ease, color 0.18s ease;
+}
+
+.commerce-link:hover {
+  color: var(--text);
+  letter-spacing: 0.14em;
 }
 
 .commerce-sidecar,
@@ -101,6 +118,12 @@
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.02);
   color: var(--text);
+}
+
+.checkout-form select:focus,
+.checkout-form textarea:focus {
+  outline: none;
+  border-color: var(--border-g);
 }
 
 .checkout-steps {

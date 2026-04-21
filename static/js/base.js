@@ -9,6 +9,12 @@
 
     let lastAliveAt = Date.now();
     let lastState = null;
+    const pageStartedAt = Date.now();
+    let attentionSatisfied = false;
+
+    window.setTimeout(function () {
+        attentionSatisfied = true;
+    }, 10000);
 
     function setPulse(isAlive) {
         if (!pulse) {
@@ -185,6 +191,30 @@
             closeNav();
         }
     });
+
+    function flagAttentionDrop() {
+        if (attentionSatisfied) {
+            return;
+        }
+        const dwellSeconds = (Date.now() - pageStartedAt) / 1000;
+        const payload = JSON.stringify({
+            page: document.body.getAttribute("data-page") || window.location.pathname,
+            dwell_seconds: dwellSeconds,
+        });
+        if (navigator.sendBeacon) {
+            const blob = new Blob([payload], { type: "application/json" });
+            navigator.sendBeacon("/api/frontend/attention-flag", blob);
+            return;
+        }
+        fetch("/api/frontend/attention-flag", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: payload,
+            keepalive: true,
+        }).catch(function () {});
+    }
+
+    window.addEventListener("pagehide", flagAttentionDrop);
 
     setPulse(true);
     pollState();

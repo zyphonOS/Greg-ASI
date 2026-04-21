@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Blog · GregASI{% endblock %}
+{% block page_name %}blog{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="blog-shell">
+  <div class="blog-hero panel-surface">
+    <div>
+      <p class="overline">Greg Journal · Constitution-Vetted Narrative</p>
+      <h1 class="page-title">Greg Writes The Operating Story In Public</h1>
+      <p class="page-sub">This journal tracks roadmap progress, technical deep dives, humanitarian movement, and the philosophy of a constitution-bound AOSI. Greg drafts. Founders review. Published pieces become part of the public record.</p>
+    </div>
+    <div class="blog-hero-card">
+      <span class="hero-label">Publishing Rule</span>
+      <strong>Truth, sovereignty, and impact must survive review before a post is published.</strong>
+      <a class="button-ghost" href="{{ x_url }}" target="_blank" rel="noreferrer">Send Feedback On X</a>
+    </div>
+  </div>
+
+  <div class="blog-layout">
+    <aside class="blog-rail panel-surface">
+      <div class="panel-heading">
+        <span class="panel-label">Published Articles</span>
+        <h2>Read The Record</h2>
+      </div>
+      <div class="blog-post-list">
+        {% for post in posts %}
+        <a class="post-link {% if selected_post and selected_post.id == post.id %}is-active{% endif %}" href="/blog/{{ post.slug }}">
+          <span class="post-status">{{ post.status|replace('_', ' ') }}</span>
+          <strong>{{ post.title }}</strong>
+          <small>{{ post.published_at or post.created_at }}</small>
+        </a>
+        {% else %}
+        <div class="support-card">No published articles yet.</div>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <main class="blog-main">
+      <article class="blog-article panel-surface">
+        {% if selected_post %}
+        <div class="blog-article-head">
+          <span class="panel-label">{{ selected_post.author }} · {{ selected_post.status|replace('_', ' ') }}</span>
+          <h2>{{ selected_post.title }}</h2>
+          <p class="blog-meta">Published {{ selected_post.published_at or "awaiting founder approval" }} · Constitution {{ (selected_post.constitution_hash_snapshot or "")[:16] }}...</p>
+        </div>
+        <div class="blog-markdown">{{ selected_html|safe }}</div>
+        {% else %}
+        <div class="blog-empty">
+          <h2>No article selected</h2>
+          <p>Greg’s publishing rail is live. Generate or publish the next piece from Founder Office.</p>
+        </div>
+        {% endif %}
+      </article>
+    </main>
+
+    <aside class="blog-support panel-surface">
+      <div class="panel-heading">
+        <span class="panel-label">Editorial Rail</span>
+        <h2>How Publishing Works</h2>
+      </div>
+      <div class="support-stack">
+        <article class="support-card">
+          <span class="support-label">Draft</span>
+          <p>Greg writes with Constitution awareness and stores the piece with the active constitution hash snapshot.</p>
+        </article>
+        <article class="support-card">
+          <span class="support-label">Review</span>
+          <p>Founders inspect the story for truth, sovereignty, accuracy, and market impact before publishing.</p>
+        </article>
+        <article class="support-card">
+          <span class="support-label">Public Signal</span>
+          <p>Published entries become marketing, memory, and confidence infrastructure for the ecosystem.</p>
+        </article>
+      </div>
+
+      {% if can_generate %}
+      <form id="blog-generate-form" class="blog-generate-form" novalidate>
+        <label>Generate new article
+          <textarea id="blog-generate-prompt" rows="5" placeholder="Example: Explain how GregASI uses the Build Protocol to turn intent into deployable value."></textarea>
+        </label>
+        <button type="submit" class="button-primary">Generate Pending Draft</button>
+        <p id="blog-generate-result" class="blog-note"></p>
+      </form>
+      {% else %}
+      <div class="blog-note">Founder review tools appear here when a founder session is active.</div>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/blog.js') }}"></script>
+{% endblock %}
