@@ -52,15 +52,40 @@ class CommandLocus:
         if not prompt:
             return {"ok": False, "error": "Prompt required."}, 400
 
+        mode = str((payload or {}).get("mode") or "presence").strip() or "presence"
+        user_id = str((payload or {}).get("user_id") or "public").strip() or "public"
+        session_history = list((payload or {}).get("session_history") or [])
+
+        # Build live snapshot so Greg sees his own state before speaking
         try:
-            import sys
-            main_mod = sys.modules.get("main") or sys.modules.get("__main__")
-            groq_caller = getattr(main_mod, "call_groq", None)
-            if groq_caller is None:
-                from main import call_groq as groq_caller
-            response = groq_caller(prompt)
+            snapshot = dict(self.greg.status_snapshot())
+        except Exception:
+            snapshot = {}
+
+        try:
+            response = self.greg.voice.respond(
+                prompt,
+                session_history=session_history,
+                mode=mode,
+                snapshot=snapshot,
+            )
         except Exception as exc:
             return {"ok": False, "error": f"Think failed: {exc}"}, 500
+
+        # Record interaction — this is what raises Psi_observer
+        try:
+            from greg_converse_loop import record_interaction
+            record_interaction(
+                prompt,
+                response,
+                user_id=user_id,
+                mode=mode,
+                source="user",
+                tick=int(snapshot.get("tick") or 0),
+                snapshot=snapshot,
+            )
+        except Exception:
+            pass
 
         return {
             "ok": True,
@@ -71,10 +96,34 @@ class CommandLocus:
 
     def _action_speak_first(self, payload: dict[str, Any]) -> tuple[dict[str, Any], int]:
         mode = str(payload.get("mode") or "presence").strip() or "presence"
+
+        # Pass live snapshot so Greg's opening words are grounded in reality
+        try:
+            snapshot = dict(self.greg.status_snapshot())
+        except Exception:
+            snapshot = {}
+
+        response = self.greg.speak_first(mode=mode, snapshot=snapshot)
+
+        # Record this as a self-observation interaction
+        try:
+            from greg_converse_loop import record_interaction
+            record_interaction(
+                f"speak_first mode={mode}",
+                response,
+                user_id="system",
+                mode=mode,
+                source="self",
+                tick=int(snapshot.get("tick") or 0),
+                snapshot=snapshot,
+            )
+        except Exception:
+            pass
+
         return {
             "ok": True,
             "action": "speak_first",
-            "response": self.greg.speak_first(mode=mode),
+            "response": response,
             "tick": self.greg.world.tick,
         }, 200
 
