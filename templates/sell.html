@@ -1,49 +1,46 @@
 {% extends "base.html" %}
-
-{% block title %}Sell · GregASI{% endblock %}
-{% block page_name %}sell{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/commerce.css') }}">
-{% endblock %}
-
+{% block title %}Services · GregASI{% endblock %}
 {% block content %}
-<section class="commerce-shell">
-  <div class="commerce-hero">
-    <div>
-      <p class="overline">Revenue Rail · GregASI</p>
-      <h1 class="page-title">Buy Outcomes, Not Freelance Chaos</h1>
-      <p class="page-sub">Greg sells finished movement: images that launch campaigns, code pages that convert, and business answers that unblock execution. USDC on Base is the fastest path from desire to delivery.</p>
+<div class="greg-section">
+  <h1 class="mb-2">SERVICES</h1>
+  <p class="muted mb-2">Pay with USDC on Base Sepolia. Greg fulfills your order autonomously, on-chain confirmed.</p>
+
+  <div class="grid-3 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Image Generation</div>
+      <div class="card-value">$5 USDC</div>
+      <div class="card-sub">HuggingFace-powered · delivered instantly on confirmation</div>
+      <a class="btn btn-primary mt-2" href="/pay?service=image">Buy Image →</a>
     </div>
-    <div class="commerce-callout">
-      <span class="commerce-label">Live Treasury Wallet</span>
-      <strong class="mono">{{ wallet_address }}</strong>
-      <a class="button-primary" href="/pay">Open Checkout</a>
+    <div class="greg-card">
+      <div class="card-label">Code / Intent</div>
+      <div class="card-value">$10 USDC</div>
+      <div class="card-sub">Greg generates code, commits, deploys. Build Protocol Article IX.</div>
+      <a class="btn btn-primary mt-2" href="/pay?service=code">Buy Code →</a>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Task (Think)</div>
+      <div class="card-value">$2 USDC</div>
+      <div class="card-sub">Direct Greg reasoning on any problem. Immediate response.</div>
+      <a class="btn btn-primary mt-2" href="/pay?service=task">Buy Task →</a>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Subscription (30 days)</div>
+      <div class="card-value">$5 USDC</div>
+      <div class="card-sub">Premium access for 30 days. All services unlocked.</div>
+      <a class="btn btn-outline mt-2" href="/pay?service=subscription">Subscribe →</a>
     </div>
   </div>
 
-  <div class="commerce-grid">
-    {% for item in services %}
-    <article class="commerce-card">
-      <span class="commerce-label">{{ item.service }}</span>
-      <h2>{{ item.title }}</h2>
-      <p>{{ item.description }}</p>
-      <div class="commerce-price">${{ item.price }} USDC</div>
-      <a class="commerce-link" href="/pay?service={{ item.service }}">Buy This Outcome</a>
-    </article>
-    {% endfor %}
+  <div class="greg-card mt-3">
+    <div class="card-label">How It Works</div>
+    <ol style="padding-left:1.2rem;color:var(--greg-muted);font-size:.88rem;line-height:2">
+      <li>Choose a service above and go to <code class="mono">/pay</code>.</li>
+      <li>Connect your wallet (MetaMask / any EIP-1193 provider).</li>
+      <li>Approve the USDC transfer on Base Sepolia.</li>
+      <li>Submit your transaction hash — Greg verifies on-chain.</li>
+      <li>Your service is delivered automatically. No middlemen.</li>
+    </ol>
   </div>
-
-  <section class="commerce-sidecar">
-    <div class="sidecar-card">
-      <span class="commerce-label">Manual High-Touch Flow</span>
-      <p>For bigger deals, manual treasury payment still works: send to the wallet above, then DM proof plus your intent on X and a founder can route the job directly.</p>
-      <a class="commerce-link" href="{{ x_url }}" target="_blank" rel="noreferrer">DM on X</a>
-    </div>
-    <div class="sidecar-card">
-      <span class="commerce-label">Constitution</span>
-      <p>Every confirmed sale remains visible under the 40 / 40 / 20 rule. Builder output, Greg growth, and treasury continuity stay legible by law, not by marketing promise.</p>
-    </div>
-  </section>
-</section>
+</div>
 {% endblock %}

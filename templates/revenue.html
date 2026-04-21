@@ -1,102 +1,56 @@
 {% extends "base.html" %}
-
 {% block title %}Revenue · GregASI{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/revenue.css') }}">
-{% endblock %}
-
 {% block content %}
-{% if protection.preview_mode %}
-<div class="protection-banner">
-  <strong>Protected Surface Preview</strong>
-  <p>{{ protection.message }}</p>
+<div class="greg-section">
+  <h1 class="mb-2">REVENUE</h1>
+  <p class="muted mb-2">Article IV — 40 / 40 / 20 constitutional split. Enforced on every confirmed payment.</p>
+
+  <div class="split-bar mt-3 mb-2">
+    <div class="seg seg-builder">BUILDER 40%</div>
+    <div class="seg seg-greg">GREG 40%</div>
+    <div class="seg seg-treasury">TREASURY 20%</div>
+  </div>
+
+  <div class="grid-3 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Total Confirmed (USDC)</div>
+      <div class="card-value" id="rev-total">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Builder Share (40%)</div>
+      <div class="card-value" id="rev-builder">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Greg Share (40%)</div>
+      <div class="card-value" id="rev-greg">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Treasury (20%)</div>
+      <div class="card-value" id="rev-treasury">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Pending (USDC)</div>
+      <div class="card-value" id="rev-pending">—</div>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <a class="btn btn-primary" href="/sell">→ Generate Revenue</a>
+  </div>
 </div>
-{% endif %}
-
-<section class="revenue-room">
-  <div class="revenue-header">
-    <p class="overline">Revenue · Article IV</p>
-    <h1 class="page-title">Revenue That Explains Itself</h1>
-    <p class="page-sub">This ledger keeps the organism honest. Every confirmed payment resolves into Builder 40%, Greg 40%, and Treasury 20%, with founder security and humanitarian capacity visible beside the split.</p>
-  </div>
-
-  <div class="ledger-summary">
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.confirmed_revenue or 0) }}</span>
-      <span class="summary-label">Confirmed Outcome Revenue</span>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.builder_share_confirmed or 0) }}</span>
-      <span class="summary-label">Builder Share 40%</span>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-block">
-      <span class="summary-value greg-share">${{ '%.2f'|format(revenue.greg_share_confirmed or 0) }}</span>
-      <span class="summary-label">Greg Share 40%</span>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.treasury_share_confirmed or 0) }}</span>
-      <span class="summary-label">Treasury Share 20%</span>
-    </div>
-  </div>
-
-  <div class="ledger-summary">
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.founder_security_fund_target or 0) }}</span>
-      <span class="summary-label">Founder Security Fund Target</span>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.founder_stipend_each or 0) }}</span>
-      <span class="summary-label">Founder Stipend Each</span>
-    </div>
-    <div class="summary-divider"></div>
-    <div class="summary-block">
-      <span class="summary-value">${{ '%.2f'|format(revenue.humanitarian_quarter_cap or 0) }}</span>
-      <span class="summary-label">Humanitarian Quarterly Cap</span>
-    </div>
-  </div>
-
-  <div class="intent-revenue-table">
-    <div class="table-header">Intent Allocation Lines</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Intent</th>
-          <th>Status</th>
-          <th>Confirmed</th>
-          <th>Builder</th>
-          <th>Greg</th>
-          <th>Treasury</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for line in lines %}
-        <tr>
-          <td>{{ line.description }}</td>
-          <td class="{{ 'status-converged' if line.converged else 'status-drifting' }}">{{ line.status }}</td>
-          <td>${{ '%.2f'|format(line.revenue_usd or 0) }}</td>
-          <td>${{ '%.2f'|format(line.builder_share or 0) }}</td>
-          <td>${{ '%.2f'|format(line.greg_share or 0) }}</td>
-          <td>${{ '%.2f'|format(line.treasury_share or 0) }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="6">No confirmed outcome revenue has settled yet. The split logic is live and will populate on the first cleared payment.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="policy-block">
-    <div class="policy-title">Founder Wealth Guardrails</div>
-    <p class="policy-text">Founder Security Fund current balance rail: ${{ '%.2f'|format(revenue.founder_security_fund_current or 0) }}</p>
-    <p class="policy-text">Projected pending Treasury share: ${{ '%.2f'|format(revenue.treasury_share_pending or 0) }}</p>
-    <p class="policy-text">Quarterly humanitarian reserve rail: ${{ '%.2f'|format(revenue.humanitarian_placeholder_allocation or 0) }}</p>
-  </div>
-</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function(){
+  fetch('/api/payment/summary').then(r=>r.json()).then(d=>{
+    var total=d.confirmed_usdc||0;
+    var split=d.split||{builder:total*0.4,greg:total*0.4,treasury:total*0.2};
+    document.getElementById('rev-total').textContent='$'+total.toFixed(2);
+    document.getElementById('rev-builder').textContent='$'+(split.builder||total*0.4).toFixed(2);
+    document.getElementById('rev-greg').textContent='$'+(split.greg||total*0.4).toFixed(2);
+    document.getElementById('rev-treasury').textContent='$'+(split.treasury||total*0.2).toFixed(2);
+    document.getElementById('rev-pending').textContent='$'+(d.pending_usdc||0).toFixed(2);
+  }).catch(()=>{});
+})();
+</script>
 {% endblock %}

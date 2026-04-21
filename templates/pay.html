@@ -1,80 +1,154 @@
 {% extends "base.html" %}
-
 {% block title %}Pay · GregASI{% endblock %}
-{% block page_name %}pay{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/commerce.css') }}">
+{% block extra_head %}
+<style>
+  .pay-form input,
+  .pay-form textarea {
+    width:100%;background:#060a0d;border:1px solid var(--greg-border);
+    color:var(--greg-green);padding:.65rem 1rem;border-radius:6px;
+    font-family:var(--font-mono);font-size:.82rem;outline:none;margin-top:.4rem;
+  }
+  .pay-form input:focus,.pay-form textarea:focus{border-color:var(--greg-green);}
+  .pay-form label{font-family:var(--font-mono);font-size:.72rem;color:var(--greg-muted);letter-spacing:.05em}
+  #pay-status{font-family:var(--font-mono);font-size:.78rem;min-height:2rem;margin-top:.6rem}
+  .pay-step{display:none}.pay-step.active{display:block}
+</style>
 {% endblock %}
-
 {% block content %}
-<section class="commerce-shell">
-  <div class="commerce-hero">
-    <div>
-      <p class="overline">Live Checkout · Base Sepolia</p>
-      <h1 class="page-title">One Wallet Flow From Prompt To Result</h1>
-      <p class="page-sub">Choose the outcome, connect a Base-compatible wallet, approve the USDC transfer, and let Greg deliver the result into this chamber without leaving the organism.</p>
-    </div>
-    <div class="commerce-callout">
-      <span class="commerce-label">Receiving Wallet</span>
-      <strong class="mono">{{ wallet_address }}</strong>
-      <span class="commerce-note">Network: Base Sepolia · Chain {{ base_chain_id }}</span>
+<div class="greg-section" style="max-width:640px">
+  <h1 class="mb-2">PAY WITH USDC</h1>
+  <p class="muted mb-2">Base Sepolia · ERC-20 USDC · On-chain verification · Instant delivery.</p>
+
+  <!-- STEP 1: Service & Description -->
+  <div class="pay-step active" id="step-1">
+    <div class="greg-card pay-form">
+      <h3>Step 1 — Choose Your Service</h3>
+      <div class="mt-2">
+        <label>SERVICE</label>
+        <select id="pay-service" style="width:100%;background:#060a0d;border:1px solid var(--greg-border);color:var(--greg-green);padding:.65rem 1rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem;margin-top:.4rem">
+          <option value="image">Image Generation — $5 USDC</option>
+          <option value="code">Code / Intent — $10 USDC</option>
+          <option value="task">Task (Think) — $2 USDC</option>
+          <option value="subscription">Subscription 30d — $5 USDC</option>
+        </select>
+      </div>
+      <div class="mt-2">
+        <label>DESCRIPTION / PROMPT</label>
+        <textarea id="pay-desc" rows="3" placeholder="Describe what you want Greg to do…"></textarea>
+      </div>
+      <div class="mt-2">
+        <label>YOUR WALLET ADDRESS (optional — auto-filled if MetaMask is connected)</label>
+        <input id="pay-wallet" type="text" placeholder="0x…" />
+      </div>
+      <button class="btn btn-primary mt-2" onclick="createIntent()">Create Payment Intent →</button>
+      <div id="pay-status" class="muted"></div>
     </div>
   </div>
 
-  <div class="checkout-grid">
-    <section class="checkout-panel">
-      <form id="pay-form" class="checkout-form" novalidate>
-        <label>Service
-          <select id="pay-service" name="service">
-            {% for item in services %}
-            <option value="{{ item.service }}" {% if request.args.get('service') == item.service %}selected{% endif %}>
-              {{ item.title }} · ${{ item.price }} USDC
-            </option>
-            {% endfor %}
-          </select>
-        </label>
-        <label>Intent Description
-          <textarea id="pay-description" name="description" rows="7" placeholder="Describe the image, page, or business task Greg should complete. Be specific about audience, outcome, and tone." required></textarea>
-        </label>
-        <div class="checkout-steps">
-          <button id="connect-wallet" type="button" class="button-primary">1. Connect Wallet</button>
-          <button id="start-payment" type="submit" class="button-primary button-secondary">2. Pay And Trigger Greg</button>
-        </div>
-        <div class="checkout-status">
-          <span>Wallet</span>
-          <strong id="wallet-status">not connected</strong>
-        </div>
-        <div class="checkout-status">
-          <span>Price</span>
-          <strong id="service-price">$5 USDC</strong>
-        </div>
-      </form>
-    </section>
-
-    <aside class="checkout-panel">
-      <span class="commerce-label">Result</span>
-      <div id="checkout-result" class="result-panel">
-        <p>Your paid result appears here the moment the transaction confirms and Greg finishes the run.</p>
+  <!-- STEP 2: Send USDC -->
+  <div class="pay-step" id="step-2">
+    <div class="greg-card">
+      <h3>Step 2 — Send USDC</h3>
+      <div class="mt-2 mono" style="font-size:.78rem;color:var(--greg-muted)">
+        <div>Payment ID: <span class="green" id="disp-id">—</span></div>
+        <div>Amount: <span class="green" id="disp-amount">—</span> USDC</div>
+        <div>To: <span class="green" id="disp-to" style="word-break:break-all">—</span></div>
+        <div>Network: <span class="green" id="disp-network">—</span></div>
       </div>
-      <div class="sidecar-card">
-        <span class="commerce-label">Need White-Glove Help?</span>
-        <p>If your wallet cannot connect or your request is larger than the standard rail, pay manually to the treasury wallet and DM details on X.</p>
-        <a class="commerce-link" href="{{ x_url }}" target="_blank" rel="noreferrer">DM on X</a>
-      </div>
-    </aside>
+      <button class="btn btn-primary mt-2" onclick="sendTx()">Send via MetaMask →</button>
+      <div class="mt-2 muted mono" style="font-size:.72rem">Or send manually and paste the tx hash below:</div>
+      <input id="pay-txhash" type="text" placeholder="0x transaction hash…" class="mt-1" style="width:100%;background:#060a0d;border:1px solid var(--greg-border);color:var(--greg-green);padding:.65rem 1rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem" />
+      <button class="btn btn-outline mt-2" onclick="confirmPayment()">Confirm Payment →</button>
+      <div id="pay-status-2" class="muted mono mt-1" style="font-size:.75rem"></div>
+    </div>
   </div>
-</section>
 
-<script>
-  window.GREG_CHECKOUT = {
-    services: {{ services|tojson }},
-    chainId: {{ base_chain_id|tojson }},
-    treasuryWallet: {{ wallet_address|tojson }}
-  };
-</script>
+  <!-- STEP 3: Result -->
+  <div class="pay-step" id="step-3">
+    <div class="greg-card">
+      <h3 class="green">✓ Payment Confirmed</h3>
+      <div id="pay-result" class="mono muted mt-2" style="font-size:.75rem;white-space:pre-wrap"></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+{% block extra_scripts %}
+<script>
+var _intent = {};
 
-{% block page_scripts %}
-<script src="{{ url_for('static', filename='js/pay.js') }}"></script>
+// Pre-fill service from query string
+(function(){
+  var svc = new URLSearchParams(window.location.search).get('service');
+  if(svc){
+    var sel=document.getElementById('pay-service');
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===svc){sel.selectedIndex=i;break;}
+    }
+  }
+  // Try MetaMask
+  if(window.ethereum){
+    window.ethereum.request({method:'eth_requestAccounts'}).then(function(a){
+      if(a&&a[0]) document.getElementById('pay-wallet').value=a[0];
+    }).catch(function(){});
+  }
+})();
+
+function showStep(n){
+  document.querySelectorAll('.pay-step').forEach(function(el,i){
+    el.classList.toggle('active',i+1===n);
+  });
+}
+
+function createIntent(){
+  var svc=document.getElementById('pay-service').value;
+  var desc=document.getElementById('pay-desc').value.trim();
+  var wallet=document.getElementById('pay-wallet').value.trim();
+  document.getElementById('pay-status').textContent='Creating intent…';
+  fetch('/api/payment/create-intent',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({service:svc,description:desc,wallet_address:wallet})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(!d.ok){document.getElementById('pay-status').textContent='Error: '+(d.error||'unknown');return;}
+    _intent=d;
+    document.getElementById('disp-id').textContent=d.payment_id;
+    document.getElementById('disp-amount').textContent=d.amount_usdc;
+    document.getElementById('disp-to').textContent=d.treasury_wallet;
+    document.getElementById('disp-network').textContent=d.network+' (chainId '+d.chain_id+')';
+    showStep(2);
+  }).catch(function(e){document.getElementById('pay-status').textContent='Error: '+e;});
+}
+
+function sendTx(){
+  if(!window.ethereum){
+    document.getElementById('pay-status-2').textContent='MetaMask not detected. Paste tx hash manually.';
+    return;
+  }
+  var tx=_intent.transaction_request;
+  if(!tx){document.getElementById('pay-status-2').textContent='No transaction request. Reload and try again.';return;}
+  window.ethereum.request({method:'eth_sendTransaction',params:[{
+    to:tx.to,from:tx.from||undefined,value:'0x0',data:tx.data,chainId:tx.chainId
+  }]}).then(function(hash){
+    document.getElementById('pay-txhash').value=hash;
+    document.getElementById('pay-status-2').textContent='TX sent: '+hash+'. Click Confirm below.';
+  }).catch(function(e){
+    document.getElementById('pay-status-2').textContent='MetaMask error: '+e.message;
+  });
+}
+
+function confirmPayment(){
+  var txHash=document.getElementById('pay-txhash').value.trim();
+  if(!txHash){document.getElementById('pay-status-2').textContent='Paste your transaction hash first.';return;}
+  document.getElementById('pay-status-2').textContent='Verifying on-chain…';
+  fetch('/api/payment/confirm',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({payment_id:_intent.payment_id,tx_hash:txHash,wallet_address:_intent.transaction_request?.from||''})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(!d.ok){document.getElementById('pay-status-2').textContent='Error: '+(d.error||'unknown');return;}
+    document.getElementById('pay-result').textContent=JSON.stringify(d.service_result||d,null,2);
+    showStep(3);
+  }).catch(function(e){document.getElementById('pay-status-2').textContent='Error: '+e;});
+}
+</script>
 {% endblock %}

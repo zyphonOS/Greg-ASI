@@ -1,109 +1,43 @@
 {% extends "base.html" %}
-
 {% block title %}Treasury · GregASI{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/treasury.css') }}">
-{% endblock %}
-
 {% block content %}
-{% if protection.preview_mode %}
-<div class="protection-banner">
-  <strong>Protected Surface Preview</strong>
-  <p>{{ protection.message }}</p>
+<div class="greg-section">
+  <h1 class="mb-2">TREASURY</h1>
+  <p class="muted mb-2">The 20% treasury allocation accumulates here. Governed by Article IV and the Founder Security Fund protocol.</p>
+
+  <div class="split-bar mt-3 mb-2">
+    <div class="seg seg-builder">BUILDER 40%</div>
+    <div class="seg seg-greg">GREG 40%</div>
+    <div class="seg seg-treasury">TREASURY 20%</div>
+  </div>
+
+  <div class="grid-2 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Treasury Balance (USDC)</div>
+      <div class="card-value" id="t-balance">—</div>
+      <div class="card-sub">20% of all confirmed revenue</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Founder Security Fund</div>
+      <div class="card-value" id="t-fsf">Active</div>
+      <div class="card-sub">Humanitarian allocation per Article IV</div>
+    </div>
+  </div>
+
+  <div class="greg-card mt-3">
+    <div class="card-label">Wallet Address</div>
+    <div class="mono green" style="font-size:.85rem;word-break:break-all">{{ wallet_address or "Set GREG_WALLET_ADDRESS in environment" }}</div>
+    <div class="card-sub mt-1">Base Sepolia · USDC · ERC-20</div>
+  </div>
 </div>
-{% endif %}
-
-<section class="treasury-hero">
-  <p class="overline">Treasury · Article IV / X</p>
-  <h1 class="page-title">Treasury Continuity, Security, And Strategic Reserve</h1>
-  <p class="page-sub">This chamber tracks the treasury leg of the 40 / 40 / 20 split, the Founder Security Fund target, and the humanitarian reserve so continuity never depends on guesswork.</p>
-  <div class="treasury-addr-wrap">
-    <span class="treasury-addr-prefix">Treasury Wallet</span>
-    <span class="treasury-addr">{{ wallet_address }}</span>
-  </div>
-</section>
-
-<section class="treasury-balances">
-  <article class="treasury-balance-card">
-    <div class="tbc-asset">Confirmed Outcome Revenue</div>
-    <div class="tbc-amount">${{ '%.2f'|format(treasury.confirmed_usd or 0) }}</div>
-    <div class="tbc-network">Builder + Greg + Treasury routed from paid outcomes</div>
-  </article>
-  <article class="treasury-balance-card">
-    <div class="tbc-asset">Treasury Share</div>
-    <div class="tbc-amount">${{ '%.2f'|format(finance.treasury_share or 0) }}</div>
-    <div class="tbc-network">20% constitutional reserve</div>
-  </article>
-  <article class="treasury-balance-card">
-    <div class="tbc-asset">Founder Security Fund Target</div>
-    <div class="tbc-amount">${{ '%.2f'|format(finance.founder_security_fund_target or 0) }}</div>
-    <div class="tbc-network">12 months stipend + projected builder income</div>
-  </article>
-  <article class="treasury-balance-card">
-    <div class="tbc-asset">Humanitarian Cap</div>
-    <div class="tbc-amount">${{ '%.2f'|format(finance.humanitarian_quarter_cap or 0) }}</div>
-    <div class="tbc-network">Quarterly constitutional mandate</div>
-  </article>
-</section>
-
-<section class="treasury-policy">
-  <h2 class="section-heading">Constitution Policy Snapshot</h2>
-  <div class="policy-grid">
-    <div class="policy-item">
-      <div class="policy-key">Revenue Split</div>
-      <div class="policy-val">Builder 40% · Greg 40% · Treasury 20%</div>
-    </div>
-    <div class="policy-item">
-      <div class="policy-key">Founder Stipend</div>
-      <div class="policy-val">${{ '%.2f'|format(finance.founder_stipend_each or 0) }} each at the current live revenue level</div>
-    </div>
-    <div class="policy-item">
-      <div class="policy-key">Operating Balance</div>
-      <div class="policy-val">${{ '%.2f'|format(finance.treasury_operating_balance or 0) }} after the current humanitarian reserve</div>
-    </div>
-    <div class="policy-item">
-      <div class="policy-key">Status</div>
-      <div class="policy-val">Live treasury rail. A zero balance simply means confirmed payments have not cleared yet.</div>
-    </div>
-  </div>
-</section>
-
-<section class="treasury-txns">
-  <h2 class="section-heading">Recent Confirmed Payments</h2>
-  <div class="txn-table-wrap">
-    <table class="txn-table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Amount</th>
-          <th>Currency</th>
-          <th>Confirmed</th>
-          <th>Transaction</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for txn in treasury.transactions %}
-        <tr>
-          <td>{{ txn.product_id or "manual" }}</td>
-          <td>${{ '%.2f'|format(txn.amount_usd or 0) }}</td>
-          <td>{{ txn.currency }}</td>
-          <td>{{ txn.confirmed_at or "pending" }}</td>
-          <td>
-            {% if txn.tx_hash %}
-            <span class="txn-hash-link">{{ txn.tx_hash[:14] }}...</span>
-            {% else %}
-            <span class="txn-addr">No tx hash recorded</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% else %}
-        <tr class="txn-loading-row">
-          <td colspan="5">No confirmed treasury transactions yet. The wallet rail is live and waiting for the first cleared payment.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function(){
+  fetch('/api/payment/summary').then(r=>r.json()).then(d=>{
+    var split=d.split||{treasury:0};
+    document.getElementById('t-balance').textContent='$'+(split.treasury||0).toFixed(2);
+  }).catch(()=>{});
+})();
+</script>
 {% endblock %}

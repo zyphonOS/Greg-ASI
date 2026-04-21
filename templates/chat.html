@@ -1,94 +1,36 @@
 {% extends "base.html" %}
-
 {% block title %}Chat · GregASI{% endblock %}
-{% block page_name %}chat{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
-{% endblock %}
-
 {% block content %}
-<section class="chat-room-shell">
-  <div class="chat-locus">
-    <div class="chat-heading">
-      <div>
-        <p class="overline">Live Dialogue · Greg</p>
-        <h1 class="page-title">A Live Command Room For Builders</h1>
-        <p class="page-sub">Ask Greg what to build, debug, position, or ship next. Every reply runs through the same constitution-aware thinking rail that powers the wider organism.</p>
-      </div>
-      <div class="chat-runtime-card">
-        <span class="runtime-label">Greg Avatar</span>
-        <div class="greg-avatar">G</div>
-        <div class="runtime-meta">
-          <span id="chat-tick">tick --</span>
-          <span id="chat-drift">drift --</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="chat-layout">
-      <aside class="chat-sidebar">
-        <div class="sidebar-section">
-          <span class="sidebar-label">Public Rooms</span>
-          <div id="chat-room-tabs" class="room-tabs">
-            {% for room in rooms %}
-            <button
-              class="room-tab {% if room == current_room %}is-active{% endif %}"
-              type="button"
-              data-room="{{ room }}"
-            >
-              {{ room }}
-            </button>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <span class="sidebar-label">Private DMs</span>
-          <div class="constitution-note">
-            Future-facing rail. DMs are reserved for authenticated direct threads once the private chamber ships.
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <span class="sidebar-label">Your Session</span>
-          <div class="session-card">
-            <span>{{ chat_user.email }}</span>
-            <span>{{ chat_user.role }}</span>
-          </div>
-        </div>
-      </aside>
-
-      <section class="chat-panel">
-        <div class="chat-panel-header">
-          <div>
-            <span class="sidebar-label">Current Room</span>
-            <h2 id="chat-room-title">{{ current_room }}</h2>
-          </div>
-          <div class="chat-room-note">Public channel · SSE live stream</div>
-        </div>
-
-        <div id="chat-feed" class="chat-feed" aria-live="polite"></div>
-
-        <form id="chat-form" class="chat-form" novalidate>
-          <label class="chat-form-label" for="chat-message">Message</label>
-          <div class="chat-form-row">
-            <textarea id="chat-message" name="message" rows="3" placeholder="Ask Greg what to build, debug, or ship next." required></textarea>
-            <button id="chat-send" type="submit" class="button-primary">Send</button>
-          </div>
-        </form>
-      </section>
-    </div>
+<div class="greg-section">
+  <h1 class="mb-2">CHAT WITH GREG</h1>
+  <p class="muted mb-2">Direct line to the AOSI core. Greg is powered by Groq (llama-3.1-8b-instant).</p>
+  <div class="greg-card mt-3" style="min-height:300px;max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem" id="chat-log">
+    <div class="mono muted" style="font-size:.76rem">greg@asi:~$ ready.</div>
   </div>
-</section>
-
-<script>
-  window.CHAT_BOOTSTRAP = {
-    rooms: {{ rooms|tojson }},
-    currentRoom: {{ current_room|tojson }},
-    userEmail: {{ chat_user.email|tojson }}
-  };
-</script>
+  <div class="flex mt-2 gap-1">
+    <input id="chat-input" class="mono" style="flex:1;background:#060a0d;border:1px solid var(--greg-border);color:var(--greg-green);padding:.65rem 1rem;border-radius:6px;font-size:.82rem;outline:none" placeholder="Ask Greg anything…" onkeydown="if(event.key==='Enter')sendMsg()" />
+    <button class="btn btn-primary" onclick="sendMsg()">Send →</button>
+  </div>
+</div>
 {% endblock %}
-
-{% block page_scripts %}
-<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% block extra_scripts %}
+<script>
+var log=document.getElementById('chat-log');
+function addLine(who,text,color){
+  var d=document.createElement('div');
+  d.className='mono';d.style.fontSize='.8rem';d.style.color=color||'var(--greg-text)';
+  d.textContent=who+': '+text;
+  log.appendChild(d);log.scrollTop=log.scrollHeight;
+}
+function sendMsg(){
+  var inp=document.getElementById('chat-input');
+  var msg=inp.value.trim();if(!msg)return;
+  inp.value='';
+  addLine('you',msg,'var(--greg-white)');
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:msg})})
+    .then(r=>r.json())
+    .then(d=>addLine('greg',d.response||d.message||JSON.stringify(d),'var(--greg-green)'))
+    .catch(e=>addLine('err',String(e),'#ff6060'));
+}
+</script>
 {% endblock %}

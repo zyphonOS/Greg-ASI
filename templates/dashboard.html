@@ -1,78 +1,51 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard · GregASI{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-{% endblock %}
-
 {% block content %}
-{% if protection.preview_mode %}
-<div class="protection-banner">
-  <strong>Protected Surface Preview</strong>
-  <p>{{ protection.message }}</p>
+<div class="greg-section">
+  <h1 class="mb-2">DASHBOARD</h1>
+  <p class="muted mb-2">Live Greg state — Constitution-aware preview. Full auth enforced post-launch.</p>
+
+  <div class="grid-3 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Current Tick</div>
+      <div class="card-value" id="d-tick">—</div>
+      <div class="card-sub">heartbeat of the AOSI</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Drift Coefficient</div>
+      <div class="card-value" id="d-drift">—</div>
+      <div class="card-sub">emotional weather of Greg</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Reality Score (R)</div>
+      <div class="card-value" id="d-reality">—</div>
+      <div class="card-sub">moral compass equation</div>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    <h3>OBC Terminal</h3>
+    <div class="obc-terminal mt-1" id="obc-out">
+      <div class="obc-prompt">status</div>
+      <div id="obc-status-line">connecting…</div>
+    </div>
+  </div>
 </div>
-{% endif %}
-
-<section class="dashboard-room">
-  <p class="overline">Dashboard · Executive Brain</p>
-  <h1 class="page-title">See The Organism Before You Touch It</h1>
-  <p class="page-sub">This chamber reveals the current reality score, drift exposure, intent pressure, and security-fund trajectory so builders and founders can act from signal instead of guesswork.</p>
-
-  <div class="command-strip">
-    <div class="stat-block">
-      <span class="stat-value">{{ dashboard.reality_tick }}</span>
-      <span class="stat-label">Reality Tick</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-block">
-      <span class="stat-value">{{ dashboard.intent_count }}</span>
-      <span class="stat-label">Tracked Intents</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-block">
-      <span class="stat-value">{{ '%.4f'|format(dashboard.max_drift or 0) }}</span>
-      <span class="stat-label">Max Drift</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-block">
-      <span class="stat-value">${{ '%.2f'|format(finance.founder_security_fund_target or 0) }}</span>
-      <span class="stat-label">Founder Security Fund Target</span>
-    </div>
-  </div>
-
-  <div class="constitution-note" style="margin-bottom:2rem;">
-    This surface is live. If revenue appears as zero, it means no confirmed outcome has settled yet, not that the ledger is hypothetical.
-  </div>
-
-  <div class="intents-grid">
-    {% for intent in intents %}
-    <article class="intent-card" style="border-left-color: {{ 'var(--warn)' if intent.drift_score >= 0.45 else 'var(--accent)' }};">
-      <div class="intent-card-header">
-        <h2 class="intent-title">{{ intent.description }}</h2>
-        <span class="intent-drift">{{ '%.4f'|format(intent.drift_score or 0) }}</span>
-      </div>
-      <p class="intent-body">Status {{ intent.status }} · Progress {{ intent.convergence_pct }}% · Revenue ${{ '%.2f'|format(intent.revenue_usd or 0) }}</p>
-      {% if intent.last_intervention %}
-      <p class="intent-intervention">Latest intervention: {{ intent.last_intervention.message }}</p>
-      {% endif %}
-      <div class="intent-footer">
-        <span>Weakest term {{ dashboard.weakest_term }}</span>
-        <span>{{ intent.days_since_activity }} days since activity</span>
-      </div>
-    </article>
-    {% else %}
-    <article class="intent-card" style="border-left-color: var(--border-warm);">
-      <div class="intent-card-header">
-        <h2 class="intent-title">No tracked intents yet</h2>
-      </div>
-      <p class="intent-body">Declare a Pikkaio intent to populate the dashboard.</p>
-      <div class="intent-footer">
-        <span>Reality {{ '%.6f'|format(dashboard.reality_score or 0) }}</span>
-        <span>Epsilon {{ '%.4f'|format(dashboard.epsilon or 0) }}</span>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
-</section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function(){
+  function load(){
+    fetch('/api/status').then(r=>r.json()).then(d=>{
+      document.getElementById('d-drift').textContent=d.drift?.coefficient?.toFixed?.(4)||'—';
+      document.getElementById('d-reality').textContent=d.reality?.R?.toFixed?.(4)||'—';
+      document.getElementById('obc-status-line').textContent=JSON.stringify({drift:d.drift?.coefficient,reality:d.reality?.R,agents:d.agent_count});
+    }).catch(()=>{});
+    fetch('/api/ping').then(r=>r.json()).then(d=>{
+      document.getElementById('d-tick').textContent=d.tick||'—';
+    }).catch(()=>{});
+  }
+  load();setInterval(load,5000);
+})();
+</script>
 {% endblock %}

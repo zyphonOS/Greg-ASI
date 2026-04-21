@@ -1,76 +1,35 @@
 {% extends "base.html" %}
-
 {% block title %}ZyphonOS · GregASI{% endblock %}
-
 {% block content %}
-<style>
-  .api-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    margin: 2rem 0;
-  }
-  .api-card {
-    background: var(--bg2);
-    padding: 1.25rem;
-  }
-  .api-method {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--green);
-  }
-  .api-path {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 500;
-    margin: 0.5rem 0;
-  }
-  .api-desc {
-    font-size: 0.75rem;
-    color: var(--text-mid);
-  }
-  .code-block {
-    background: var(--bg3);
-    padding: 1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    border: 1px solid var(--border);
-    overflow-x: auto;
-  }
-</style>
-
-<div>
-  {% if protection.preview_mode %}
-  <div class="protection-banner">
-    <strong>Protected Surface Preview</strong>
-    <p>{{ protection.message }}</p>
-  </div>
-  {% endif %}
-  <p class="overline">ZyphonOS · Builder Layer</p>
-  <h1 class="page-title">Build On The Organism Without Breaking The Law</h1>
-  <p class="page-sub">ZyphonOS is the builder layer for APIs, agents, infrastructure, and code execution. Everything powerful lives here, and everything powerful stays bound to the Build Protocol before merge or deployment.</p>
-
-  <div class="api-grid">
-    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/ping</div><div class="api-desc">Check Greg's heartbeat (tick)</div></div>
-    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/status</div><div class="api-desc">Full Greg state: phi, drift, world, agents</div></div>
-    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/think</div><div class="api-desc">Trigger Greg to generate a thought</div></div>
-    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/command</div><div class="api-desc">Send a command to Greg</div></div>
-    <div class="api-card"><div class="api-method">GET</div><div class="api-path">/api/greg/agents</div><div class="api-desc">List all subagents</div></div>
-    <div class="api-card"><div class="api-method">POST</div><div class="api-path">/api/greg/agents/spawn</div><div class="api-desc">Spawn a new subagent</div></div>
-  </div>
-
-  <h2 class="page-sub">Spawn a Subagent</h2>
-  <div class="code-block">
-    curl -X POST https://web-production-66fb75.up.railway.app/api/greg/agents/spawn \<br>
-    -H "Content-Type: application/json" \<br>
-    -d '{"archetype": "builder", "name": "my-agent"}'
-  </div>
-
-  <h2 class="page-sub" style="margin-top: 2rem;">Builder Next Step</h2>
-  <div class="code-block">
-    // Open /docs for full endpoint examples and Build Protocol guidance.<br>
-    // Use /api/intents/process when you want Greg to generate and ship a route.
+<div class="greg-section">
+  <h1 class="mb-2">ZYPHONOS</h1>
+  <p class="muted mb-2">The builder layer. Code, agents, and infrastructure are spawned and governed here.</p>
+  <div class="grid-3 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Active Agents</div>
+      <div class="card-value" id="z-agents">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Constitution Hash</div>
+      <div class="card-value" id="z-hash" style="font-size:.9rem;word-break:break-all">—</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Integrity</div>
+      <div class="card-value" id="z-ok">—</div>
+    </div>
   </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+(function(){
+  fetch('/api/status').then(r=>r.json()).then(d=>{
+    document.getElementById('z-agents').textContent=d.agent_count||'—';
+  }).catch(()=>{});
+  fetch('/api/constitution/check').then(r=>r.json()).then(d=>{
+    document.getElementById('z-hash').textContent=(d.constitution_hash||'—').slice(0,16)+'…';
+    document.getElementById('z-ok').textContent=d.matches?'✓ INTACT':'⚠ MISMATCH';
+  }).catch(()=>{});
+})();
+</script>
 {% endblock %}

@@ -56,6 +56,7 @@ from rl_loop import (
     update_intent_feedback,
 )
 from chat_routes import chat_bp, init_chat_db
+from benchmark_threads import start_benchmark_threads
 from constitution_guard import ConstitutionViolation, validate_intent_against_constitution
 from user_auth import (
     all_payments_summary,
@@ -896,6 +897,10 @@ def _start_background_services() -> None:
 
 if os.environ.get("WERKZEUG_RUN_MAIN") in {None, "true"}:
     _start_background_services()
+# Constitution Article II §2.4 — benchmark threads
+if os.environ.get('WERKZEUG_RUN_MAIN') in {None, 'true'}:
+    start_benchmark_threads()
+
 
 
 _SAFE_BINOPS = {

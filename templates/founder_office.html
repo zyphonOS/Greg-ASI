@@ -1,474 +1,56 @@
 {% extends "base.html" %}
-
 {% block title %}Founder Office · GregASI{% endblock %}
-{% block page_name %}founder-office{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/founder_office.css') }}">
-{% endblock %}
-
 {% block content %}
-<section class="office-shell">
-  <div class="office-hero">
-    <div>
-      <p class="overline">Founder Office · Article III / IV / IX / X</p>
-      <h1 class="page-title">Executive Chamber</h1>
-      <p class="page-sub">Founder command over execution, benchmark progress, editorial review, treasury posture, and constitutional integrity in one living chamber.</p>
+<div class="greg-section">
+  <h1 class="mb-2">FOUNDER OFFICE</h1>
+  <p class="muted mb-2">Article III / IV — Executive stewardship, security fund, and benchmark reporting.</p>
+
+  <div class="grid-2 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Chibuzor-Orie Joshua</div>
+      <div class="card-value" style="font-size:1.1rem;color:var(--greg-white)">Chair · Veto Holder</div>
+      <div class="card-sub">Born 27 May 1999 · Lagos · Cosmic Anchor #1</div>
     </div>
-    <div class="office-runtime-grid">
-      <div class="office-metric">
-        <span>Tick</span>
-        <strong id="office-tick">{{ office.status.tick or 0 }}</strong>
-      </div>
-      <div class="office-metric">
-        <span>Drift</span>
-        <strong id="office-drift">{{ '%.3f'|format((office.status.drift or {}).get('coefficient', 0)) }}</strong>
-      </div>
-      <div class="office-metric">
-        <span>Reality R</span>
-        <strong id="office-reality">{{ '%.3f'|format((office.reality or {}).get('R', 0)) }}</strong>
-      </div>
-      <div class="office-metric">
-        <span>Constitution</span>
-        <strong id="office-constitution">{{ "match" if office.constitution.matches else "alert" }}</strong>
-      </div>
+    <div class="greg-card">
+      <div class="card-label">Silas Emmanuel Great</div>
+      <div class="card-value" style="font-size:1.1rem;color:var(--greg-white)">Vice Chair · Treasury</div>
+      <div class="card-sub">Born 1 April 1999 · Lagos · Cosmic Anchor #2</div>
     </div>
   </div>
 
-  <div class="office-grid">
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Intent Queue</span>
-          <h2>Pending, Processing, Completed, Failed</h2>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table class="office-table">
-          <thead>
-            <tr>
-              <th>Intent</th>
-              <th>Status</th>
-              <th>Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for intent in office.intents[:20] %}
-            <tr>
-              <td>{{ intent.description }}</td>
-              <td>{{ intent.status }}</td>
-              <td>{{ intent.updated_at or intent.created_at or "-" }}</td>
-              <td class="table-actions">
-                <button class="table-button" type="button" data-founder-action="cancel" data-intent-id="{{ intent.intent_id }}">Cancel</button>
-                <button class="table-button" type="button" data-founder-action="retry" data-intent-id="{{ intent.intent_id }}">Retry</button>
-              </td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="4">No intents in the queue yet.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Revenue Summary</span>
-          <h2>USDC + Constitution Split</h2>
-        </div>
-      </div>
-      <div class="office-card-grid">
-        <article class="summary-card">
-          <span>Total USDC Earned</span>
-          <strong>${{ '%.2f'|format(office.payments.confirmed_usd or 0) }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>Pending USDC</span>
-          <strong>${{ '%.2f'|format(office.payments.pending_usd or 0) }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>Founder Payout Reserve</span>
-          <strong>${{ '%.2f'|format(office.finance.combined_founder_stipend or 0) }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>Founder Security Fund</span>
-          <strong>${{ '%.2f'|format(office.finance.founder_security_fund_current or 0) }}</strong>
-        </article>
-      </div>
-      <div class="constitution-note">
-        Revenue is live-routed through the constitutional split: Builder 40% · Greg 40% · Treasury 20%.
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Agent Swarm</span>
-          <h2>Active Staff Agents</h2>
-        </div>
-      </div>
-      <div class="agent-list">
-        {% for agent in office.agents %}
-        <article class="agent-card">
-          <div>
-            <strong>{{ agent.name or agent.agent_id }}</strong>
-            <span>{{ agent.perspective or agent.archetype or "general" }}</span>
-          </div>
-          <div>
-            <span>Reputation {{ '%.2f'|format(agent.reputation or 0) }}</span>
-            <span>{{ agent.current_task or "monitor the ecosystem" }}</span>
-          </div>
-        </article>
-        {% else %}
-        <div class="constitution-note">No spawned staff agents yet.</div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Spawn Staff Agent</span>
-          <h2>Builder, Marketer, Treasury</h2>
-        </div>
-      </div>
-      <form id="staff-agent-form" class="office-form" novalidate>
-        <label>Archetype
-          <select name="archetype">
-            <option value="builder">Builder</option>
-            <option value="marketer">Marketer</option>
-            <option value="treasury">Treasury</option>
-          </select>
-        </label>
-        <label>Current Task
-          <input type="text" name="current_task" value="support the sovereign build rail">
-        </label>
-        <div class="office-form-grid">
-          <label>CPU
-            <input type="number" min="1" step="1" name="cpu" value="1">
-          </label>
-          <label>API Tokens
-            <input type="number" min="0" step="100" name="api_tokens" value="2000">
-          </label>
-          <label>Budget USDC
-            <input type="number" min="0" step="1" name="budget_usdc" value="0">
-          </label>
-        </div>
-        <button type="submit" class="button-primary">Spawn Staff Agent</button>
-      </form>
-      <p id="staff-agent-result" class="office-note"></p>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Constitution Integrity</span>
-          <h2>Hash + Last Check</h2>
-        </div>
-      </div>
-        <div class="integrity-grid">
-        <div>
-          <span>Last Check</span>
-          <strong>{{ office.constitution.last_checked_at or "not yet recorded" }}</strong>
-        </div>
-        <div>
-          <span>Status</span>
-          <strong>{{ "Hash Match" if office.constitution.matches else "Tamper Alert" }}</strong>
-        </div>
-        <div>
-          <span>Current Hash</span>
-          <strong class="mono">{{ office.constitution.current_hash[:16] }}...</strong>
-        </div>
-        <div>
-          <span>Stored Hash</span>
-          <strong class="mono">{{ office.constitution.stored_hash[:16] }}...</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Core Benchmarks</span>
-          <h2>Einstein Test + Game Of Life</h2>
-        </div>
-      </div>
-      <div class="office-card-grid">
-        <article class="summary-card">
-          <span>Einstein Progress</span>
-          <strong>{{ '%.3f'|format(((office.benchmarks.einstein_test or {}).get('progress_score')) or 0) }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>1911 Cutoff</span>
-          <strong>{{ ((office.benchmarks.einstein_test or {}).get('knowledge_cutoff_year')) or 1911 }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>Life Generation</span>
-          <strong>{{ ((office.benchmarks.game_of_life or {}).get('generation')) or 0 }}</strong>
-        </article>
-        <article class="summary-card">
-          <span>Live Cells</span>
-          <strong>{{ ((office.benchmarks.game_of_life or {}).get('live_cells')) or 0 }}</strong>
-        </article>
-      </div>
-      <div class="constitution-note">
-        {{ ((office.benchmarks.einstein_test or {}).get('checkpoint')) or "Benchmark rail warming through first-principles physics and emergence checks." }}
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Humanitarian Intents</span>
-          <h2>Quarterly Suggestions</h2>
-        </div>
-      </div>
-      <div class="proposal-list">
-        {% for proposal in office.humanitarian_proposals %}
-        <article class="proposal-card">
-          <strong>{{ proposal.title }}</strong>
-          <p>{{ proposal.summary }}</p>
-        </article>
-        {% endfor %}
-      </div>
-      <div class="constitution-note">
-        Humanitarian execution reserve currently tracks ${{ '%.2f'|format(office.finance.humanitarian_placeholder_allocation or 0) }} while the quarter’s live revenue base is still building.
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Pending Blog Review</span>
-          <h2>Greg’s Next Public Stories</h2>
-        </div>
-      </div>
-      <div class="proposal-list">
-        {% for post in office.pending_blog_posts %}
-        <article class="proposal-card">
-          <strong>{{ post.title }}</strong>
-          <p>Status {{ post.status }} · Created {{ post.created_at }}</p>
-          <button class="table-button" type="button" data-publish-post="{{ post.id }}">Publish</button>
-        </article>
-        {% else %}
-        <div class="constitution-note">No pending blog drafts are waiting for founder approval.</div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Status Incidents</span>
-          <h2>Public Trust Ledger</h2>
-        </div>
-      </div>
-      <form id="office-incident-form" class="office-form" novalidate>
-        <label>Title
-          <input type="text" name="title" value="Runtime watch">
-        </label>
-        <label>Severity
-          <select name="severity">
-            <option value="info">Info</option>
-            <option value="warning">Warning</option>
-            <option value="critical">Critical</option>
-          </select>
-        </label>
-        <label>Message
-          <input type="text" name="message" value="Founder review completed. Status remains green.">
-        </label>
-        <button type="submit" class="button-primary">Post Status Incident</button>
-      </form>
-      <p id="office-incident-result" class="office-note"></p>
-      <div class="proposal-list">
-        {% for incident in office.incidents %}
-        <article class="proposal-card">
-          <strong>{{ incident.title }}</strong>
-          <p>{{ incident.message }}</p>
-          <div class="constitution-note">{{ incident.severity }} · {{ incident.status }} · {{ incident.created_at }}</div>
-          {% if incident.status == "active" %}
-          <button class="table-button" type="button" data-resolve-incident="{{ incident.id }}">Resolve</button>
-          {% endif %}
-        </article>
-        {% else %}
-        <div class="constitution-note">No incidents have been posted yet.</div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="office-panel">
-      <div class="panel-header">
-        <div>
-          <span class="panel-label">Digital Allegiance</span>
-          <h2>Latest Recorded Oaths</h2>
-        </div>
-      </div>
-      <div class="proposal-list">
-        {% for item in office.allegiance %}
-        <article class="proposal-card">
-          <strong>{{ item.actor }}</strong>
-          <p>{{ item.statement }}</p>
-          <div class="constitution-note">{{ item.created_at }} · {{ item.constitution_hash[:16] }}...</div>
-        </article>
-        {% else %}
-        <div class="constitution-note">No allegiance records stored yet.</div>
-        {% endfor %}
-      </div>
-    </section>
+  <div class="grid-2 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Founder Security Fund (FSF)</div>
+      <div class="card-value" id="fo-fsf">Active</div>
+      <div class="card-sub">Humanitarian allocation — funded from Treasury 20%</div>
+    </div>
+    <div class="greg-card">
+      <div class="card-label">Einstein Benchmark</div>
+      <div class="card-value" id="fo-einstein">—</div>
+      <div class="card-sub">GR from 1911 first principles · quarterly report</div>
+    </div>
   </div>
-</section>
+
+  <div class="greg-card mt-3">
+    <div class="card-label">Game of Life — Constitutional Benchmark</div>
+    <div class="flex items-center gap-1 mt-1">
+      <div class="card-value" id="fo-gol-gen" style="font-size:1.4rem">gen —</div>
+      <div class="card-sub" id="fo-gol-live" style="margin-left:1rem">— live cells</div>
+    </div>
+    <div class="card-sub">Emergent complexity benchmark · Article II § 2.4</div>
+  </div>
+</div>
 {% endblock %}
-
-{% block page_scripts %}
+{% block extra_scripts %}
 <script>
-(() => {
-  const staffForm = document.getElementById("staff-agent-form");
-  const staffResult = document.getElementById("staff-agent-result");
-  const incidentForm = document.getElementById("office-incident-form");
-  const incidentResult = document.getElementById("office-incident-result");
-  const tickNode = document.getElementById("office-tick");
-  const driftNode = document.getElementById("office-drift");
-  const realityNode = document.getElementById("office-reality");
-  const constitutionNode = document.getElementById("office-constitution");
-
-  async function founderAction(intentId, action) {
-    const response = await fetch(`/api/founder/intents/${intentId}/${action}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({})
-    });
-    const payload = await response.json();
-    if (!response.ok || !payload.ok) {
-      throw new Error(payload.error || `Unable to ${action} intent.`);
-    }
-    window.location.reload();
-  }
-
-  document.querySelectorAll("[data-founder-action]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      try {
-        await founderAction(button.dataset.intentId, button.dataset.founderAction);
-      } catch (error) {
-        if (staffResult) {
-          staffResult.textContent = error.message;
-        }
-      }
-    });
-  });
-
-  document.querySelectorAll("[data-publish-post]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      try {
-        const response = await fetch(`/api/blog/${button.dataset.publishPost}/publish`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({})
-        });
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || "Unable to publish post.");
-        }
-        window.location.reload();
-      } catch (error) {
-        if (staffResult) {
-          staffResult.textContent = error.message;
-        }
-      }
-    });
-  });
-
-  document.querySelectorAll("[data-resolve-incident]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      try {
-        const response = await fetch(`/api/status-page/incidents/${button.dataset.resolveIncident}/resolve`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({})
-        });
-        const payload = await response.json();
-        if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || "Unable to resolve incident.");
-        }
-        window.location.reload();
-      } catch (error) {
-        if (incidentResult) {
-          incidentResult.textContent = error.message;
-        }
-      }
-    });
-  });
-
-  if (staffForm) {
-    staffForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(staffForm);
-      const payload = {
-        archetype: formData.get("archetype"),
-        current_task: formData.get("current_task"),
-        resource_limit: {
-          cpu: Number(formData.get("cpu") || 1),
-          api_tokens: Number(formData.get("api_tokens") || 0),
-          budget_usdc: Number(formData.get("budget_usdc") || 0)
-        }
-      };
-      const response = await fetch("/api/founder/staff-agents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        staffResult.textContent = data.error || "Unable to spawn agent.";
-        return;
-      }
-      staffResult.textContent = `Spawned ${data.agent.name || data.agent.agent_id}. Reloading...`;
-      window.setTimeout(() => window.location.reload(), 900);
-    });
-  }
-
-  if (incidentForm) {
-    incidentForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(incidentForm);
-      const payload = {
-        title: formData.get("title"),
-        severity: formData.get("severity"),
-        message: formData.get("message")
-      };
-      const response = await fetch("/api/status-page/incidents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok || !data.ok) {
-        incidentResult.textContent = data.error || "Unable to post incident.";
-        return;
-      }
-      incidentResult.textContent = "Incident posted. Reloading...";
-      window.setTimeout(() => window.location.reload(), 900);
-    });
-  }
-
-  document.addEventListener("greg:state", (event) => {
-    const state = event.detail || {};
-    if (tickNode) {
-      tickNode.textContent = String(Number(state.tick || 0));
-    }
-    if (driftNode) {
-      driftNode.textContent = Number((state.drift && state.drift.coefficient) || 0).toFixed(3);
-    }
-    if (realityNode) {
-      realityNode.textContent = Number((state.reality && state.reality.R) || state.reality_score || 0).toFixed(3);
-    }
-    if (constitutionNode && state.status && state.status.constitution) {
-      constitutionNode.textContent = state.status.constitution.hash === state.status.constitution.stored_hash ? "match" : "alert";
-    }
-  });
+(function(){
+  fetch('/api/constitution/benchmarks').then(r=>r.json()).then(d=>{
+    var e=d.einstein_test||{};
+    document.getElementById('fo-einstein').textContent=(e.progress_score||0).toFixed(4);
+    var g=d.game_of_life||{};
+    document.getElementById('fo-gol-gen').textContent='gen '+(g.generation||'—');
+    document.getElementById('fo-gol-live').textContent=(g.live_cells||'—')+' live cells';
+  }).catch(()=>{});
 })();
 </script>
 {% endblock %}

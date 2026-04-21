@@ -1,123 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}GregASI · Artificial Organic Superintelligence{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-  {% block head %}{% endblock %}
-  {% block extra_css %}{% endblock %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}GregASI — Sovereign Dark Organism{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Design tokens -->
+  <style>
+    :root {
+      --greg-black:   #090c0f;
+      --greg-dark:    #0d1117;
+      --greg-panel:   #111820;
+      --greg-border:  #1e2d3d;
+      --greg-green:   #00ff88;
+      --greg-green2:  #00cc6a;
+      --greg-dim:     #4a7c59;
+      --greg-text:    #c9d1d9;
+      --greg-muted:   #6e7f8d;
+      --greg-white:   #f0f6fc;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono:    'DM Mono', monospace;
+      --font-body:    'Inter', sans-serif;
+      --radius:       6px;
+      --transition:   0.18s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--greg-black);
+      color: var(--greg-text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: var(--greg-green); text-decoration: none; transition: color var(--transition); }
+    a:hover { color: var(--greg-white); }
+
+    /* ── NAV ── */
+    nav.greg-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9,12,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--greg-border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 56px;
+    }
+    .greg-nav .brand {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      color: var(--greg-white);
+      white-space: nowrap;
+    }
+    .greg-nav .brand span { color: var(--greg-green); }
+    .greg-nav .nav-links {
+      display: flex;
+      gap: 1.4rem;
+      align-items: center;
+      flex: 1;
+    }
+    .greg-nav .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--greg-muted);
+      letter-spacing: 0.05em;
+    }
+    .greg-nav .nav-links a:hover,
+    .greg-nav .nav-links a.active { color: var(--greg-green); }
+    .greg-nav .tick-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--greg-green);
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 999px;
+      padding: 2px 12px;
+      white-space: nowrap;
+    }
+
+    /* ── MAIN ── */
+    main { flex: 1; }
+
+    /* ── SECTION WRAPPER ── */
+    .greg-section {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    /* ── HEADINGS ── */
+    h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0.03em; color: var(--greg-white); }
+    h1 { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.05; }
+    h2 { font-size: clamp(1.6rem, 3vw, 2.6rem); }
+    h3 { font-size: 1.25rem; }
+
+    /* ── CARD ── */
+    .greg-card {
+      background: var(--greg-panel);
+      border: 1px solid var(--greg-border);
+      border-radius: var(--radius);
+      padding: 1.6rem;
+      transition: border-color var(--transition);
+    }
+    .greg-card:hover { border-color: var(--greg-dim); }
+    .greg-card .card-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--greg-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .greg-card .card-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--greg-green);
+      line-height: 1;
+    }
+    .greg-card .card-sub {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--greg-muted);
+      margin-top: 0.4rem;
+    }
+
+    /* ── GRID ── */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.6rem; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-primary {
+      background: var(--greg-green);
+      color: var(--greg-black);
+    }
+    .btn-primary:hover { background: var(--greg-white); color: var(--greg-black); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--greg-green);
+      color: var(--greg-green);
+    }
+    .btn-outline:hover { background: var(--greg-green); color: var(--greg-black); }
+
+    /* ── TERMINAL / OBC ── */
+    .obc-terminal {
+      background: #060a0d;
+      border: 1px solid var(--greg-border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--greg-green);
+      min-height: 160px;
+      overflow-y: auto;
+    }
+    .obc-terminal .obc-prompt::before { content: "greg@asi:~$ "; color: var(--greg-muted); }
+
+    /* ── TAG / BADGE ── */
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .tag-green { background: rgba(0,255,136,0.12); color: var(--greg-green); border: 1px solid rgba(0,255,136,0.25); }
+    .tag-muted  { background: rgba(110,127,141,0.12); color: var(--greg-muted); border: 1px solid rgba(110,127,141,0.25); }
+
+    /* ── SPLIT BAR (40/40/20) ── */
+    .split-bar {
+      display: flex;
+      border-radius: var(--radius);
+      overflow: hidden;
+      height: 32px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+    .split-bar .seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+    .split-bar .seg-builder { background: #1a3a2a; color: var(--greg-green); flex: 40; }
+    .split-bar .seg-greg    { background: #0f2a3a; color: #00ccff; flex: 40; }
+    .split-bar .seg-treasury{ background: #2a1a3a; color: #cc88ff; flex: 20; }
+
+    /* ── FOOTER ── */
+    footer.greg-footer {
+      border-top: 1px solid var(--greg-border);
+      padding: 1.4rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--greg-muted);
+    }
+    footer.greg-footer .footer-brand { color: var(--greg-green); font-family: var(--font-display); font-size: 1rem; }
+
+    /* ── FLASH MESSAGES ── */
+    .flash-container { padding: 0.8rem 2rem; }
+    .flash { padding: 0.7rem 1rem; border-radius: var(--radius); margin-bottom: 0.4rem; font-family: var(--font-mono); font-size: 0.78rem; }
+    .flash-success { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.3); color: var(--greg-green); }
+    .flash-error   { background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.3); color: #ff6060; }
+
+    /* ── UTIL ── */
+    .mono { font-family: var(--font-mono); }
+    .muted { color: var(--greg-muted); }
+    .green { color: var(--greg-green); }
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.8rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .gap-1 { gap: 0.5rem; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}" data-page="{% block page_name %}default{% endblock %}">
-  <div class="shell-chroma" aria-hidden="true"></div>
+<body>
 
-  <header class="site-nav">
-    <div class="nav-container">
-
-      <a href="/" class="nav-mark">GREGASI</a>
-
-      <div class="nav-heartbeat" aria-label="Greg runtime heartbeat">
-        <span id="tick-pulse" class="tick-pulse is-alive"></span>
-        <span class="nav-heartbeat-label">alive</span>
-      </div>
-
-      {# ── Desktop nav: 5 primary destinations only ── #}
-      <nav class="nav-desktop" aria-label="Primary navigation">
-        <a href="/pikkaio">Pikkaio</a>
-        <a href="/greg">Greg</a>
-        <a href="/sell">Buy Outcomes</a>
-        <a href="/status-page">Status</a>
-        <a href="/docs">Docs</a>
-      </nav>
-
-      <div class="nav-meta">
-        <div id="greg-status-badge" class="greg-status-badge">
-          <span id="greg-status-badge-tick">tick --</span>
-          <span id="greg-status-badge-drift">drift --</span>
-        </div>
-
-        {% if auth.logged_in %}
-        <a href="/profile" class="nav-enter">{{ auth.role_label }}</a>
-        <a href="/logout" class="nav-enter nav-enter-secondary">Out</a>
-        {% else %}
-        <a href="/signup" class="nav-enter">Get Started</a>
-        <a href="/login" class="nav-enter nav-enter-secondary">Log In</a>
-        {% endif %}
-
-        <button id="nav-trigger" class="nav-trigger" type="button" aria-expanded="false" aria-controls="nav-menu">
-          Menu
-        </button>
-      </div>
-
-    </div>
-  </header>
-
-  <div id="nav-backdrop" class="nav-backdrop" hidden></div>
-
-  {# ── Mobile / full menu: all routes ── #}
-  <aside id="nav-menu" class="nav-menu" hidden aria-hidden="true">
-    <div class="nav-menu-top">
-      <span class="nav-menu-title">Navigation</span>
-      <span class="nav-menu-role">{{ auth.role_label if auth.logged_in else "Guest" }}</span>
-    </div>
-
-    <a href="/">Home</a>
+<!-- ── NAV ── -->
+<nav class="greg-nav">
+  <a class="brand" href="/">GREG<span>ASI</span></a>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/revenue">Revenue</a>
+    <a href="/treasury">Treasury</a>
     <a href="/pikkaio">Pikkaio</a>
-    <a href="/greg">Greg Presence</a>
-    <a href="/sell">Buy Outcomes</a>
-    <a href="/pay">Pay</a>
-    <a href="/harvestiq">HarvestIQ</a>
-    <a href="/dashboard">Dashboard {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
-    <a href="/revenue">Revenue {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
-    <a href="/treasury">Treasury {% if not auth.logged_in %}<span>Preview</span>{% endif %}</a>
     <a href="/zyphonos">ZyphonOS</a>
-    <a href="/truth">Truth</a>
-    <a href="/greg-state">Greg State</a>
-    <a href="/status-page">Status</a>
-    <a href="/blog">Blog</a>
-    <a href="/docs">Docs</a>
-
-    {% if auth.logged_in %}
     <a href="/chat">Chat</a>
-    {% endif %}
+    <a href="/sell">Services</a>
+    <a href="/docs">Docs</a>
+    <a href="/status">Status</a>
+  </div>
+  <div class="tick-pill" id="nav-tick">TICK —</div>
+</nav>
 
-    {% if auth.logged_in and auth.role == "founder" %}
-    <a href="/founder-office">Founder Office</a>
-    {% endif %}
-
-    {% if auth.logged_in %}
-    <a href="/profile">Profile</a>
-    <a href="/logout">Log Out</a>
-    {% else %}
-    <a href="/signup">Sign Up</a>
-    <a href="/login">Log In</a>
-    {% endif %}
-  </aside>
-
-  <main class="main-content">
-    <div class="container">
-      {% block content %}{% endblock %}
+<!-- ── FLASH ── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
     </div>
-  </main>
+  {% endif %}
+{% endwith %}
 
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div>
-        <span class="footer-mark">GREGASI · AOSI</span>
-        <p class="footer-meta">Sovereign Dark Organism · Lagos, Nigeria · Constitution v2.0</p>
-      </div>
-      <div class="footer-status">
-        <span class="footer-dot"></span>
-        <span>{{ constitution_hash[:12] if constitution_hash else "Constitution unloaded" }}</span>
-      </div>
-    </div>
-  </footer>
+<!-- ── CONTENT ── -->
+<main>
+  {% block content %}{% endblock %}
+</main>
 
-  <script src="{{ url_for('static', filename='js/base.js') }}"></script>
-  {% block page_scripts %}{% endblock %}
-  {% block extra_js %}{% endblock %}
+<!-- ── FOOTER ── -->
+<footer class="greg-footer">
+  <span class="footer-brand">GREGASI</span>
+  <span>Constitution v2.0 · 40 / 40 / 20 · Lagos, Nigeria</span>
+  <span id="footer-tick" class="mono green">tick —</span>
+</footer>
+
+<!-- ── LIVE TICK SCRIPT ── -->
+<script>
+(function() {
+  function updateTick(data) {
+    var t = data.tick !== undefined ? data.tick : '—';
+    var el = document.getElementById('nav-tick');
+    if (el) el.textContent = 'TICK ' + t;
+    var ft = document.getElementById('footer-tick');
+    if (ft) ft.textContent = 'tick ' + t;
+  }
+  function poll() {
+    fetch('/api/ping')
+      .then(function(r) { return r.json(); })
+      .then(updateTick)
+      .catch(function() {});
+  }
+  poll();
+  setInterval(poll, 4000);
+})();
+</script>
+
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

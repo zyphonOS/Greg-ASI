@@ -1,100 +1,14 @@
 {% extends "base.html" %}
-
 {% block title %}Docs · GregASI{% endblock %}
-{% block page_name %}docs{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/docs.css') }}">
-{% endblock %}
-
 {% block content %}
-<section class="docs-shell">
-  <div class="docs-hero panel-surface">
-    <div class="docs-copy">
-      <p class="overline">GregASI Docs · User Guide + Builder Reference</p>
-      <h1 class="page-title">Build Inside The Creative Intent Economy</h1>
-      <p class="page-sub">This guide explains how GregASI turns declared intent into pages, images, strategy, and revenue. It is written for first-time users, verified builders, and founders who need a transparent operating manual.</p>
-      <div class="hero-actions">
-        <a class="button-primary" href="/signup">Create Your Account</a>
-        <a class="button-ghost" href="/pay">Try Paid Checkout</a>
-        <a class="button-ghost" href="/blog">Read Greg’s Journal</a>
-      </div>
-    </div>
-    <div class="docs-hero-rail">
-      <article class="hero-card">
-        <span class="hero-label">What Greg Ships</span>
-        <strong>Images, code routes, business answers, and constitution-bound execution.</strong>
-      </article>
-      <article class="hero-card">
-        <span class="hero-label">Why Builders Trust It</span>
-        <strong>The Build Protocol, 40 / 40 / 20 economics, and visible constitutional checks stay in view.</strong>
-      </article>
-      <article class="hero-card">
-        <span class="hero-label">How To Start</span>
-        <strong>Sign up, connect a wallet, declare an intent, then track outcomes through Greg’s runtime surfaces.</strong>
-      </article>
-    </div>
+<div class="greg-section">
+  <h1 class="mb-2">DOCS</h1>
+  <p class="muted mb-2">Technical documentation for the GregASI ecosystem.</p>
+  <div class="grid-2 mt-3">
+    <div class="greg-card"><div class="card-label">Constitution</div><a class="btn btn-outline mt-1" href="/docs/constitution">Read Constitution →</a></div>
+    <div class="greg-card"><div class="card-label">API Reference</div><a class="btn btn-outline mt-1" href="/docs/api">API Reference →</a></div>
+    <div class="greg-card"><div class="card-label">Build Protocol (Art. IX)</div><a class="btn btn-outline mt-1" href="/docs/build-protocol">Build Protocol →</a></div>
+    <div class="greg-card"><div class="card-label">Payment Guide</div><a class="btn btn-outline mt-1" href="/pay">Pay with USDC →</a></div>
   </div>
-
-  <div class="docs-layout">
-    <aside class="docs-toc panel-surface">
-      <div class="panel-heading">
-        <span class="panel-label">Navigation</span>
-        <h2>Read By Section</h2>
-      </div>
-      <nav class="docs-anchor-list" aria-label="Documentation sections">
-        {% for section in sections %}
-        <a href="#{{ section.slug }}">{{ section.title }}</a>
-        {% endfor %}
-      </nav>
-      <div class="docs-quick-grid">
-        <div class="quick-card">
-          <span class="quick-label">Quick Start</span>
-          <p>Create an account, open `/chat`, then pay for the outcome you want Greg to deliver.</p>
-        </div>
-        <div class="quick-card">
-          <span class="quick-label">Builder Path</span>
-          <p>Use `/api/task`, `/api/intents/process`, `/api/greg/image`, and `/api/payment/create-intent` to wire Greg into your own flow.</p>
-        </div>
-      </div>
-    </aside>
-
-    <main class="docs-stream">
-      {% for section in sections %}
-      <article id="{{ section.slug }}" class="docs-article panel-surface">
-        <div class="docs-article-head">
-          <span class="panel-label">{{ section.source }}</span>
-          <h2>{{ section.title }}</h2>
-        </div>
-        <div class="docs-markdown">{{ section.html|safe }}</div>
-      </article>
-      {% endfor %}
-    </main>
-
-    <aside class="docs-support panel-surface">
-      <div class="panel-heading">
-        <span class="panel-label">GregASI Promise</span>
-        <h2>One Locus, Clear Rails</h2>
-      </div>
-      <div class="support-stack">
-        <article class="support-card">
-          <span class="support-label">Constitution</span>
-          <p>Articles I–XIV define how Greg can act, how value is shared, and how founders and builders are protected.</p>
-        </article>
-        <article class="support-card">
-          <span class="support-label">Build Protocol</span>
-          <p>Every serious change follows the seven-step rail: declaration, feasibility, assignment, execution, review, deployment, learning.</p>
-        </article>
-        <article class="support-card">
-          <span class="support-label">Verified Builder</span>
-          <p>Use clean prompts, measurable outcomes, and reproducible payment or deployment paths. Greg rewards clarity with faster execution.</p>
-        </article>
-        <article class="support-card">
-          <span class="support-label">Need Action</span>
-          <a class="button-ghost" href="/sell">See Live Services</a>
-        </article>
-      </div>
-    </aside>
-  </div>
-</section>
+</div>
 {% endblock %}

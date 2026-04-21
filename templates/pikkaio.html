@@ -1,219 +1,55 @@
 {% extends "base.html" %}
-
 {% block title %}Pikkaio · GregASI{% endblock %}
-
 {% block content %}
-<style>
-  .intent-room {
-    display: grid;
-    gap: 1.5rem;
-  }
-  .intent-form {
-    display: grid;
-    gap: 1rem;
-    padding: 1.4rem;
-    border: 1px solid var(--border);
-    background: rgba(11, 11, 15, 0.88);
-  }
-  .intent-form textarea {
-    min-height: 8rem;
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 1rem;
-    font: 0.9rem/1.6 var(--font-mono);
-    resize: vertical;
-  }
-  .intent-grid,
-  .project-grid,
-  .policy-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1px;
-    background: var(--border);
-  }
-  .intent-card,
-  .project-card,
-  .policy-card {
-    background: var(--bg2);
-    padding: 1.2rem;
-  }
-  .metric-label,
-  .policy-kicker {
-    color: var(--text-dim);
-    font: 0.64rem/1.4 var(--font-mono);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-  .metric-value {
-    color: var(--green);
-    font: 2rem/1 "Bebas Neue", sans-serif;
-  }
-  .project-card {
-    border: 1px solid var(--border);
-  }
-  .project-title {
-    font: 1.4rem/1.1 "Bebas Neue", sans-serif;
-    margin-bottom: 0.5rem;
-  }
-  .project-meta,
-  .project-body {
-    color: var(--text-mid);
-    font-size: 0.82rem;
-  }
-  .project-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    font-family: var(--font-mono);
-  }
-  .policy-grid {
-    margin-top: 0.5rem;
-  }
-  .policy-card p:last-child {
-    color: var(--text-mid);
-    margin-top: 0.45rem;
-    font-size: 0.82rem;
-  }
-</style>
+<div class="greg-section">
+  <h1 class="mb-2">PIKKAIO</h1>
+  <p class="muted mb-2">The intent layer. Declare a goal — Greg executes it autonomously and routes revenue to the 40/40/20 split.</p>
 
-<section class="intent-room">
-  <div>
-    <p class="overline">Pikkaio · Intent Layer</p>
-    <h1 class="page-title">Name The Outcome. Let Greg Orchestrate The Rail.</h1>
-    <p class="page-sub">Pikkaio converts human declaration into a traceable line through drift, review, deployment, and constitutional economics. This is where desire becomes operating pressure.</p>
-  </div>
-
-  <div class="constitution-note">
-    Constitution alignment: Article IX Build Protocol governs execution. Article IV routes fulfilled outcome revenue through Builder 40% · Greg 40% · Treasury 20%.
-  </div>
-
-  <form id="intent-form-surface" class="intent-form">
-    <label class="metric-label" for="intent-desc">Intent Declaration</label>
-    <textarea id="intent-desc" placeholder="Describe the business outcome Greg should pursue. Example: Build a founder dashboard that shows treasury flow and humanitarian allocation."></textarea>
-    <button id="submit-intent" class="button-primary" type="submit">Declare Intent</button>
-    <p id="intent-feedback" class="page-sub" style="margin:0;"></p>
-  </form>
-
-  <div class="intent-grid">
-    <div class="intent-card">
-      <div class="metric-label">Builder ID</div>
-      <div class="metric-value" id="builder-id">{{ builder_state.builder_id or "—" }}</div>
+  <div class="grid-3 mt-3">
+    <div class="greg-card">
+      <div class="card-label">Total Intents</div>
+      <div class="card-value" id="pk-total">—</div>
     </div>
-    <div class="intent-card">
-      <div class="metric-label">Tracked Intents</div>
-      <div class="metric-value" id="intent-count">{{ builder_state.builder_intent_count or 0 }}</div>
+    <div class="greg-card">
+      <div class="card-label">Completed</div>
+      <div class="card-value" id="pk-done">—</div>
     </div>
-    <div class="intent-card">
-      <div class="metric-label">Current Drift</div>
-      <div class="metric-value" id="drift-score">{{ '%.4f'|format(builder_state.drift_score or 0) }}</div>
-    </div>
-    <div class="intent-card">
-      <div class="metric-label">Current Status</div>
-      <div class="metric-value" id="builder-status">{{ builder_state.status or "undeclared" }}</div>
+    <div class="greg-card">
+      <div class="card-label">Failed</div>
+      <div class="card-value" id="pk-fail">—</div>
     </div>
   </div>
 
-  <div>
-    <p class="overline">Recent Lines</p>
-    <div id="projects-container" class="project-grid">
-      <div class="project-card">
-        <div class="project-title">{{ builder_state.intent.description if builder_state.intent else "No declared intent yet" }}</div>
-        <div class="project-meta">
-          <span>Status {{ builder_state.status or "undeclared" }}</span>
-          <span>Drift {{ '%.4f'|format(builder_state.drift_score or 0) }}</span>
-        </div>
-        <p class="project-body">{{ builder_state.acknowledgement or "Declare an intent to open the line." }}</p>
+  <div class="mt-3">
+    <h3>Declare an Intent</h3>
+    <div class="greg-card mt-1">
+      <textarea id="intent-text" class="mono" style="width:100%;background:#060a0d;border:1px solid var(--greg-border);color:var(--greg-green);padding:.8rem;border-radius:6px;font-size:.82rem;min-height:80px;resize:vertical" placeholder="Describe what you want Greg to build or do…"></textarea>
+      <div class="mt-1">
+        <button class="btn btn-primary" onclick="declareIntent()">Declare Intent →</button>
       </div>
+      <div id="intent-result" class="mono muted mt-1" style="font-size:.75rem"></div>
     </div>
   </div>
-
-  <div>
-    <p class="overline">Protocol Rails</p>
-    <div class="policy-grid">
-      <div class="policy-card">
-        <div class="policy-kicker">Step 1</div>
-        <p>Intent Declaration</p>
-        <p>Human or agent names a measurable outcome.</p>
-      </div>
-      <div class="policy-card">
-        <div class="policy-kicker">Step 4</div>
-        <p>Autonomous Execution</p>
-        <p>Builder agents work in a sandbox with tests, lint, and diff report.</p>
-      </div>
-      <div class="policy-card">
-        <div class="policy-kicker">Step 7</div>
-        <p>Learning</p>
-        <p>Greg records cost, drift, and lessons in persistent memory.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
+</div>
+{% endblock %}
+{% block extra_scripts %}
 <script>
-  const feedbackNode = document.getElementById("intent-feedback");
-  const intentForm = document.getElementById("intent-form-surface");
-  const intentInput = document.getElementById("intent-desc");
-
-  function renderProjectCard(intent) {
-    const description = intent.description || "Untitled intent";
-    const status = intent.status || "tracked";
-    const drift = Number(intent.drift_score || 0).toFixed(4);
-    return `
-      <div class="project-card">
-        <div class="project-title">${description}</div>
-        <div class="project-meta">
-          <span>Status ${status}</span>
-          <span>Drift ${drift}</span>
-        </div>
-        <p class="project-body">${intent.deadline ? `Deadline ${intent.deadline}` : "Constitution-compliant tracking active."}</p>
-      </div>
-    `;
-  }
-
-  async function refreshSurface() {
-    const [statusRes, intentsRes] = await Promise.all([
-      fetch("/pikkaio/status", { cache: "no-store" }),
-      fetch("/pikkaio/api/intents", { cache: "no-store" })
-    ]);
-    const statusData = await statusRes.json();
-    const intentsData = await intentsRes.json();
-    if (statusData.builder_id) {
-      document.getElementById("builder-id").textContent = statusData.builder_id;
-      document.getElementById("builder-status").textContent = statusData.status || "tracked";
-      document.getElementById("drift-score").textContent = Number(statusData.drift_score || 0).toFixed(4);
-    }
-    const builderProjects = Object.values(intentsData.projects || {}).filter(project => project.builder_id === statusData.builder_id);
-    document.getElementById("intent-count").textContent = builderProjects.length;
-    document.getElementById("projects-container").innerHTML = builderProjects.length
-      ? builderProjects.map(renderProjectCard).join("")
-      : `<div class="project-card"><div class="project-title">No declared intent yet</div><p class="project-body">Declare an intent to open the line.</p></div>`;
-  }
-
-  intentForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const description = intentInput.value.trim();
-    if (!description) {
-      feedbackNode.textContent = "Intent description required.";
-      return;
-    }
-    const response = await fetch("/pikkaio/intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description })
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      feedbackNode.textContent = data.error || "Unable to declare intent.";
-      return;
-    }
-    intentInput.value = "";
-    feedbackNode.textContent = data.acknowledgement || "Intent declared. Greg is tracking the line.";
-    refreshSurface().catch(console.error);
-  });
-
-  refreshSurface().catch(console.error);
+(function(){
+  fetch('/api/intents').then(r=>r.json()).then(d=>{
+    var list=d.intents||d||[];
+    document.getElementById('pk-total').textContent=list.length;
+    document.getElementById('pk-done').textContent=list.filter(i=>i.status==='completed').length;
+    document.getElementById('pk-fail').textContent=list.filter(i=>i.status==='failed').length;
+  }).catch(()=>{});
+})();
+function declareIntent(){
+  var text=document.getElementById('intent-text').value.trim();
+  if(!text)return;
+  document.getElementById('intent-result').textContent='Submitting…';
+  fetch('/api/intents/process',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({description:text})})
+    .then(r=>r.json())
+    .then(d=>{ document.getElementById('intent-result').textContent=JSON.stringify(d,null,2); })
+    .catch(e=>{ document.getElementById('intent-result').textContent='Error: '+e; });
+}
 </script>
 {% endblock %}
