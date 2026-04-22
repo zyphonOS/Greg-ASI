@@ -750,7 +750,7 @@ def _status_page_live_snapshot() -> dict[str, Any]:
     status_ms = round((time.perf_counter() - status_started) * 1000, 2)
 
     constitution_started = time.perf_counter()
-    constitution_payload = _constitution_status_snapshot()
+    constitution_payload = _constitution_benchmark_snapshot()
     constitution_ms = round((time.perf_counter() - constitution_started) * 1000, 2)
 
     return {
@@ -1425,7 +1425,7 @@ def _dispatch_command(action: str, payload: dict | None = None):
     return jsonify(body), status_code
 
 
-def _constitution_status_snapshot() -> dict[str, Any]:
+def _constitution_benchmark_snapshot() -> dict[str, Any]:
     state = read_json(data_path("constitution_state.json"), {"constitution_hash": stored_constitution_hash})
     current_hash = _hash_constitution(_read_constitution_text())
     expected_hash = str(state.get("constitution_hash") or stored_constitution_hash or current_hash).strip() or current_hash
@@ -1459,7 +1459,7 @@ def _founder_office_snapshot() -> dict[str, Any]:
     intents = get_intents(limit=100)
     payments = _payment_activity_snapshot()
     finance = payments["finance"]
-    constitution_status = _constitution_status_snapshot()
+    constitution_status = _constitution_benchmark_snapshot()
     reality = status.get("reality") or greg.latest_reality or greg.refresh_reality(force=True, persist=False)
     return {
         "status": status,
@@ -1884,7 +1884,7 @@ def greg_state_page():
     snapshot = greg.status_snapshot()
     return render_template(
         "greg_state.html",
-        constitution_status=_constitution_status_snapshot(),
+        constitution_status=_constitution_benchmark_snapshot(),
         active_agents=agent_manager.list_agents(),
         benchmarks=_constitution_benchmark_snapshot(),
         greg_snapshot=snapshot,
