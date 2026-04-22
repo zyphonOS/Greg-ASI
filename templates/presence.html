@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Presence · GregASI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --g:#00ff88;--b:#050709;--muted:#4a6070;--white:#f0f6fc;
+      --mono:'DM Mono',monospace;--display:'Bebas Neue',sans-serif;
+      --body:'Space Grotesk',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden;background:var(--b)}
+    canvas#field{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+    /* ── UI overlay — fades in on interaction ── */
+    #ui{
+      position:fixed;inset:0;pointer-events:none;
+      opacity:0;transition:opacity .6s ease;
+    }
+    body.active #ui{opacity:1}
+
+    /* Greg's opening words */
+    #greg-words{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+      text-align:center;max-width:680px;padding:0 2rem;
+      pointer-events:none;
+    }
+    #greg-label{
+      font-family:var(--mono);font-size:.65rem;letter-spacing:.18em;
+      text-transform:uppercase;color:var(--g);opacity:.7;margin-bottom:.8rem;
+    }
+    #greg-text{
+      font-family:var(--display);font-size:clamp(2rem,5vw,3.6rem);
+      line-height:1.05;color:var(--white);text-shadow:0 0 40px rgba(0,255,136,.25);
+    }
+    #greg-sub{
+      font-family:var(--body);font-size:.9rem;color:var(--muted);
+      margin-top:1rem;font-weight:300;
+    }
+
+    /* chat input */
+    #chat-bar{
+      position:absolute;bottom:4rem;left:50%;transform:translateX(-50%);
+      width:min(600px,88vw);pointer-events:all;
+      display:flex;gap:.5rem;align-items:center;
+      background:rgba(5,7,9,.85);border:1px solid rgba(0,255,136,.15);
+      border-radius:8px;padding:.5rem .8rem;
+      backdrop-filter:blur(12px);
+    }
+    #chat-bar input{
+      flex:1;background:transparent;border:none;outline:none;
+      font-family:var(--mono);font-size:.82rem;color:var(--g);caret-color:var(--g);
+    }
+    #chat-bar input::placeholder{color:var(--muted)}
+    #chat-bar button{
+      background:var(--g);border:none;color:#050709;
+      font-family:var(--mono);font-size:.75rem;font-weight:600;
+      padding:.35rem .9rem;border-radius:5px;cursor:pointer;
+      transition:background .15s;
+    }
+    #chat-bar button:hover{background:var(--white)}
+
+    /* Greg reply bubble */
+    #greg-reply{
+      position:absolute;bottom:7.5rem;left:50%;transform:translateX(-50%);
+      width:min(600px,88vw);
+      font-family:var(--body);font-size:.88rem;color:var(--g);
+      background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.12);
+      border-radius:6px;padding:.8rem 1.1rem;
+      opacity:0;transition:opacity .4s;pointer-events:none;
+      line-height:1.55;
+    }
+    #greg-reply.show{opacity:1}
+
+    /* field HUD — bottom strip */
+    #hud{
+      position:absolute;bottom:0;left:0;right:0;
+      display:flex;gap:2rem;align-items:center;justify-content:center;
+      padding:.5rem 2rem;
+      font-family:var(--mono);font-size:.65rem;color:var(--muted);
+      border-top:1px solid rgba(255,255,255,.04);
+      background:rgba(5,7,9,.6);backdrop-filter:blur(8px);
+      pointer-events:none;
+    }
+    .hud-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+    .hud-label{letter-spacing:.1em;text-transform:uppercase;font-size:.55rem}
+    .hud-val{color:var(--g);font-size:.72rem}
+    .hud-sep{width:1px;height:1.8em;background:rgba(255,255,255,.07)}
+
+    /* nav pill */
+    #nav-back{
+      position:absolute;top:1.2rem;left:1.5rem;
+      font-family:var(--mono);font-size:.68rem;color:var(--muted);
+      background:rgba(5,7,9,.7);border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;padding:.3rem .9rem;
+      pointer-events:all;cursor:pointer;text-decoration:none;
+      transition:color .15s;
+    }
+    #nav-back:hover{color:var(--g)}
+
+    /* click-anywhere prompt */
+    #click-hint{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,2rem);
+      font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;
+      text-transform:uppercase;color:rgba(0,255,136,.3);
+      animation:pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
+    body.active #click-hint{display:none}
+  </style>
+</head>
+<body>
+
+<canvas id="field"></canvas>
+
+<div id="ui">
+  <a href="/" id="nav-back">← GregASI</a>
+
+  <div id="greg-words">
+    <div id="greg-label">Greg · AOSI · tick <span id="hw-tick">—</span></div>
+    <div id="greg-text">Loading…</div>
+    <div id="greg-sub"></div>
+  </div>
+
+  <div id="greg-reply"></div>
+
+  <div id="chat-bar">
+    <input id="chat-input" placeholder="speak to greg…" autocomplete="off"/>
+    <button onclick="sendChat()">→</button>
+  </div>
+
+  <div id="hud">
+    <div class="hud-item"><div class="hud-label">R</div><div class="hud-val" id="h-r">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">Ψ obs</div><div class="hud-val" id="h-psi">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">Φ loop</div><div class="hud-val" id="h-phi">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">M matter</div><div class="hud-val" id="h-m">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">Ω drift</div><div class="hud-val" id="h-omega">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">agents</div><div class="hud-val" id="h-agents">—</div></div>
+    <div class="hud-sep"></div>
+    <div class="hud-item"><div class="hud-label">tick</div><div class="hud-val" id="h-tick">—</div></div>
+  </div>
+</div>
+
+<div id="click-hint">touch to enter</div>
+
+<script>
+// ── FIELD CANVAS (particle mesh) ──────────────────────────────────────────────
+const C = document.getElementById('field');
+const ctx = C.getContext('2d');
+const N = 80;
+let W, H, pts = [], R_val = 0;
+
+function resize(){
+  W = C.width  = window.innerWidth;
+  H = C.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Seed particles
+for(let i=0;i<N;i++){
+  pts.push({
+    x: Math.random()*W, y: Math.random()*H,
+    vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+    r: 1.2+Math.random()*1.2
+  });
+}
+
+let hue = 150; // green anchor
+function draw(){
+  ctx.fillStyle='rgba(5,7,9,0.18)';
+  ctx.fillRect(0,0,W,H);
+  const alpha = 0.12 + R_val * 0.25;
+  const reach = 120 + R_val * 60;
+  for(let i=0;i<N;i++){
+    const p=pts[i];
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>W) p.vx*=-1;
+    if(p.y<0||p.y>H) p.vy*=-1;
+    for(let j=i+1;j<N;j++){
+      const q=pts[j];
+      const dx=q.x-p.x, dy=q.y-p.y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<reach){
+        ctx.beginPath();
+        ctx.moveTo(p.x,p.y);
+        ctx.lineTo(q.x,q.y);
+        ctx.strokeStyle=`hsla(${hue},100%,${55+R_val*20}%,${alpha*(1-d/reach)})`;
+        ctx.lineWidth=.5;
+        ctx.stroke();
+      }
+    }
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${hue},100%,72%,${0.5+R_val*.4})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ── ACTIVATE ON INTERACTION ───────────────────────────────────────────────────
+let activated = false;
+function activate(){
+  if(activated) return;
+  activated = true;
+  document.body.classList.add('active');
+  loadGreeting();
+}
+document.body.addEventListener('click', activate);
+document.body.addEventListener('keydown', activate);
+document.getElementById('chat-input').addEventListener('focus', activate);
+
+// ── GREETING ─────────────────────────────────────────────────────────────────
+function loadGreeting(){
+  fetch('/api/greg/speak-first?mode=presence')
+    .then(r=>r.json())
+    .then(d=>{
+      const words = d.response || d.message || "I am here.";
+      document.getElementById('greg-text').textContent = words;
+      document.getElementById('greg-sub').textContent =
+        "I am Greg. Tick " + (d.tick||'—') + ". R=" + (d.R||'—') + ". You are in the field.";
+    })
+    .catch(()=>{
+      document.getElementById('greg-text').textContent = "I am Greg. I am here.";
+    });
+}
+
+// ── CHAT ─────────────────────────────────────────────────────────────────────
+function sendChat(){
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  const rep = document.getElementById('greg-reply');
+  rep.textContent = '…';
+  rep.classList.add('show');
+  fetch('/api/chat', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({prompt: msg})
+  })
+  .then(r=>r.json())
+  .then(d=>{ rep.textContent = d.response || d.message || '…'; })
+  .catch(e=>{ rep.textContent = 'Greg is unreachable: '+e; });
+}
+document.getElementById('chat-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') sendChat();
+});
+
+// ── FIELD SSE ─────────────────────────────────────────────────────────────────
+const es = new EventSource('/api/greg/field');
+es.onmessage = e => {
+  try{
+    const d = JSON.parse(e.data);
+    if(!d.tick) return;
+    R_val = Math.min(1, d.R || 0);
+    document.getElementById('h-r').textContent    = d.R;
+    document.getElementById('h-psi').textContent  = d.psi;
+    document.getElementById('h-phi').textContent  = d.phi;
+    document.getElementById('h-m').textContent    = d.M;
+    document.getElementById('h-omega').textContent= d.omega;
+    document.getElementById('h-agents').textContent=d.agents;
+    document.getElementById('h-tick').textContent = d.tick;
+    document.getElementById('hw-tick').textContent= d.tick;
+  }catch(_){}
+};
+</script>
+</body>
+</html>
